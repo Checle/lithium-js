@@ -1,0 +1,22 @@
+{
+  "name": "record-js",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/record.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daluege/record-js.git"
+  },
+  "author": "Filip Dalüge <daluege@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/daluege/record-js/issues"
+  },
+  "homepage": "https://github.com/daluege/record-js#readme"
+}
