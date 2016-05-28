@@ -2,25 +2,20 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-function AVLTree(value, attr) {
-  this.init(value, attr);
+function Tree(value) {
+  this.node = value;
+  this.depth = 1;
 }
-
-AVLTree.prototype = {
+Tree.prototype = {
   left: null,
   right: null
 };
 
-AVLTree.prototype.init = function(value, next) {
-  this.node = { value: value || null, next: next || null };
-  this.depth = 1;
-};
-
-AVLTree.prototype.balance = function() {
+Tree.prototype.balance = function () {
   var ldepth = this.left  == null ? 0 : this.left.depth;
   var rdepth = this.right == null ? 0 : this.right.depth;
 
-  if (ldepth > rdepth + 1) {
+  if (ldepth > rdepth+1) {
     // LR or LL rotation
     var lldepth = this.left.left  == null ? 0 : this.left.left.depth;
     var lrdepth = this.left.right == null ? 0 : this.left.right.depth;
@@ -31,7 +26,7 @@ AVLTree.prototype.balance = function() {
       // plus a LL rotation of this value, which happens anyway
     }
     this.rotateLL();
-  } else if (ldepth + 1 < rdepth) {
+  } else if (ldepth+1 < rdepth) {
   // RR or RL rorarion
   var rrdepth = this.right.right == null ? 0 : this.right.right.depth;
   var rldepth = this.right.left  == null ? 0 : this.right.left.depth;
@@ -45,55 +40,54 @@ AVLTree.prototype.balance = function() {
   }
 };
 
-AVLTree.prototype.rotateLL = function() {
+Tree.prototype.rotateLL = function () {
   // the left side is too long => rotate from the left (_not_ leftwards)
-  var node = this.node;
+  var value = this.value;
   var right = this.right;
-  this.node = this.left.node;
+  this.value = this.left.value;
   this.right = this.left;
   this.left = this.left.left;
   this.right.left = this.right.right;
   this.right.right = right;
-  this.right.node = node;
+  this.right.value = value;
   this.right.updateInNewLocation();
   this.updateInNewLocation();
 };
 
-AVLTree.prototype.rotateRR = function() {
+Tree.prototype.rotateRR = function () {
   // the right side is too long => rotate from the right (_not_ rightwards)
-  var node = this.node;
+  var value = this.value;
   var left = this.left;
-  this.node = this.right.node;
+  this.value = this.right.value;
   this.left = this.right;
   this.right = this.right.right;
   this.left.right = this.left.left;
   this.left.left = left;
-  this.left.node = node;
+  this.left.value = value;
   this.left.updateInNewLocation();
   this.updateInNewLocation();
 };
 
-AVLTree.prototype.updateInNewLocation = function() {
+Tree.prototype.updateInNewLocation = function () {
   this.getDepthFromChildren();
 };
 
-AVLTree.prototype.getDepthFromChildren = function() {
-  this.depth = this.node == null ? 0 : 1;
-  if (this.left != null) {
-    this.depth = this.left.depth + 1;
-  }
-  if (this.right != null && this.depth <= this.right.depth) {
-    this.depth = this.right.depth + 1;
-  }
+Tree.prototype.getDepthFromChildren = function () {
+  this.depth = 1;
+  if (this.left != null) this.depth = this.left.depth+1;
+  if (this.right != null && this.depth <= this.right.depth) this.depth = this.right.depth+1;
 };
 
-AVLTree.prototype.add = function(value)  {
-  if (this.node.value == value) return false;
+Tree.prototype.add = function (value)  {
+  // Clone subtrees into own properties
+  if (this.left && !this.hasOwnProperty('left')) this.left = Object.create(this.left);
+  if (this.right && !this.hasOwnProperty('right')) this.right = Object.create(this.right);
+  if (this.value == value) return false;
 
   var ret = false;
-  if (value < this.node.value) {
+  if (value < this.value) {
     if (this.left == null) {
-      this.left = new AVLTree(value, this.node);
+      this.left = new Tree(value);
       ret = true;
     } else {
       ret = this.left.add(value);
@@ -101,8 +95,7 @@ AVLTree.prototype.add = function(value)  {
     }
   } else {
     if (this.right == null) {
-      this.right = new AVLTree(value, this.next);
-      this.node.next = this.right.node;
+      this.right = new Tree(value);
       ret = true;
     } else {
       ret = this.right.add(value);
@@ -114,15 +107,27 @@ AVLTree.prototype.add = function(value)  {
   return ret;
 };
 
-AVLTree.prototype.find = function(value) {
-  if (value < this.node.value) {
+Tree.prototype.contains = function (value) {
+  if (value < this.value) {
+    if (this.left) return this.left.contains(value);
+    return false;
+  }
+  if (value > this.value) {
+    if (this.right) return this.right.contains(value);
+    return false;
+  }
+  return true;
+};
+
+Tree.prototype.find = function (value) {
+  if (value < this.value) {
     if (this.left) return this.left.find(value);
     return null;
   }
-  if (value > this.node.value) {
-    if (this.right) return this.right.find(value) || this.node.value;
+  if (value > this.value) {
+    if (this.right) return this.right.find(value) || this.value;
   }
-  return this.node.value;
+  return this.value;
 };
 
-if (typeof module != 'undefined' && module) module.exports = AVLTree;
+if (typeof module != 'undefined' && module) module.exports = Tree;

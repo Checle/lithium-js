@@ -1,8 +1,8 @@
 var record = new function () {
   var DEBUG = true;
 
-  function Node(state, parent) {
-    var tree = new AVLTree, map = {}, value = null, stack = [];
+  function Node(state) {
+    var tree = new Tree, map = {}, head = null, value = null;
 
     Object.defineProperties(node, {
       valueOf: { value: function () { return value } },
@@ -16,43 +16,54 @@ var record = new function () {
 
     function node(input) {
       var string = String(input);
-      if (map.hasOwnProperty(string)) return map[string];
-      var root = tree.find(string);
-      if (root && string.substr(0, root.length) == root) return map[root](string.substr(root.length));
+      if (map.hasOwnProperty(string)) return map[string].node;
+      // Find greatest lesser node
+      var left = tree.find(string), previous = left ? map[left] : null;
+      // Delegate call to child node
+      if (left && string.substr(0, left.length) == left) return previous.call(node, string.substr(left.length));
 
-      var newState = state.apply(node, arguments);
-      var child = this[string] = new Node(string);
-      if (value == null || string < value) value = string;
-      map[string] = child;
+      var child = new Node(string), item = { node: child, next: head };
+      if (previous) {
+        item.next = previous.next;
+        previous.next = item;
+      } else {
+        head = item;
+        value = string;
+      }
+      map[string] = item;
       tree.add(string);
+      // Children are immortal within a scope
+      Object.defineProperty(node, { value: child });
       return child;
     }
   }
 
-  function machine(input) {
-    if (arguments.length == 1) {
-      //if (input instanceof Array) return machine.apply(this, input);
-    }
-  }
-
-  function broadcast(input) {
-
-  }
-
   function Machine(options, callback) {
     var system = {}, scope = {}, state = init;
-    return machine;
+    
+    this.record = record;
 
-    function machine(input) {
+    function record(input) {
       if (system.hasOwnProperty(input)) return system[input];
       var output = state.apply(scope, arguments);
       if (!output) return;
-      if (typeof output != 'function') output = machine(output);
-      if (typeof input == 'string' && arguments.length == 1) {
+      // TODO: remove recursion
+      if (typeof output == 'function') state = output;
+      else output = record(output);
+      if (typeof input == 'string' && typeof output == 'string' && arguments.length == 1) {
         system[input] = output;
         if (callback) callback(input, output);
       }
       return output;
+    }
+    function compile(input) {
+      if (typeof input == 'string' && arguments.length == 1) broadcast(input);
+      if (typeof input == 'function') state = input;
+      if (object == null) return null;
+      if (typeof object != 'function') object = new Function(object);
+      if (object instanceof Array) object = object.apply(this, object);
+      if (arguments.length > 1) return exec.call(this, object.apply(this, [].slice.call(arguments, 1)));
+      return object;
     }
     function init(input) {
       if (typeof input != 'function') state = new Function(input);
@@ -60,7 +71,35 @@ var record = new function () {
     }
   }
 
-  var record = new Machine(machine);
+  function stateMachine() {
+    // if key > left: insert
+    // else: select(key) return to state
+    //   getOwnPropertyDescriptor, for in, if prop instanceof Object: Object.create(prop)
+  }
+
+  function machine(input) {
+    this.root = new Node;
+    return exec;
+
+    function exec(input) {
+      var output = this.root.apply(this.root, arguments);
+      // TODO: work out
+      if (output instanceof Array) exec.apply(this, result);
+      if (typeof output == 'string') exec.call(this, output);
+    }
+  }
+  function set(key, value) {
+    localStorage[key] = value;
+    broadcast(key, value);
+  }
+  function broadcast(key, value) {
+  }
+
+  var machine = new Machine(machine, set);
+
+  function record() {
+    return machine.record.apply(machine, arguments);
+  }
   return record;
 
   var files = [], dict = { };
@@ -146,6 +185,9 @@ var record = new function () {
 
     });
   };
+
+
+  var hosts = ['record.network', location.hostname];
 
 }
 
