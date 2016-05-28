@@ -14,10 +14,8 @@ var record = new function () {
     }
     return node;
 
-    function node(string) {
-      // Input required to be primitive so the machine is deterministically reproducible
-      string = arguments[0] = String(string);
-
+    function node(input) {
+      var string = String(input);
       if (map.hasOwnProperty(string)) return map[string];
       var root = tree.find(string);
       if (root && string.substr(0, root.length) == root) return map[root](string.substr(root.length));
@@ -31,35 +29,38 @@ var record = new function () {
     }
   }
 
-  function Machine(options) {
-    var machine = new Node('', exec);
-
-    Object.defineProperties(machine, {
-      start: function (path) {
-        throw null;
-      },
-      stop: function (path) {
-        throw null;
-      },
-      branch: function () {
-        throw null;
-      }
-    });
-    if (DEBUG) {
-      machine.exec = exec;
-    }
-    return machine;
-
-    function exec(object) {
-      if (object == null) return null;
-      if (typeof object != 'function') object = new Function(object);
-      if (object instanceof Array) object = object.apply(this, object);
-      if (arguments.length > 1) return exec.call(this, object.apply(this, [].slice.call(arguments, 1)));
-      return object;
+  function machine(input) {
+    if (arguments.length == 1) {
+      //if (input instanceof Array) return machine.apply(this, input);
     }
   }
 
-  var record = new Machine();
+  function broadcast(input) {
+
+  }
+
+  function Machine(options, callback) {
+    var system = {}, scope = {}, state = init;
+    return machine;
+
+    function machine(input) {
+      if (system.hasOwnProperty(input)) return system[input];
+      var output = state.apply(scope, arguments);
+      if (!output) return;
+      if (typeof output != 'function') output = machine(output);
+      if (typeof input == 'string' && arguments.length == 1) {
+        system[input] = output;
+        if (callback) callback(input, output);
+      }
+      return output;
+    }
+    function init(input) {
+      if (typeof input != 'function') state = new Function(input);
+      else state = input;
+    }
+  }
+
+  var record = new Machine(machine);
   return record;
 
   var files = [], dict = { };
