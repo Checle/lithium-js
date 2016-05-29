@@ -4,27 +4,32 @@ var record = new function () {
   function Node(state) {
     return Branch(new Tree, {}, null, null, null);
 
-    function Branch(tree, map, head, value, last) {
+    function Branch(tree, map, head, value) {
       Object.defineProperties(node, {
         valueOf: { value: function () { return value } },
         toString: { value: function () { return value } }
       });
       if (DEBUG) {
-        node.tree = tree;
-        node.map = map;
+        node.log = function () { console.log(tree.toString()) };
       }
       return node;
 
       function node(input) {
-        // Function called as constructor
-        if (this instanceof node) return branch().apply(null, arguments);
+        // Called as constructor
+        if (this instanceof node) {
+          // TODO: fix/add defineProperty
+          var branch = Branch(Object.create(tree), Object.create(map));
+          tree = Object.create(tree);
+          map = Object.create(map);
+          return branch.apply(null, arguments);
+        }
         if (!arguments.length) return node;
 
         var string = String(input), item = map[string];
         if (item) {
           if (item.hasOwnProperty(string)) return item.node;
           // Clone node of inherited branch
-          if (item != Object.prototype[string]) return new item.node;
+          if (item != Object.prototype[string]) return map[string] = new item.node;
         }
         // Find greatest lesser node
         var left = tree.find(string), previous = left ? map[left] : null;
@@ -41,19 +46,12 @@ var record = new function () {
         }
         map[string] = item;
         tree.add(string);
-        // Nodes exist eternally within a branch
-        Object.defineProperty(node, string, {
-          get: function () { return node(string) },
-          set: function (value) { throw 'Not implemented' }
-        });
         return child;
-      }
-      function branch() {
-        return Branch(Object.create(tree), Object.create(map));
       }
     }
   }
 
+  var Record = new Node, record = new Record;
   return new Node(null);
 
   function Machine(options, callback) {
