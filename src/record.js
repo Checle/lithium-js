@@ -1,48 +1,67 @@
 var record = new function () {
-  function System(callback) {
-    return Node();
+  function System() {
+    Node.prototype = {
+      tree: new Tree,
+      map: {},
+      object: {},
+      record: null
+    };
 
-    function Node(state, parent) {
-      return Branch(new Tree, {});
+    return new Node;
 
-      function Branch(tree, map, head, value) {
-        Object.defineProperties(node, {
-          valueOf: { value: function () { return value } },
-          toString: { value: function () { return value } }
-        });
-        return node;
+    function Node() {
+      var node = this;
+      this.tree = new Tree;
+      this.map = {};
+      this.object = {};
 
-        function node(input) {
-          if (this instanceof node) {
-            var branch = Branch(Object.create(tree), Object.create(map), parent, head, value);
-            tree = Object.create(tree);
-            map = Object.create(map);
-            return branch.apply(null, arguments);
-          }
-          if (!arguments.length) return node;
+      Object.defineProperties(record, {
+        valueOf: { value: function () { return node.value } },
+        toString: { value: function () { return node.value } }
+      }); 
+      if (record.__proto__) record.__proto__ = this.object;
+      else Object.setPrototypeOf(record, this.object);
+      return this.record = record;
 
-          var string = String(input), child = map[string];
-          if (child) {
-            if (child.hasOwnProperty(string)) return child;
-            else if (child != Object.prototype[string]) {
-              var child = map[string] = new child;
-              if (value == string) head = child;
-            }
-          }
-          var left = tree.find(string), previous = left ? map[left] : null;
-          if (left && string.substr(0, left.length) == left) return previous.call(node, string.substr(left.length));
-
-          var child = Node(string, node);
-          if (!previous) {
-            head = child;
-            value = string;
-          }
-          map[string] = child;
-          tree.add(string);
-          if (callback) callback(node, string);
-          return child;
+      function record(input) {
+        if (this instanceof record) {
+          var sibling = Object.create(node);
+          sibling.tree = node.tree;
+          sibling.map = node.map;
+          sibling.object = node.object;
+          branch(node);
+          branch(sibling);
+          if (arguments.length) return sibling.apply(null, arguments);
+          return sibling;
         }
+
+        var string = String(input), child = node.map[string];
+        if (child) {
+          if (child.hasOwnProperty(string)) return child;
+          else if (child != Object.prototype[string]) {
+            var child = node.map[string] = new child;
+            if (node.value == string) node.head = child;
+          }
+        }
+        var left = node.tree.find(string), previous = left ? node.map[left] : null;
+        if (left && string.substr(0, left.length) == left) return previous.call(record, string.substr(left.length));
+
+        var child = new Node(string, node);
+        if (!previous) {
+          node.head = child;
+          node.value = string;
+        }
+        node.map[string] = child;
+        node.tree.add(string);
+        Object.defineProperty(node.object, string, { value: node.record });
+        return child;
       }
+    }
+    function branch(node) {
+      node.tree = Object.create(node.tree);
+      node.map = Object.create(node.map);
+      if (record.__proto__) record.__proto__ = Object.create(record.__proto__);
+      else Object.setPrototypeOf(node.object, node.object = Object.create(Object.getPrototypeOf(record)));
     }
   }
 
