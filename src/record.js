@@ -2,41 +2,59 @@ var record = new function () {
   var DEBUG = true;
 
   function Node(state) {
-    var tree = new Tree, map = {}, head = null, value = null;
+    return Branch(new Tree, {}, null, null, null);
 
-    Object.defineProperties(node, {
-      valueOf: { value: function () { return value } },
-      toString: { value: function () { return value } }
-    });
-    if (DEBUG) {
-      node.tree = tree;
-      node.map = map;
-    }
-    return node;
-
-    function node(input) {
-      var string = String(input);
-      if (map.hasOwnProperty(string)) return map[string].node;
-      // Find greatest lesser node
-      var left = tree.find(string), previous = left ? map[left] : null;
-      // Delegate call to child node
-      if (left && string.substr(0, left.length) == left) return previous.call(node, string.substr(left.length));
-
-      var child = new Node(string), item = { node: child, next: head };
-      if (previous) {
-        item.next = previous.next;
-        previous.next = item;
-      } else {
-        head = item;
-        value = string;
+    function Branch(tree, map, head, value, last) {
+      Object.defineProperties(node, {
+        valueOf: { value: function () { return value } },
+        toString: { value: function () { return value } }
+      });
+      if (DEBUG) {
+        node.tree = tree;
+        node.map = map;
       }
-      map[string] = item;
-      tree.add(string);
-      // Children are immortal within a scope
-      Object.defineProperty(node, { value: child });
-      return child;
+      return node;
+
+      function node(input) {
+        // Function called as constructor
+        if (this instanceof node) return branch().apply(null, arguments);
+        if (!arguments.length) return node;
+
+        var string = String(input), item = map[string];
+        if (item) {
+          if (item.hasOwnProperty(string)) return item.node;
+          // Clone node of inherited branch
+          if (item != Object.prototype[string]) return new item.node;
+        }
+        // Find greatest lesser node
+        var left = tree.find(string), previous = left ? map[left] : null;
+        // Delegate call to owner
+        if (left && string.substr(0, left.length) == left) return previous.call(node, string.substr(left.length));
+
+        var child = Node(string), next = previous ? previous.next : head;
+        item = { node: child, next: head, tree: tree, map: map };
+        if (previous) {
+          previous.next = item;
+        } else {
+          head = item;
+          value = string;
+        }
+        map[string] = item;
+        tree.add(string);
+        // Nodes exist eternally within a branch
+        Object.defineProperty(node, string, {
+          get: function () { return node(string) },
+          set: function (value) { throw 'Not implemented' }
+        });
+        return child;
+      }
+      function branch() {
+        return Branch(Object.create(tree), Object.create(map));
+      }
     }
   }
+
+  return new Node(null);
 
   function Machine(options, callback) {
     var system = {}, scope = {}, state = init;

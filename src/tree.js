@@ -3,7 +3,7 @@
 // Modified by Jeremy Stephens.
 
 function Tree(value) {
-  this.node = value;
+  this.value = value;
   this.depth = 1;
 }
 Tree.prototype = {
@@ -128,6 +128,10 @@ Tree.prototype.find = function (value) {
     if (this.right) return this.right.find(value) || this.value;
   }
   return this.value;
+};
+
+Tree.prototype.toString = function () {
+  return '['+this.left+','+this.value+','+this.right+']';
 };
 
 if (typeof module != 'undefined' && module) module.exports = Tree;
