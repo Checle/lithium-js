@@ -1,66 +1,61 @@
 var record = new function () {
-  var DEBUG = true;
+  function System(callback) {
+    return Node();
 
-  function Node(state) {
-    return Branch(new Tree, {}, null, null, null);
+    function Node(state, parent) {
+      return Branch(new Tree, {});
 
-    function Branch(tree, map, head, value) {
-      Object.defineProperties(node, {
-        valueOf: { value: function () { return value } },
-        toString: { value: function () { return value } }
-      });
-      if (DEBUG) {
-        node.log = function () { console.log(tree.toString()) };
-      }
-      return node;
+      function Branch(tree, map, head, value) {
+        Object.defineProperties(node, {
+          valueOf: { value: function () { return value } },
+          toString: { value: function () { return value } }
+        });
+        return node;
 
-      function node(input) {
-        // Called as constructor
-        if (this instanceof node) {
-          // TODO: fix/add defineProperty
-          var branch = Branch(Object.create(tree), Object.create(map));
-          tree = Object.create(tree);
-          map = Object.create(map);
-          return branch.apply(null, arguments);
+        function node(input) {
+          if (this instanceof node) {
+            var branch = Branch(Object.create(tree), Object.create(map), parent, head, value);
+            tree = Object.create(tree);
+            map = Object.create(map);
+            return branch.apply(null, arguments);
+          }
+          if (!arguments.length) return node;
+
+          var string = String(input), child = map[string];
+          if (child) {
+            if (child.hasOwnProperty(string)) return child;
+            else if (child != Object.prototype[string]) {
+              var child = map[string] = new child;
+              if (value == string) head = child;
+            }
+          }
+          var left = tree.find(string), previous = left ? map[left] : null;
+          if (left && string.substr(0, left.length) == left) return previous.call(node, string.substr(left.length));
+
+          var child = Node(string, node);
+          if (!previous) {
+            head = child;
+            value = string;
+          }
+          map[string] = child;
+          tree.add(string);
+          if (callback) callback(node, string);
+          return child;
         }
-        if (!arguments.length) return node;
-
-        var string = String(input), item = map[string];
-        if (item) {
-          if (item.hasOwnProperty(string)) return item.node;
-          // Clone node of inherited branch
-          if (item != Object.prototype[string]) return map[string] = new item.node;
-        }
-        // Find greatest lesser node
-        var left = tree.find(string), previous = left ? map[left] : null;
-        // Delegate call to owner
-        if (left && string.substr(0, left.length) == left) return previous.call(node, string.substr(left.length));
-
-        var child = Node(string), next = previous ? previous.next : head;
-        item = { node: child, next: head, tree: tree, map: map };
-        if (previous) {
-          previous.next = item;
-        } else {
-          head = item;
-          value = string;
-        }
-        map[string] = item;
-        tree.add(string);
-        return child;
       }
     }
   }
 
-  var Record = new Node, record = new Record;
-  return new Node(null);
+  function a(a,b) { alert(a); }
+  var Record = new System(a), record = new Record;
+  Record("ssjsj");
+  return Record;
 
   function Machine(options, callback) {
     var system = {}, scope = {}, state = init;
-    
-    this.record = record;
+    return machine;
 
-    function record(input) {
-      if (system.hasOwnProperty(input)) return system[input];
+    function machine(input) {
       var output = state.apply(scope, arguments);
       if (!output) return;
       // TODO: remove recursion
@@ -72,36 +67,21 @@ var record = new function () {
       }
       return output;
     }
-    function compile(input) {
-      if (typeof input == 'string' && arguments.length == 1) broadcast(input);
-      if (typeof input == 'function') state = input;
-      if (object == null) return null;
-      if (typeof object != 'function') object = new Function(object);
-      if (object instanceof Array) object = object.apply(this, object);
-      if (arguments.length > 1) return exec.call(this, object.apply(this, [].slice.call(arguments, 1)));
-      return object;
-    }
     function init(input) {
       if (typeof input != 'function') state = new Function(input);
       else state = input;
     }
   }
 
-  function stateMachine() {
-    // if key > left: insert
-    // else: select(key) return to state
-    //   getOwnPropertyDescriptor, for in, if prop instanceof Object: Object.create(prop)
-  }
-
   function machine(input) {
-    this.root = new Node;
+    var node = new Node;
     return exec;
 
     function exec(input) {
-      var output = this.root.apply(this.root, arguments);
-      // TODO: work out
-      if (output instanceof Array) exec.apply(this, result);
-      if (typeof output == 'string') exec.call(this, output);
+      var output = node.apply(node, arguments);
+      if (output instanceof Array) return exec.apply(this, result);
+      if (typeof output == 'string') return output;
+
     }
   }
   function set(key, value) {
