@@ -1,0 +1,19 @@
+{
+  "name": "r.js",
+  "version": "0.0.1",
+  "description": "Record tree for JavaScript",
+  "main": "src/r.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/checle/r.js.git"
+  },
+  "author": "Filip Dalüge <daluege@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/checle/r.js/issues"
+  },
+  "homepage": "https://github.com/checle/r.js#readme"
+}
