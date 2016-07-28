@@ -4,8 +4,12 @@
   "description": "Record tree for JavaScript",
   "main": "src/r.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./test.sh"
   },
+  "bin": {
+    "record": "bin/record.js"
+  },
+  "preferGlobal": "true",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/checle/r.js.git"
