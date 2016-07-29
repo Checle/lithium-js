@@ -4,7 +4,7 @@
   "description": "Record tree for JavaScript",
   "main": "src/r.js",
   "scripts": {
-    "test": "./test.sh"
+    "test": "cd test && ./cli.sh"
   },
   "bin": {
     "record": "bin/record.js"

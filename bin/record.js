@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-var Record = require('r.js');
+var Record = require('../src/r.js');
 
 var record = new Record();
 

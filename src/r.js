@@ -1,6 +1,5 @@
 function Record() {
   function record() {
-
   }
   return record;
 }
