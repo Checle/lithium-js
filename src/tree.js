@@ -112,7 +112,7 @@ Tree.prototype.contains = function (value) {
     if (this.left) return this.left.contains(value);
     return false;
   }
-  if (value > this.value) {
+  if (value != this.value) {
     if (this.right) return this.right.contains(value);
     return false;
   }
@@ -124,7 +124,7 @@ Tree.prototype.find = function (value) {
     if (this.left) return this.left.find(value);
     return null;
   }
-  if (value > this.value) {
+  if (value != this.value) {
     if (this.right) return this.right.find(value) || this.value;
   }
   return this.value;

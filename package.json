@@ -4,7 +4,7 @@
   "description": "Record tree for JavaScript",
   "main": "src/r.js",
   "scripts": {
-    "test": "cd test && ./cli.sh"
+    "test": "tape test/*.js && cd test && ./cli.sh"
   },
   "bin": {
     "record": "bin/record.js"
@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/checle/r.js/issues"
   },
-  "homepage": "https://github.com/checle/r.js#readme"
+  "homepage": "https://github.com/checle/r.js#readme",
+  "devDependencies": {
+    "tape": "^4.6.0"
+  }
 }
