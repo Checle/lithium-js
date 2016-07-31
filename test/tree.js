@@ -1,5 +1,4 @@
 var test = require('tape');
-
 var Tree = require('../src/tree.js');
 
 test('Tree.contains', (t) => {

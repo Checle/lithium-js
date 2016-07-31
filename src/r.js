@@ -1,208 +1,176 @@
+var Tree = require('./tree.js');
+
+if (!Object.setPrototypeOf && '__proto__' in Object.prototype) {
+  Object.setPrototypeOf = function setPrototypeOf(obj, prototype) {
+    obj.__proto__ = prototype;
+    return obj;
+  }
+}
+
 var record = new function () {
-  function System() {
-    Node.prototype = {
-      tree: new Tree,
-      map: {},
-      object: {},
-      record: null
+
+  function Record(key, owner) {
+    console.log('Record', [].slice.call(arguments));
+    var self = this;
+    // Instantiate inherited properties
+    this.tree = Object.create(this.tree);
+    this.map = Object.create(this.map);
+    this.key = key != null ? key : '';
+    this.owner = owner;
+
+    // Create accessor
+    this.accessor = function record() {
+      console.log('record', [].slice.call(arguments));
+      if (this instanceof arguments.callee) {
+      }
+      return self.exec.apply(self, arguments);
     };
-
-    return new Node;
-
-    function Node() {
-      var node = this;
-      this.tree = new Tree;
-      this.map = {};
-      this.object = {};
-
-      Object.defineProperties(record, {
-        valueOf: { value: function () { return node.value } },
-        toString: { value: function () { return node.value } }
-      }); 
-      if (record.__proto__) record.__proto__ = this.object;
-      else Object.setPrototypeOf(record, this.object);
-      return this.record = record;
-
-      function record(input) {
-        if (this instanceof record) {
-          var sibling = Object.create(node);
-          sibling.tree = node.tree;
-          sibling.map = node.map;
-          sibling.object = node.object;
-          branch(node);
-          branch(sibling);
-          if (arguments.length) return sibling.apply(null, arguments);
-          return sibling;
-        }
-
-        var string = String(input), child = node.map[string];
-        if (child) {
-          if (child.hasOwnProperty(string)) return child;
-          else if (child != Object.prototype[string]) {
-            var child = node.map[string] = new child;
-            if (node.value == string) node.head = child;
-          }
-        }
-        var left = node.tree.find(string), previous = left ? node.map[left] : null;
-        if (left && string.substr(0, left.length) == left) return previous.call(record, string.substr(left.length));
-
-        var child = new Node(string, node);
-        if (!previous) {
-          node.head = child;
-          node.value = string;
-        }
-        node.map[string] = child;
-        node.tree.add(string);
-        Object.defineProperty(node.object, string, { value: node.record });
-        return child;
-      }
-    }
-    function branch(node) {
-      node.tree = Object.create(node.tree);
-      node.map = Object.create(node.map);
-      if (record.__proto__) record.__proto__ = Object.create(record.__proto__);
-      else Object.setPrototypeOf(node.object, node.object = Object.create(Object.getPrototypeOf(record)));
-    }
-  }
-
-  function a(a,b) { alert(a); }
-  var Record = new System(a), record = new Record;
-  Record("ssjsj");
-  return Record;
-
-  function Machine(options, callback) {
-    var system = {}, scope = {}, state = init;
-    return machine;
-
-    function machine(input) {
-      var output = state.apply(scope, arguments);
-      if (!output) return;
-      // TODO: remove recursion
-      if (typeof output == 'function') state = output;
-      else output = record(output);
-      if (typeof input == 'string' && typeof output == 'string' && arguments.length == 1) {
-        system[input] = output;
-        if (callback) callback(input, output);
-      }
-      return output;
-    }
-    function init(input) {
-      if (typeof input != 'function') state = new Function(input);
-      else state = input;
-    }
-  }
-
-  function machine(input) {
-    var node = new Node;
-    return exec;
-
-    function exec(input) {
-      var output = node.apply(node, arguments);
-      if (output instanceof Array) return exec.apply(this, result);
-      if (typeof output == 'string') return output;
-
-    }
-  }
-  function set(key, value) {
-    localStorage[key] = value;
-    broadcast(key, value);
-  }
-  function broadcast(key, value) {
-  }
-
-  var machine = new Machine(machine, set);
-
-  function record() {
-    return machine.record.apply(machine, arguments);
-  }
-  return record;
-
-  var files = [], dict = { };
-  
-  this.open = function (path, flags, mode, callback) {
-    var fd = files.length, object = dict.hasOwnProperty(path) && dict[path],
-      data = object ? object.data : '', offset = 0, pending = 0,
-      output = [], r, w, a, s;
-    if (!/^(?:[wa]x?|rs?)\+?$/.test(flags)) return call(callback, { message: 'Bad flags' });
-    if (/w|r\+/.test(flags)) w = true;
-    if (/r|\+/.test(flags)) r = true;
-    if (/s/.test(flags)) s = true;
-    if (/a/.test(flags)) a = true;
-    if (/x/.test(flags) && object) return call(callback, { type: 'EEXISTS' });
-    if (/r/.test(flags) && !object) return call(callback, { type: 'ENOENT' });
-
-    files[fd] = {
-      read: read,
-      write: write,
-      close: close
-    };
-    call(callback, null, fd);
-
-    function sync() {
-      if (!output.length) return;
-      if (a) data += output.join('');
-      else data = data.substr(0, offset)+output.join('')+data.substr(offset+pending);
-      offset += pending;
-      pending = 0;
-      output = [];
-    }
-    function read(count, callback) {
-      if (!r) return call(callback, { type: 'EBADF' });
-      sync();
-      var buffer = data.substr(offset, count);
-      offset += count;
-      if (offset > data.length) offset = data.length;
-      call(callback, null, buffer);
-    }
-    function write(data, callback) {
-      if (!w && !a) return call(callback, { type: 'EBADF' });
-      output.push(data);
-      pending += data.length;
-      call(callback, null, data.length, data);
-    }
-    function close() {
-      sync();
-      call(callback, null);
-      if (data > object.data) object.data = data;
-      /*
-        dict[path] = {
-          data: data,
-          next: object,
-          child: null,
-          parent: object.parent
-        };
-      }
-      if (data < object.data) {
-        for (var next = object; data < next.)
-      }
-    */
-    }
-
-    function call(callback) {
-      if (typeof callback != 'function') return;
-      var args = [].slice.call(arguments, 1);
-      setTimeout(function () { callback.apply(null, args); }, 0);
-    }
-  };
-
-  function bind(method) {
-    return function (fd) {
-      if (!files.hasOwnProperty(fd)) return callback({ message: 'Bad file descriptor' });
-      files[fd][method].apply(this, [].slice.call(arguments, 1));
-    }
-  }
-  this.write = bind('write');
-  this.read = bind('read');
-  this.close = bind('close');
-  this.exec = function (command, options, callback) {
-    this.open(command, function (err, fd) {
-      if (err) return callback(err);
-
+    this.accessor._ = this;
+    // Rebase accessor
+    if (Object.setPrototypeOf) Object.setPrototypeOf(this.accessor, this.map);
+    Object.defineProperties(this.accessor, {
+      valueOf: { value: function () { return self.key; } },
+      toString: { value: this.getPath.bind(this) }
     });
+
+    return this.accessor;
+  }
+  Record.callee = null;
+  var map = new String;
+  Record.prototype = {
+    tree: new Tree,
+    map: function () { }, // Inherits from function so it can be inserted into the accessor's prototype chain
+    key: '', // Inmutable nodal portion of path
+    owner: null,
+    accessor: null,
+    caller: null, // Calling node of the current transformation
+    target: null, // Greatest descendant node
+    transformed: false,
+
+    getPath: function () {
+      if (!this.owner) return this.key;
+      var path = this.owner.getPath();
+      return this.owner.target == this.accessor ? path : path+this.key;
+    },
+    branch: function () {
+      console.log('branch', [].slice.call(arguments));
+      var branch = Object.create(this);
+      Record.call(branch, this.key, this.owner);
+      return branch;
+    },
+    exec: function (input) {
+      console.log('exec', [].slice.call(arguments));
+      this.caller = Record.callee;
+      Record.callee = this;
+      try {
+        // Carry out execution in a branch and resolve result to function
+        // FIXME: only branch when content is written (function write)
+        var branch = this.branch();
+        this.target = this.resolve.apply(branch, arguments);
+
+        // Promote new branch to parent if the transition has been successful
+        if (this.owner && this.key != null) {
+          // FIXME: rely on paths, not pointers!
+          this.owner.map[this.key] = branch.accessor;
+          if (this.owner.target == this.accessor) this.owner.target = branch.accessor;
+        }
+
+        return this.accessor;
+      }
+      finally {
+        Record.callee = this.caller;
+      }
+    },
+    resolve: function (input) {
+      console.log('resolve', [].slice.call(arguments));
+      var target = this.write.apply(this, arguments);
+
+      if (typeof target == 'function') return target;
+      if (target instanceof Array) return this.resolve.apply(this, target);
+      if (target != null) return this.resolve.call(this, target);
+
+      // The target remains unchanged if nothing is returned
+      return this.target;
+    },
+    get: function (key) {
+      key = String(key);
+      console.log('get', [].slice.call(arguments));
+      var child = this.map[key];
+      if (!child) return;
+
+      // Return a child owned by the current branch
+      if (child.hasOwnProperty(key)) return child;
+
+      // Child inherited from the parent branch
+      if (child !== Record.prototype.map[key]) {
+        // Copy child of the predecessing branch
+        return this.map[key] = child.branch();
+      }
+    },
+    add: function (key) {
+      console.log('add', [].slice.call(arguments));
+      key = String(key);
+      var child = new Record(key, this);
+      this.map[key] = child;
+      this.tree.add(key);
+      return child;
+    },
+    accept: function (input) {
+      console.log('accept', [].slice.call(arguments));
+      if (arguments.length > 1) {
+        return this.accept(input)(Array.prototype.slice.call(arguments, 1));
+      }
+      if (typeof input == 'function') {
+        return Function.prototype.bind.call(input, this.accessor);/*function () {
+
+        }.bind(this);*/ 
+      }
+      else if (input != null) {
+        // Adding a key returns into its scope
+        return this.add(input);
+      }
+    },
+    write: function (input) {
+      console.log('write', [].slice.call(arguments));
+      if (arguments.length == 0) throw new Error("Called with 0 arguments"); //return this.value;
+
+      var args = Array.prototype.slice.call(arguments);
+
+      if (input != null && typeof input != 'function') {
+        var key = String(input), child = this.get(key);
+
+        // Pass on remaining arguments to child if exists
+        if (child) return child.exec.apply(child, args.slice(1));
+
+        // Get closest lesser sibling
+        var match = this.tree.find(key);
+
+        // Slice and delegate tail if prefix matches an existing successor
+        if (match && key.substr(0, match.length) == match) {
+          // Cut off prefix
+          args[0] = key.substr(match.length);
+          return this.get(key).apply(child, args);
+        }
+
+        // Create atomic child visible within scope of branch
+        // Branch disappears when error is thrown on transform
+        child = this.add(key);
+      }
+
+      // Reiteration of target is skipped if the child is created by target
+      if (this.caller == this) {
+        return this.accept.apply(this, arguments);
+      }
+
+      // Input not routed, so perform transition
+      if (this.target) var target = this.target.apply(this.accessor, arguments);
+      else target = this.accept.apply(this, arguments);
+      this.transformed = true;
+      return target;
+    }
   };
 
-
-  var hosts = ['record.network', location.hostname];
+  return new Record;
 
 }
 
