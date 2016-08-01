@@ -1,7 +1,9 @@
 var test = require('tape');
-var record = require('../src/record.js');
+var Record = require('../src/record.js');
 
 test('record', (t) => {
+
+  var record = new Record; // Creates a branch without existing target
 
   record(() => undefined); // Function that accepts anything
 
@@ -11,6 +13,9 @@ test('record', (t) => {
   var content = {}, func = block(() => content);
   t.equal(func(), content);
   t.equal(record('block')(), content);
+
+  // record('/test/', () => this); // this == record == Record.context
+  // record('/test/')(() => this); // this == record('/test/') == Record.context
 
   var dir = record('/test/', () => this); // Function that remains in its scope
   dir('file0');
@@ -33,15 +38,32 @@ test('record', (t) => {
   record('/test/file0/', '..', dir); // Directory link
   t.equal(record('/test/file2/..')()(), true);
 
+  var square = record('/test/square', (a) => a*a);
+  t.equal(square(3).valueOf(), 9);
+  t.equal(square()(), 9);
+
+  // Create symbolic links
+  record('/test/', (filename, content) {
+    this(filename, () => this);
+    this(filename)('.', this);
+    this(filename, content);
+  });
+  var log = record('/test/log')((msg) => { this('./logfile', msg) });
+
   // FIXME
   // Add a new block: branches target
-  block(() => this); // Blocks constitute a sequence of equal levels
+  var block = record('block', (id, handler) => this); // Blocks constitute a sequence of equal levels
   block(1); // Create an initial block
   block(2);
   record('advanced', 1); // Record top-level entity
   t.equal(record('advanced').valueOf(), 1);
   t.equal(block(2)('advanced').valueOf(), 1);
   t.deepLooseEqual(block(1)('advanced').valueOf(), null);
+
+  var record = new Record;
+  record('1');
+  record('2');
+  t.throws(() => record('0')); // Strings without acceptor should validate if greater than predecessor
 
   t.end();
 });
