@@ -7,11 +7,11 @@ test('record', (t) => {
   record((name) => undefined); // Function that accepts anything
 
   t.test('function result', (t) => {
-    function handler(a) { 2*a }
+    function handler(a) { return 2*a }
     var result = new Record()(handler);
 
     t.notEqual(result, handler, 'should be encapsulated');
-    t.equal(result(8), handler(8), 'should return same result as the handler');
+    t.equal(handler(8), result(8).valueOf(), 'should return same result as the handler');
 
     record('input', 'block', () => undefined);
     var value1 = record('input', 'block')().valueOf();
@@ -41,7 +41,7 @@ test('record', (t) => {
       existingValue = record('http://google.com')();
 
     t.equal(key.toString(), 'http://google.com', 'should return the uppermost identifier');
-    t.notEqual(key.valueOf(), value, 'should not return newly created value atoms nor the last argument');
+    t.notEqual(key.valueOf(), value, 'should neither return newly created value atoms nor the last argument');
     t.equal(value.valueOf(), value, 'should give access to a value when called in a separate context');
     t.equal(existingValue.valueOf(), value, 'should behave equally when existing values are selected');
     t.equal(existingValue.valueOf(), 'http://google.com', 'should behave equally with multiple existing arguments');
@@ -57,13 +57,13 @@ test('record', (t) => {
     change('/');
     t.throws(() => record('http://', 'change.org', '\n'), Error, 'should not accept values that compare lesser');
     t.doesNotThrow(() => record('http://', 'change.org', '?'), null, 'should accept values that do not compare lesser');
-    t.doesNotThrow(() => acceptor = record('http://', 'change.org', () => ':'), null, 'should accept functions over strings')
+    t.doesNotThrow(() => acceptor = record('http://', 'change.org', () => ':'), null, 'should accept functions on strings')
     t.equal(record('http://change.org').valueOf(), ':', 'should install functions as acceptor');
 
     abc('/');
-    t.doesNotThrow(() => acceptor = record('http://', 'abc.xyz', {}), null, 'should accept objects over strings')
-    t.doesNotThrow(() => acceptor = record('http://', 'abc.xyz', () => ':'), null, 'should accept functions over objects')
-    t.doesNotThrow(() => acceptor = record('http://', 'abc.xyz', {}), null, 'should not accept objects over functions')
+    t.doesNotThrow(() => acceptor = record('http://', 'abc.xyz', {}), null, 'should accept objects on strings')
+    t.doesNotThrow(() => acceptor = record('http://', 'abc.xyz', () => ':'), null, 'should accept functions on objects')
+    t.doesNotThrow(() => acceptor = record('http://', 'abc.xyz', {}), null, 'should not accept objects on functions')
     t.end();
   });
 
