@@ -3,12 +3,29 @@ var Record = require('../src/r.js');
 
 test('record', (t) => {
 
-  var record = new Record; // Creates a branch without existing target
-  record((name) => undefined); // Function that accepts anything
+  t.test('installation and selection', (t) => {
+    // TODO: test target = null here
+    var record = new Record; // Creates a branch without existing target
+
+    var version;
+    t.doesNotThrow(() => version = record('chx', 'version', 1), null, 'should accept a lesser key within the same calling context');
+    t.throws(() => record('chx', 'version', 0), null, 'should not accept a lesser key than an existing one from a previous context');
+    t.doesNotThrow(() => record('chx', 'version', 2), null, 'should accept a greater key');
+    t.throws(() => record('paypal.com', 'version')(0), null, 'should not accept a lesser key on an existing context by default');
+
+    var installation = record('weather', 'today'),
+      selection = record('weather', 'today'),
+      reselection = record('weather', 'today');
+    t.equal(installation, selection, 'should have equal values');
+    t.equal(selection, reselection, 'should return the installed record on subsequent calls');
+    t.end();
+  });
 
   t.test('function result', (t) => {
+    var record = new Record;
+
     function handler(a) { return 2*a }
-    var result = new Record()(handler);
+    var result = record(handler);
 
     t.notEqual(result, handler, 'should be encapsulated');
     t.equal(handler(8), result(8).valueOf(), 'should return same result as the handler');
@@ -22,18 +39,9 @@ test('record', (t) => {
     t.end();
   });
 
-  t.test('installation and selection', (t) => {
-    var record = new Record,
-      installation = record('weather', 'today'),
-      selection = record('weather', 'today'),
-      reselection = record('weather', 'today');
-
-    t.equal(installation, selection, 'should have equal values');
-    t.equal(selection, reselection, 'should return the installed record on subsequent calls');
-    t.end();
-  });
-
   t.test('call arguments', (t) => {
+    var record = new Record;
+
     var value = 24713308211,
       key = record('http://google.com', value),
       existingKey = record('http://google.com', value),
@@ -49,6 +57,8 @@ test('record', (t) => {
   });
 
   t.test('order relation and target overriding', (t) => {
+    var record = new Record;
+
     var acceptor,
       change = record('http://', 'change.org'),
       abc = record('http://', 'abc.xyz');
@@ -68,6 +78,8 @@ test('record', (t) => {
   });
 
   t.test('argument hierarchy', (t) => {
+    var record = new Record;
+
     var search1 = record('http://', 'www.google.com', () => this, '/search');
     var search2 = record('http://', 'www.google.com', '/search');
     var search3 = record('http://www.google.com/search');
@@ -80,6 +92,8 @@ test('record', (t) => {
   });
 
   t.test('path and value', (t) => {
+    var record = new Record;
+
     var bin = record('/usr', '/bin');
     var etc = record('/usr', '/etc');
 
@@ -91,7 +105,10 @@ test('record', (t) => {
   });
 
   t.test('branch', (t) => {
-    var block = new Record('block', true);
+    var record = new Record;
+
+    record((name) => undefined); // Function that accepts anything
+    var block = record('block', true);
     t.notEqual(Record('block').valueOf(), block.valueOf(), 'should not affect the underlying tree');
 
     t.test('block', (t) => {
@@ -101,4 +118,5 @@ test('record', (t) => {
     t.end();
   });
   t.end();
+
 });

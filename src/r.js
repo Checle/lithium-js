@@ -12,8 +12,8 @@ if (!Object.setPrototypeOf && '__proto__' in Object.prototype) {
 var record = new function () {
 
   var context, // Context record of execution (cf. POSIX current working directory)
-    caller,
-    callee;
+    called,
+    caller;
 
   function Record() {
     var self = this;
@@ -23,7 +23,6 @@ var record = new function () {
 
     // Copy inherited pointers
     this.target = this.target;
-    this.context = this.context || context;
 
     // Create accessor
     this.accessor = Record;
@@ -44,13 +43,13 @@ var record = new function () {
 
     function Record() {
       if (this instanceof Record) { // Instantiated with `new` operator
-        // TODO: arguments
+        if (arguments.length > 0) throw Error('Not implemented');
         return self.branch().accessor;
       }
 
       var args = Array.prototype.slice.call(arguments);
       var branch = self;
-      if (callee != self) {
+      if (caller != self) {
         // Carry out any write executions in a branch
         branch = self.branch();
       }
@@ -94,7 +93,6 @@ var record = new function () {
         input = this.exec(input); // May install a function as target // TODO: change to input function
       }
       if (typeof input != 'function') {
-        // Undefined input (no arguments) returns value ''
         var value = keyOf(input), child = this.get(value);
         if (child) {
           if (!annex.length) return child.accessor;
@@ -109,7 +107,8 @@ var record = new function () {
       }
 
       // New input issued by the current target itself, skip reiteration
-      if (callee == this) {
+      // Current record created in current context, skip verification
+      if (caller == this || context == this.context) {
         // TODO: test hasOwnProperty
         var record = this.create(input);
         if (annex.length) record.exec(annex);
@@ -117,33 +116,37 @@ var record = new function () {
       }
 
       // Input not routed
-      caller = callee;
-      callee = this;
+      called = caller;
+      caller = this;
       try {
         // Verify new targets against default constraints
         var target = this.target;
+
         if (!target) {
-          target = this.accept(input).accessor;
-          args.shift();
+          // Check input against default constraints
+          var child = this.accept(input);
+          // Execute pending input within existing context
+          if (annex.length > 0) target = child.exec(annex);
         }
- 
-        // Perform transition
-        if (args.length > 0) target = target.apply(null, args);
+        else {
+          // Perform transition in target context
+          // TODO: consider limiting arguments to target.length and reiterate
+          target = target.apply(null, args);
+        }
 
         if (target === false) throw new RangeError(this.accessor+' returned false');
-        if (target == null) {
-          target = args;
-        }
+        if (target == null) target = args;
 
-        if (typeof target != 'function') return context.exec([target]);
+        if (typeof target != 'function') return this.exec([target]);
         return target;
       }
       finally {
-        callee = caller;
+        caller = called;
       }
     },
     accept: function (target) {
       var value = target != null ? target.valueOf() : target;
+      if (!(value instanceof Object)) value = keyOf(value);
       if (value <= this.value) throw new RangeError(typeof value+' '+value+' not greater than '+typeof this.value+' '+this.value);
       return this.create(target);
     },
@@ -156,7 +159,7 @@ var record = new function () {
       child.value = value;
       child.owner = this;
       child.context = context;
-      if (this.map[key] == this.target) this.target = child;
+      if (this.map[key] == this.target) this.target = child.accessor;
       this.map[key] = child;
       return child;
     },
@@ -178,6 +181,7 @@ var record = new function () {
   return new Record().accessor;
 
   function keyOf(input) {
+    // Undefined input (no arguments) returns value ''
     return input != null ? String(input) : '';
   }
 
