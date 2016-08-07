@@ -2,7 +2,9 @@
 
 var repl = require('repl');
 
-Record = require('../src/r.js');
-record = new Record;
+R = Record = require('../src/r.js');
+r = record = new Record;
+
+process.stdout.write('(Shortcuts R and r correspond to Record and record, respectively)\n');
 
 repl.start('> ');

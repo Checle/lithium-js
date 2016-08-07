@@ -1,6 +1,6 @@
 // TODO: promote written, undo branch if not written
 
-var Tree = require('./tree.js');
+var Tree = require('../lib/avl.js');
 
 if (!Object.setPrototypeOf && '__proto__' in Object.prototype) {
   Object.setPrototypeOf = function setPrototypeOf(obj, prototype) {
@@ -12,78 +12,81 @@ if (!Object.setPrototypeOf && '__proto__' in Object.prototype) {
 var record = new function () {
 
   var context, // Context record of execution (cf. POSIX current working directory)
-    called,
     caller;
 
-  function Record() {
-    var self = this;
-
-    // Instantiate inherited properties
-    this.map = Object.create(this.map);
-
-    // Copy inherited pointers
-    this.target = this.target;
-
-    // Create accessor
-    this.accessor = Record;
-    this.accessor._ = this; // REMOVE
-
-    // Rebase accessor
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(this.accessor, this.map);
-      // Reflect all external changes in map
-      // TODO reinclude: this.map = this.accessor;
+  function Record(value) {
+    this.value = value;
+    if (typeof value == 'function') {
+      this.target = value;
+      this.name = value.name;
+    } else {
+      this.name = keyOf(value);
     }
-
-    // Define accessor interface
-    Object.defineProperties(this.accessor, {
-      valueOf: { value: function () { return self.value; } },
-      //toString: { value: this.getPath.bind(this) }
-    });
-
-    function Record() {
-      if (this instanceof Record) { // Instantiated with `new` operator
-        if (arguments.length > 0) throw Error('Not implemented');
-        return self.branch().accessor;
-      }
-
-      var args = Array.prototype.slice.call(arguments);
-      var branch = self;
-      if (caller != self) {
-        // Carry out any write executions in a branch
-        branch = self.branch();
-      }
-
-      var environment = context;
-      context = branch;
-      try {
-        return branch.exec(args);
-      }
-      finally {
-        // Switch to new branch on success
-        self = branch;
-        Record._ = self; // REMOVE
-        context = environment;
-      }
-    }
+    return this.instantiate(value);
   }
-
   Record.prototype = {
     map: function () { }, // Function prototype makes map suitable as accessor prototype
-    value: null, // Inmutable nodal portion of path
-    owner: null,
-    accessor: null,
+    value: null, // Immutable record value
+    name: null, // Immutable function name
+    owner: null, // Creator record
+    accessor: null, // Public function interface of the record
     context: null, // Calling record of the current transformation
     target: null, // Greatest descendant record
-    written: false,
+    written: false, // Branch state differs from parent
+
+    instantiate: function () {
+      var self = this;
+
+      // Instantiate inherited properties
+      this.map = Object.create(this.map);
+      // Copy inherited pointers
+      this.target = this.target;
+      // Create accessor
+      this.accessor = Record;
+
+      // Rebase accessor
+      if (Object.setPrototypeOf) {
+        Object.setPrototypeOf(this.accessor, this.map);
+        // Reflect all external changes in map
+        // TODO reinclude: this.map = this.accessor;
+      }
+
+      // Define accessor interface
+      Object.defineProperties(this.accessor, {
+        valueOf: { value: function () { return self.value; } },
+        toString: { value: function () { return String(self.value || ''); } },
+        name: { value: this.name }
+      });
+
+      function Record() {
+        if (this instanceof Record) { // Instantiated with `new` operator
+          if (arguments.length > 0) throw Error('Not implemented');
+          return self.branch().accessor;
+        }
+
+        var args = Array.prototype.slice.call(arguments);
+
+        var parentContext = context;
+        context = self;
+        try {
+          return self.exec(args);
+        }
+        finally {
+          context = parentContext;
+        }
+      }
+    },
 
     branch: function () {
       var branch = Object.create(this);
       branch.parent = this;
-      Record.call(branch, this.value, this.owner);
+      branch.instantiate();
       return branch;
     },
+
     exec: function (args) {
+      if (!args.length) return this.target;
+
       var input = args[0], annex = args.slice(1), target;
 
       // Promote concretized context to branch
@@ -92,97 +95,95 @@ var record = new function () {
       if (input instanceof Array) {
         input = this.exec(input); // May install a function as target // TODO: change to input function
       }
-      if (typeof input != 'function') {
-        var value = keyOf(input), child = this.get(value);
+
+      var key = keyOf(input);
+      if (key != null) {
+        // Attempt to route input to a previous transition
+        var child = this.get(key);
         if (child) {
           if (!annex.length) return child.accessor;
-          // Execute pending input
-          return child.exec(annex);
+          return child.exec(annex); // Execute pending input
         }
       }
-      else {
-        // Functions are bound to the calling context and subsequent input arguments
-        input = Function.prototype.bind.apply(input, [context].concat(annex));
-        annex = [];
-      }
 
-      // New input issued by the current target itself, skip reiteration
-      // Current record created in current context, skip verification
-      if (caller == this || context == this.context) {
+      // New input issued by the current target itself (skip reiteration) or
+      // current record created in current context (skip verification)
+      if (caller == this || !this.target) {
         // TODO: test hasOwnProperty
-        var record = this.create(input);
-        if (annex.length) record.exec(annex);
-        return record.accessor;
+        var child = this.create(input);
+        if (!annex.length) return child.accessor;
+        return child.exec(annex); // Execute pending input
       }
 
       // Input not routed
-      called = caller;
+      var parentCaller = caller;
       caller = this;
       try {
-        // Verify new targets against default constraints
-        var target = this.target;
-
-        if (!target) {
-          // Check input against default constraints
-          var child = this.accept(input);
-          // Execute pending input within existing context
-          if (annex.length > 0) target = child.exec(annex);
-        }
-        else {
-          // Perform transition in target context
-          // TODO: consider limiting arguments to target.length and reiterate
-          target = target.apply(null, args);
-        }
+        // Perform transition in target context
+        // TODO: consider limiting arguments to target.length and reiterate
+        // TODO: consider updating this.target to avoid long target() iteration chains
+        var target = this.target.apply((this.context || this).accessor, args);
 
         if (target === false) throw new RangeError(this.accessor+' returned false');
         if (target == null) target = args;
+        if (typeof target != 'function') target = this.exec([target]);
 
-        if (typeof target != 'function') return this.exec([target]);
-        return target;
+        return this.target = target;
       }
       finally {
-        caller = called;
+        caller = parentCaller;
       }
     },
+
     accept: function (target) {
-      var value = target != null ? target.valueOf() : target;
-      if (!(value instanceof Object)) value = keyOf(value);
-      if (value <= this.value) throw new RangeError(typeof value+' '+value+' not greater than '+typeof this.value+' '+this.value);
+      if (this.next && valueOf(target) <= valueOf(this.next)) {
+        throw new RangeError(typeof value+' '+value+' not greater than '+typeof this.value+' '+this.value);
+      }
       return this.create(target);
     },
+
     create: function (value) {
-      if (typeof value == 'function') {
-        this.target = value;
-        return this;
-      }
-      var key = keyOf(value), current = this.map[key], child = new Record;
-      child.value = value;
+      var key = keyOf(value), child = new Record(value);
       child.owner = this;
       child.context = context;
-      if (this.map[key] == this.target) this.target = child.accessor;
-      this.map[key] = child;
+      if (key != null) this.map[key] = child;
+      if (!this.target) this.target = child.accessor;
       return child;
     },
-    get: function (value) {
-      var value = keyOf(value), child = this.map[value];
+
+    get: function (key) {
+      var child = this.map[key];
       if (!child) return;
 
       // Return a child owned by the current branch
-      if (child.hasOwnProperty(value)) return child;
+      if (child.hasOwnProperty(key)) return child;
 
       // Child inherited from the parent branch
-      if (child !== Record.prototype.map[value]) {
+      if (this.has(key)) {
         // Copy child of the predecessing branch
-        return this.map[value] = child.branch();
+        return this.map[key] = child.branch();
       }
+    },
+
+    has: function (key) {
+      return this.map[key] !== Record.prototype.map[key];
     }
   };
 
-  return new Record().accessor;
+  return new Record('').accessor;
 
-  function keyOf(input) {
-    // Undefined input (no arguments) returns value ''
-    return input != null ? String(input) : '';
+  // Derive property key from value if applicable
+  function keyOf(value) {
+    var key = value != null ? value.valueOf() : value;
+    // Key must derive from primitive
+    if (key instanceof Object) return null;
+    return String(key);
+  }
+  // Get order relation value
+  function valueOf(value) {
+    var key = keyOf(value);
+    if (key != null) return key;
+    return value;
   }
 
 }
