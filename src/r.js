@@ -28,9 +28,10 @@ var record = new function () {
     map: function () { }, // Function prototype makes map suitable as accessor prototype
     value: null, // Immutable record value
     name: null, // Immutable function name
-    owner: null, // Creator record
+    owner: null, // Creating record
     accessor: null, // Public function interface of the record
     context: null, // Calling record of the current transformation
+    next: null, // Next in input stream
     target: null, // Greatest descendant record
     written: false, // Branch state differs from parent
 
@@ -85,7 +86,7 @@ var record = new function () {
     },
 
     exec: function (args) {
-      if (!args.length) return this.target;
+      if (!args.length) return this.next;
 
       var input = args[0], annex = args.slice(1), target;
 
@@ -111,6 +112,7 @@ var record = new function () {
       if (caller == this || !this.target) {
         // TODO: test hasOwnProperty
         var child = this.create(input);
+        if (!this.target) this.target = child.accessor;
         if (!annex.length) return child.accessor;
         return child.exec(annex); // Execute pending input
       }
@@ -128,6 +130,12 @@ var record = new function () {
         if (target == null) target = args;
         if (typeof target != 'function') target = this.exec([target]);
 
+        if (context == this) {
+          // TODO: merge with above block
+          var child = this.create(input);
+          annex.push(target);
+          child.exec(annex);
+        }
         return this.target = target;
       }
       finally {
@@ -146,8 +154,10 @@ var record = new function () {
       var key = keyOf(value), child = new Record(value);
       child.owner = this;
       child.context = context;
-      if (key != null) this.map[key] = child;
-      if (!this.target) this.target = child.accessor;
+      if (key != null) {
+        this.map[key] = child;
+        if (!this.next) this.next = child.accessor; // Next only set if value is primitive
+      }
       return child;
     },
 
@@ -161,6 +171,7 @@ var record = new function () {
       // Child inherited from the parent branch
       if (this.has(key)) {
         // Copy child of the predecessing branch
+        // TODO: do not branch here but branch by splitting off underlying layer on write, recognize branch by global variable
         return this.map[key] = child.branch();
       }
     },
@@ -176,7 +187,8 @@ var record = new function () {
   function keyOf(value) {
     var key = value != null ? value.valueOf() : value;
     // Key must derive from primitive
-    if (key instanceof Object) return null;
+    if ((key instanceof Object) || typeof value == 'function')
+      return null;
     return String(key);
   }
   // Get order relation value
