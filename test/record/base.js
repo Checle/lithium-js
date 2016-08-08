@@ -18,4 +18,20 @@ test('record', (t) => {
     t.end();
   });
 
+  t.test('sequences', (t) => {
+    var record = new Record;
+
+    var dir = record('/dir/');
+    dir('file0');
+    dir('file1');
+    dir('file2');
+    dir('file3');
+
+    for (var dirs = [], next = dir; (next = next()) && dirs.length < 10; dirs.push(next.valueOf()));
+    t.deepLooseEqual(dirs, ['file0', 'file1', 'file2', 'file3'], 'should be iterable');
+    t.end();
+  });
+
+  t.test
+
 });
