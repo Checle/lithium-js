@@ -1,3 +1,4 @@
-var Record = require('./record/base.js');
+Record = require('./record/base.js');
+record = new Record;
 
 module.exports = Record;

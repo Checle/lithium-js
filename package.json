@@ -4,8 +4,10 @@
   "description": "Record tree for JavaScript",
   "main": "src/r.js",
   "scripts": {
+    "prepublish": "webpack --optimize-minimize src/r.js dist/r.js",
     "test": "tape test/record/*.js",
-    "console": "node bin/console.js"
+    "console": "node bin/console.js",
+    "deploy": "git subtree push --prefix dist origin gh-pages"
   },
   "bin": {
     "record": "bin/record.js"
@@ -23,6 +25,7 @@
   "homepage": "https://github.com/checle/r.js#readme",
   "devDependencies": {
     "devtool": "^2.0.3",
-    "tape": "^4.6.0"
+    "tape": "^4.6.0",
+    "webpack": "^1.13.1"
   }
 }
