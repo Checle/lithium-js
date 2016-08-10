@@ -35,5 +35,6 @@ rules:
   eqeqeq: off
   one-var-declaration-per-line: off
   space-infix-ops: off
+  no-cond-assign: off
   no-eq-null: off
   no-return-assign: off

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 RECORD="node $(readlink -f ../bin/record.js)"
 
 cd cli
