@@ -32,6 +32,7 @@ rules:
   no-console: error
   no-alert: error
   no-debugger: error
+  valid-jsdoc: error
   new-parens: off
   eqeqeq: off
   one-var-declaration-per-line: off
@@ -39,3 +40,4 @@ rules:
   no-cond-assign: off
   no-eq-null: off
   no-return-assign: off
+  require-jsdoc: off

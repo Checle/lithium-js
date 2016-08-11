@@ -24,12 +24,39 @@ BaseRecord.prototype = {
   accessor: null, // Public function interface of the record
   process: null, // Calling record of the current transformation
   running: false,
+  processing: null,
   next: null, // Next in input stream
   target: null, // Greatest descendant record
   written: false, // Branch state differs from origin
 
   instantiate: function () {
     var self = this;
+
+    /**
+     * Public record interface.
+     * @param {...*} input - One or more sequential inputs.
+     * @return {Record} Selected or created record; next record if called with zero arguments.
+     */
+    function Record() {
+      var parentProcess, branch;
+
+      if (this instanceof Record) { // Instantiated with `new` operator
+        branch = self.branch();
+        if (arguments.length > 0) return branch.accessor.apply(null, arguments);
+        return branch.accessor;
+      }
+
+      parentProcess = process;
+      process = self;
+      process.running = true;
+      try {
+        return self.exec.apply(self, arguments);
+      }
+      finally {
+        process.running = false;
+        process = parentProcess;
+      }
+    }
 
     // Instantiate inherited properties
     this.map = Object.create(this.map);
@@ -51,27 +78,6 @@ BaseRecord.prototype = {
       toString: { value: function () { return String(self.valueOf()); } },
       name: { value: this.key }
     });
-
-    function Record() {
-      var parentProcess, branch;
-
-      if (this instanceof Record) { // Instantiated with `new` operator
-        branch = self.branch();
-        if (arguments.length > 0) return branch.accessor.apply(null, arguments);
-        return branch.accessor;
-      }
-
-      parentProcess = process;
-      process = self;
-      process.running = true;
-      try {
-        return self.exec.apply(self, arguments);
-      }
-      finally {
-        process.running = false;
-        process = parentProcess;
-      }
-    }
   },
   branch: function () {
     var branch = Object.create(this);
@@ -88,16 +94,15 @@ BaseRecord.prototype = {
       return this.map[key];
     }
 
-    // New input issued by the current target itself (skip reiteration) or
-    // current record created in current process (skip verification)
-    if (caller == this || !this.target) {
+    // Stub records accept without verification and direct recursion with identical leads to unverified acceptance
+    if (!this.target || key != null && this.input == key) {
       // TODO: test hasOwnProperty
       if (typeof input == 'function') {
         this.target = input;
         return this.accessor;
       }
       child = this.create(input);
-      this.next = child;
+      this.next = child.accessor;
       if (!this.target) this.target = child.accessor;
       return child.accessor;
     }
@@ -105,40 +110,47 @@ BaseRecord.prototype = {
     return null;
   },
   exec: function (input) {
-    if (!arguments.length) return this.next && this.next.accessor;
+    if (!arguments.length) return this.next;
 
     var annex = slice.call(arguments, 1);
     var key = keyOf(input);
-    var target, child, parentCaller;
+    var target, child, parentCaller, parentInput;
 
     // Promote concretized context to branch
     // if (this.isPrototypeOf(context)) this.map = context.map;
 
+    // Expand array input
     if (input instanceof Array) {
-      input = arguments[0] = this.exec(input); // May install a function as target // TODO: change to input function
+      input = arguments[0] = this.exec(input);
     }
 
+    // Route to child record
     if (child = this.select(input)) {
       if (annex.length) return apply.call(child, null, annex);
       return child;
     }
 
-    // Input not routed
+    // New input to be verified
     parentCaller = caller;
     caller = this;
+    parentInput = this.input;
+    this.input = key;
     try {
       // Perform transition
       target = apply.call(this.target, this.accessor, arguments);
-      if (target === false) throw new RangeError(this.accessor+' returned false');
+      if (target === false) throw new RangeError(
+        this.accessor+' returned false');
 
       if (target == null) target = this.exec.apply(this, arguments);
       else if (typeof target != 'function') target = this.exec(target);
-      else if (key) this.map[key] = target;
 
-      return this.target = target;
+      if (key) this.map[key] = target;
+      this.target = target;
+      return target;
     }
     finally {
       caller = parentCaller;
+      this.input = parentInput;
     }
   },
   create: function (value) {
@@ -149,16 +161,8 @@ BaseRecord.prototype = {
     if (key != null) this.map[key] = child.accessor;
     return child;
   },
-  get: function (key) {
-    if (this.map[key] !== BaseRecord.prototype.map[key]) return this.map[key];
-    return null;
-  },
-  has: function (key) {
-    return this.map[key] !== BaseRecord.prototype.map[key];
-  }
 };
 
-// Derive property key from value if applicable
 function keyOf(value) {
   var key = value == null ? value : value.valueOf();
   // Key must derive from primitive
