@@ -7,9 +7,9 @@ if (!Object.setPrototypeOf && '__proto__' in Object.prototype) {
   };
 }
 
-var caller;
-var process; // Context processing record (cf. POSIX current working directory)
-var apply = Function.prototype.apply, slice = Array.prototype.slice;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var caller, process; // Context processing record (cf. POSIX current working directory)
 
 function BaseRecord(value) {
   this.key = keyOf(value);
@@ -80,7 +80,8 @@ BaseRecord.prototype = {
     return branch;
   },
   select: function (input) {
-    var key = keyOf(input), child;
+    var key = keyOf(input);
+    var child;
 
     // Route input to existing transition
     if (key != null && this.map[key] !== BaseRecord.prototype.map[key]) {
@@ -95,7 +96,7 @@ BaseRecord.prototype = {
         this.target = input;
         return this.accessor;
       }
-      var child = this.create(input);
+      child = this.create(input);
       this.next = child;
       if (!this.target) this.target = child.accessor;
       return child.accessor;
@@ -106,7 +107,9 @@ BaseRecord.prototype = {
   exec: function (input) {
     if (!arguments.length) return this.next && this.next.accessor;
 
-    var annex = slice.call(arguments, 1), key = keyOf(input), target, child, parentCaller;
+    var annex = slice.call(arguments, 1);
+    var key = keyOf(input);
+    var target, child, parentCaller;
 
     // Promote concretized context to branch
     // if (this.isPrototypeOf(context)) this.map = context.map;
@@ -139,7 +142,8 @@ BaseRecord.prototype = {
     }
   },
   create: function (value) {
-    var key = keyOf(value), child = new BaseRecord(value);
+    var key = keyOf(value);
+    var child = new BaseRecord(value);
     child.parent = this;
     child.process = this.process || this;
     if (key != null) this.map[key] = child.accessor;

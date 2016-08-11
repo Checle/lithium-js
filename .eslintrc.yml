@@ -27,7 +27,8 @@ rules:
     - allowSingleLine: true
   one-var:
     - error
-    - always
+    - initialized: never
+      uninitialized: always
   no-console: error
   no-alert: error
   no-debugger: error

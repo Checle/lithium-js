@@ -24,6 +24,9 @@
   },
   "homepage": "https://github.com/checle/r.js#readme",
   "devDependencies": {
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.13.2",
     "devtool": "^2.0.3",
     "eslint": "^3.2.2",
     "eslint-config-google": "^0.6.0",
