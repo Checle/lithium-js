@@ -160,7 +160,7 @@ BaseRecord.prototype = {
     child.process = this.process || this;
     if (key != null) this.map[key] = child.accessor;
     return child;
-  },
+  }
 };
 
 function keyOf(value) {

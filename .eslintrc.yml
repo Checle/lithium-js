@@ -39,5 +39,7 @@ rules:
   space-infix-ops: off
   no-cond-assign: off
   no-eq-null: off
+  no-loop-func: off
   no-return-assign: off
+  block-scoped-var: off
   require-jsdoc: off
