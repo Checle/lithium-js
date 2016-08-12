@@ -9,8 +9,8 @@ function hash(buffer) {
   var data = Type.stream.toBuffer();
 
   if (algorithm = /^(\w+):/.exec(hash)) {
-    algorithm = algorithm[1];
     hash = hash.substr(algorithm[0].length);
+    algorithm = algorithm[1];
   }
 
   var verifyHash = Crypto.createHash(algorithm).update(data).digest('hex');
