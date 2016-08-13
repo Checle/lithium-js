@@ -49,4 +49,34 @@ test('record', (t) => {
     t.end();
   });
 
+  t.test('merge', (t) => {
+    var record = new Record;
+
+    var child = record('child');
+    child('a', 1);
+    child('b', 2);
+    child('c', 3);
+
+    var target = record('target');
+    child.call(target);
+
+    t.equal(target('b')().valueOf(), 2, 'should be induced calling with different context as `this` argument');
+    t.end();
+  });
+
+  t.test('execution', (t) => {
+    var record = new Record;
+
+    var program = record('program', function () { return 189; });
+    var branch = new program;
+    var result = branch('x');
+    var combine = new program('x', 'y');
+
+    t.equal(program('x')(), null, 'should not affect the calling record space');
+    t.notEqual(branch(), null, 'should affect the resulting record space');
+    t.equal(result.valueOf(), 189, 'should call the target function and be induced calling the `new` operator');
+    t.equal(combine.valueOf(), 189, 'should apply inputs on the created branch');
+    t.end();
+  });
+
 });
