@@ -29,6 +29,9 @@ rules:
     - error
     - initialized: never
       uninitialized: always
+  max-statements-per-line:
+    - error
+    - max: 2
   no-console: error
   no-alert: error
   no-debugger: error
@@ -39,7 +42,9 @@ rules:
   space-infix-ops: off
   no-cond-assign: off
   no-eq-null: off
+  no-lonely-if: off
   no-loop-func: off
   no-return-assign: off
   block-scoped-var: off
   require-jsdoc: off
+  wrap-iife: off

@@ -12,12 +12,12 @@ Tree.prototype = {
 };
 
 Tree.prototype.balance = function () {
-  var ldepth = this.left  == null ? 0 : this.left.depth;
+  var ldepth = this.left == null ? 0 : this.left.depth;
   var rdepth = this.right == null ? 0 : this.right.depth;
 
   if (ldepth > rdepth+1) {
     // LR or LL rotation
-    var lldepth = this.left.left  == null ? 0 : this.left.left.depth;
+    var lldepth = this.left.left == null ? 0 : this.left.left.depth;
     var lrdepth = this.left.right == null ? 0 : this.left.right.depth;
 
     if (lldepth < lrdepth) {
@@ -26,12 +26,13 @@ Tree.prototype.balance = function () {
       // plus a LL rotation of this value, which happens anyway
     }
     this.rotateLL();
-  } else if (ldepth+1 < rdepth) {
-  // RR or RL rorarion
-  var rrdepth = this.right.right == null ? 0 : this.right.right.depth;
-  var rldepth = this.right.left  == null ? 0 : this.right.left.depth;
+  }
+  else if (ldepth+1 < rdepth) {
+    // RR or RL rorarion
+    var rrdepth = this.right.right == null ? 0 : this.right.right.depth;
+    var rldepth = this.right.left == null ? 0 : this.right.left.depth;
 
-  if (rldepth > rrdepth) {
+    if (rldepth > rrdepth) {
       // RR rotation consists of a LL rotation of the right child
       this.right.rotateLL();
       // plus a RR rotation of this value, which happens anyway
@@ -78,7 +79,7 @@ Tree.prototype.getDepthFromChildren = function () {
   if (this.right != null && this.depth <= this.right.depth) this.depth = this.right.depth+1;
 };
 
-Tree.prototype.add = function (value)  {
+Tree.prototype.add = function (value) {
   // Clone subtrees into own properties
   if (this.left && !this.hasOwnProperty('left')) this.left = Object.create(this.left);
   if (this.right && !this.hasOwnProperty('right')) this.right = Object.create(this.right);
@@ -89,15 +90,18 @@ Tree.prototype.add = function (value)  {
     if (this.left == null) {
       this.left = new Tree(value);
       ret = true;
-    } else {
+    }
+    else {
       ret = this.left.add(value);
       if (ret) this.balance();
     }
-  } else {
+  }
+  else {
     if (this.right == null) {
       this.right = new Tree(value);
       ret = true;
-    } else {
+    }
+    else {
       ret = this.right.add(value);
       if (ret) this.balance();
     }

@@ -1,6 +1,6 @@
 var Crypto = require('crypto');
-var Type = require('../type.js');
-var Stream = require('../stream.js');
+var Type = require('../../type.js');
+var Stream = require('../../stream.js');
 
 function hash(buffer) {
   var stream = new Stream(buffer);
