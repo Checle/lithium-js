@@ -1,3 +1,6 @@
+import stream from 'stream'
+import Stream from '../type/stream.js'
+
 // TODO: promote written, undo branch if not written
 
 if (!Object.setPrototypeOf && '__proto__' in Object.prototype) {
@@ -13,13 +16,19 @@ var global = function () { return this }() // Global scope
 
 var caller, process // Context processing record (cf. POSIX current working directory)
 
+var prototype = function () { } // Function prototype makes map suitable as accessor prototype
+Object.assign(prototype, stream.Duplex.prototype) // Import stream properties
+
 export default function BaseRecord (value) {
   this.key = keyOf(value)
   this.value = value
+  // Derive prototype upon construction so it can be altered by inheritors
+  this.map = this.prototype
   return this.instantiate()
 }
 BaseRecord.prototype = {
-  map: function () { }, // Function prototype makes map suitable as accessor prototype
+  prototype: prototype,
+  map: null, // Map of following records
   value: null, // Immutable record value
   name: null, // Immutable function name
   parent: null, // Creating record
@@ -92,8 +101,9 @@ BaseRecord.prototype = {
     Object.defineProperties(this.accessor, {
       valueOf: { value: function () { return self.value } },
       toString: { value: function () { return String(self.valueOf()) } },
-      name: { value: this.key }
+      name: { value: this.key },
     })
+    this.accessor.prototype = this.prototype
   },
 
   branch: function () {
