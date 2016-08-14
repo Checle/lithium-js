@@ -1,12 +1,10 @@
-var vn = require('./vn.js');
+import vn from './vn.js'
 
-module.exports = {
-  read: function (stream) {
-    var length = vn.read(stream);
-    return stream.shift(length);
-  },
-  write: function (stream, buffer) {
-    vn.write(stream, buffer.length);
-    stream.push(buffer);
-  }
-};
+export function read (stream) {
+  var length = vn.read(stream)
+  return stream.shift(length)
+}
+export function write (stream, buffer) {
+  vn.write(stream, buffer.length)
+  stream.push(buffer)
+}

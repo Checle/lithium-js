@@ -13,7 +13,7 @@ var global = function () { return this; }(); // Global scope
 
 var caller, process; // Context processing record (cf. POSIX current working directory)
 
-function BaseRecord(value) {
+export default function BaseRecord(value) {
   this.key = keyOf(value);
   this.value = value;
   return this.instantiate();
@@ -213,4 +213,4 @@ function keyOf(value) {
   return String(key);
 }
 
-module.exports = new BaseRecord('').accessor;
+export default new BaseRecord('').accessor;

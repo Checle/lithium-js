@@ -1,13 +1,14 @@
 {
-  "name": "r.js",
+  "name": "record-js",
   "version": "0.0.1",
   "description": "Record tree for JavaScript",
   "main": "src/r.js",
   "scripts": {
-    "prepublish": "eslint $(git ls-files src/*.js src/**/*.js) && webpack --optimize-minimize src/r.js dist/r.js",
-    "test": "tape $(git ls-files test/**/*.js)",
-    "console": "node bin/console.js",
-    "deploy": "git subtree push --prefix dist origin gh-pages"
+    "prepublish": "",
+    "test": "babel-node $(git ls-files test/**/*.js) && eslint $(git ls-files src/*.js src/**/*.js)",
+    "console": "babel-node bin/console.js",
+    "deploy": "git subtree push --prefix dist origin gh-pages",
+    "dist": "webpack --optimize-minimize src/r.js dist/r.js"
   },
   "bin": {
     "record": "bin/record.js"
@@ -24,6 +25,7 @@
   },
   "homepage": "https://github.com/checle/r.js#readme",
   "devDependencies": {
+    "babel-cli": "^6.11.4",
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.13.2",

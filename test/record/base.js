@@ -1,5 +1,5 @@
-var test = require('tape');
-var Record = require('../../src/record/base.js');
+import test from 'tape';
+import Record from '../../src/record/base.js';
 
 test('record', (t) => {
 

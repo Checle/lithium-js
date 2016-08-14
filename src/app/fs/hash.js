@@ -1,6 +1,6 @@
-var Crypto = require('crypto');
-var Type = require('../../type.js');
-var Stream = require('../../stream.js');
+import Crypto from 'crypto';
+import Type from '../../type.js';
+import Stream from '../../stream.js';
 
 function hash(buffer) {
   var stream = new Stream(buffer);
@@ -16,5 +16,3 @@ function hash(buffer) {
   var verifyHash = Crypto.createHash(algorithm).update(data).digest('hex');
   if (hash != verifyHash) throw 'Invalid hash';
 }
-
-module.exports = hash;

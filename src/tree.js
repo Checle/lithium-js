@@ -2,7 +2,7 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-function Tree(value) {
+export default function Tree(value) {
   this.value = value;
   this.depth = 1;
 }
@@ -137,5 +137,3 @@ Tree.prototype.find = function (value) {
 Tree.prototype.toString = function () {
   return '['+this.left+','+this.value+','+this.right+']';
 };
-
-if (typeof module != 'undefined' && module) module.exports = Tree;

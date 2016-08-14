@@ -1,7 +1,8 @@
 # r.js
+[![License](https://img.shields.io/npm/l/record-js.svg?style=flat-square)](https://github.com/checle/r.js/blob/master/LICENSE)
 [![Build status](https://img.shields.io/travis/checle/r.js/master.svg?style=flat-square)](https://travis-ci.org/checle/r.js)
 [![Dependencies](https://img.shields.io/david/checle/r.js.svg?maxAge=2592000&style=flat-square)](https://david-dm.org/checle/r.js)
-[![Donate](https://img.shields.io/badge/%E2%99%A5-donate-96c4ff.svg?style=flat-square)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=979Z59SUQ52HY)
+[![GitHub issues](https://img.shields.io/github/issues/checle/r.js.svg?style=flat-square)](https://github.com/checle/r.js/issues)
 
 ## Installation
 

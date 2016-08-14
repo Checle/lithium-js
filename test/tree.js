@@ -1,5 +1,5 @@
-var test = require('tape');
-var Tree = require('../src/tree.js');
+import test from 'tape';
+import Tree from '../src/tree.js';
 
 test('Tree.contains', (t) => {
   var tree = new Tree();

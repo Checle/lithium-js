@@ -1,8 +1,6 @@
-module.exports = {
-  read: function (stream) {
-    return stream.shiftUInt32LE();
-  },
-  write: function (stream, number) {
-    stream.pushUInt32LE(number);
-  }
-};
+export function read (stream) {
+  return stream.shiftUInt32LE()
+}
+export function write (stream, number) {
+  stream.pushUInt32LE(number)
+}

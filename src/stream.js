@@ -49,7 +49,7 @@ for (key in types) if (types.hasOwnProperty(key)) {
   };
 }
 
-function Reader(buffer) {
+export default function Reader(buffer) {
   this.buffer = buffer;
 }
 Reader.prototype = {
@@ -98,5 +98,3 @@ for (key in types) if (types.hasOwnProperty(key)) {
 }
 
 Reader.prototype.shift = Reader.prototype.readInt8;
-
-module.exports = Reader;
