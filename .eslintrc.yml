@@ -3,4 +3,5 @@ env:
   node: true
 rules:
   new-parens: off
+  no-console: error
   no-warning-comments: warn

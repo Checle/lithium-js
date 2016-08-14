@@ -12,6 +12,9 @@ export default class Stream extends stream.PassThrough {
     // Condition in concordance with stream source
     return (stream instanceof stream.Writeable) || (stream instanceof stream.Duplex)
   }
+  static isDuplex (stream) {
+    return Stream.isReadable(stream) && Stream.isWriteable(stream)
+  }
 
   constructor (source) {
     super()
@@ -30,7 +33,7 @@ export default class Stream extends stream.PassThrough {
   }
 
   valueOf () {
-    var buffer = this.read() // Read causes readable to copy chunks into single buffer
+    var buffer = super.read() // Read causes readable to copy chunks into single buffer
     if (buffer != null) this.unshift(buffer) // Add back single buffer as a single chunk
     return buffer
   }
@@ -87,12 +90,14 @@ export default class Stream extends stream.PassThrough {
     if (offset < 0) {
       while (offset < 0 && this.head.length) {
         chunk = this.head.pop()
-        offset += chunk.length
+        length = chunk.length
+        offset += length
         this.unshift(chunk)
+        this.chunkLengths.push(length)
       }
-      // Add remainder to head
+      // Add remainder back to head
       if (offset > 0) {
-        this.head.push(this.read(offset))
+        this.read(offset)
       }
     } else if (offset > 0) {
       while (offset > 0 && this.chunkLengths.length) {
@@ -100,7 +105,6 @@ export default class Stream extends stream.PassThrough {
         if (offset < length) length = offset
         chunk = this.read(length)
         offset -= chunk.length
-        this.head.push(chunk)
       }
     }
     return this.position
