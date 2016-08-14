@@ -1,2 +1,3 @@
 rules:
-  no-undef: off
+  node: true
+  es6: false

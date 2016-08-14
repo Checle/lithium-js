@@ -1,11 +1,12 @@
 {
-  "name": "record-js",
+  "name": "node-record",
   "version": "0.0.1",
   "description": "Record tree for JavaScript",
-  "main": "src/r.js",
+  "main": "dist/r.js",
   "scripts": {
-    "prepublish": "",
-    "test": "babel-node $(git ls-files test/**/*.js) && eslint $(git ls-files src/*.js src/**/*.js)",
+    "prepublish": "npm run dist",
+    "test": "find test/*.js -exec babel-node {} \\; && npm run lint",
+    "lint": "find src/*.js -exec eslint {} \\;",
     "console": "babel-node bin/console.js",
     "deploy": "git subtree push --prefix dist origin gh-pages",
     "dist": "webpack --optimize-minimize src/r.js dist/r.js"

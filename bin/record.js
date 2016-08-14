@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import Record from '../src/r.js'
+var Record = require('../dist/r.js')
 
 var record = new Record
 

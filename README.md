@@ -1,7 +1,9 @@
 # r.js
-[![License](https://img.shields.io/npm/l/record-js.svg?style=flat-square)](https://github.com/checle/r.js/blob/master/LICENSE)
-[![Build status](https://img.shields.io/travis/checle/r.js/master.svg?style=flat-square)](https://travis-ci.org/checle/r.js)
+[![NPM](https://img.shields.io/npm/v/node-record.svg?maxAge=2592000&style=flat-square)](https://www.npmjs.com/package/node-record)
+[![License](https://img.shields.io/npm/l/node-record.svg?style=flat-square)](https://github.com/checle/r.js/blob/master/LICENSE)
+[![Coding style](https://img.shields.io/badge/code%20style-standard-blue.svg?style=flat-square)](http://standardjs.com/)
 [![Dependencies](https://img.shields.io/david/checle/r.js.svg?maxAge=2592000&style=flat-square)](https://david-dm.org/checle/r.js)
+[![Build status](https://img.shields.io/travis/checle/r.js/master.svg?style=flat-square)](https://travis-ci.org/checle/r.js)
 [![GitHub issues](https://img.shields.io/github/issues/checle/r.js.svg?style=flat-square)](https://github.com/checle/r.js/issues)
 
 ## Installation
