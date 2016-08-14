@@ -6,4 +6,3 @@ export function read (reader) {
 export function write (writer, string) {
   writer.push(string)
   writer.push(0)
-}
