@@ -1,5 +1,5 @@
 import test from 'tape'
-import Tree from '../src/tree.js'
+import Tree from '../../src/type/tree.js'
 
 test('Tree.contains', (t) => {
   var tree = new Tree
