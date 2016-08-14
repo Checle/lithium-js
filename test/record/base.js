@@ -4,7 +4,7 @@ import Record from '../../src/record/base.js'
 test('record', (t) => {
   t.test('installation and selection', (t) => {
     // TODO: test target = null here
-    var record = new Record()
+    var record = new Record
 
     var object = {}, installation = record('weather', 'today', object),
       selection = record('weather', 'today'),
@@ -19,7 +19,7 @@ test('record', (t) => {
 
   t.test('sequences', (t) => {
     // Input sequence
-    var record = new Record(), dir = record('/dir/')
+    var record = new Record, dir = record('/dir/')
     dir('file0')
     dir('file1')
     dir('file2')
@@ -32,14 +32,14 @@ test('record', (t) => {
 
   t.test('successors', (t) => {
     // Input sequence
-    var record = new Record(), dir = record('/dir/')
+    var record = new Record, dir = record('/dir/')
     dir('file0')
     dir('file1')
 
     for (var dirs = [], next = dir; (next = next()) && dirs.length < 5; dirs.push(next.valueOf()));
     t.deepLooseEqual(dirs, ['file0', 'file1'], 'should be linked in forward order')
 
-    var record = new Record(), dir = record('/dir/', function (filename) {
+    var record = new Record, dir = record('/dir/', function (filename) {
         return this
       })
     dir('file0')
@@ -49,7 +49,7 @@ test('record', (t) => {
   })
 
   t.test('merge', (t) => {
-    var record = new Record()
+    var record = new Record
 
     var child = record('child')
     child('a', 1)
@@ -64,10 +64,10 @@ test('record', (t) => {
   })
 
   t.test('execution', (t) => {
-    var record = new Record()
+    var record = new Record
 
     var program = record('program', function () { return 189 })
-    var branch = new program()
+    var branch = new program
     var result = branch('x')
     var combine = new program('x', 'y')
 

@@ -2,7 +2,7 @@ import test from 'tape'
 import Tree from '../src/tree.js'
 
 test('Tree.contains', (t) => {
-  var tree = new Tree()
+  var tree = new Tree
   t.notOk(tree.contains(8))
   tree.add(8)
   t.ok(tree.contains(8))
@@ -10,7 +10,7 @@ test('Tree.contains', (t) => {
 })
 
 test('Tree.find', (t) => {
-  var tree = new Tree()
+  var tree = new Tree
   t.deepLooseEqual(tree.find(8), null)
   tree.add(5)
   t.equal(tree.find(8), 5)
@@ -22,7 +22,7 @@ test('Tree.find', (t) => {
 })
 
 test('Tree.extend', (t) => {
-  var tree1 = new Tree(), set1 = [91, 631, 12, 2, 129]
+  var tree1 = new Tree, set1 = [91, 631, 12, 2, 129]
   for (var i of set1) tree1.add(i)
 
   var tree2 = Object.create(tree1), set2 = [591, 11, 1, 28]

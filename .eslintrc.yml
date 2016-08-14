@@ -2,4 +2,5 @@ extends: standard
 env:
   node: true
 rules:
+  new-parens: off
   no-warning-comments: warn

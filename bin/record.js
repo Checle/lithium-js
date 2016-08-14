@@ -2,7 +2,7 @@
 
 import Record from '../src/r.js'
 
-var record = new Record()
+var record = new Record
 
 process.stdin.resume()
 
