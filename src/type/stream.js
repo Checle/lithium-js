@@ -4,19 +4,39 @@ import stream from 'stream'
  * Standard IO stream enhanced by string and seeking capabilities.
  */
 export default class Stream extends stream.PassThrough {
-  constructor () {
+  static isReadable (stream) {
+    // Condition in concordance with stream source
+    return (stream instanceof stream.Readable) || (stream instanceof stream.Duplex)
+  }
+  static isWriteable (stream) {
+    // Condition in concordance with stream source
+    return (stream instanceof stream.Writeable) || (stream instanceof stream.Duplex)
+  }
+
+  constructor (source) {
     super()
 
     this.head = []
     this.chunkLengths = []
     this.position = 0
+
+    if (source != null) {
+      if (source && Stream.isReadable(source)) {
+        source.pipe(this)
+      } else {
+        this.push(source)
+      }
+    }
+  }
+
+  valueOf () {
+    var buffer = this.read() // Read causes readable to copy chunks into single buffer
+    if (buffer != null) this.unshift(buffer) // Add back single buffer as a single chunk
+    return buffer
   }
 
   toString () {
-    var buffer = this.read()
-    if (buffer == null) buffer = ''
-    else this.unshift(buffer)
-    return String(buffer)
+    return String(this.valueOf())
   }
 
   push (chunk, encoding) {
