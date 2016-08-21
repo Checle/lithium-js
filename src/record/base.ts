@@ -6,10 +6,10 @@ var global = function () { return this }() // Global scope
 
 var caller, process // Context processing record (cf. POSIX current working directory)
 
-export default function BaseRecord (value) {
+function BaseRecord (value) {
   this.key = keyOf(value)
   this.value = value
-  return this.instantiate()
+  this.instantiate()
 }
 BaseRecord.prototype = {
   map: {}, // Map of following records
