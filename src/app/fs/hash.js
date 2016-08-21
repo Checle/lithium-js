@@ -2,7 +2,7 @@ import Crypto from 'crypto'
 import Type from '../../type.js'
 import Stream from '../../stream.js'
 
-function hash (buffer) {
+export default function hash (buffer) {
   var stream = new Stream(buffer)
   var algorithm = 'sha256'
   var hash = Type.cs.read(stream)
