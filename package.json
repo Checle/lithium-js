@@ -1,7 +1,7 @@
 {
   "name": "record-js",
-  "version": "0.0.1",
-  "description": "Record tree for JavaScript",
+  "version": "0.0.2",
+  "description": "JavaScript implementation of a universal blockchain OS",
   "main": "dist/r.js",
   "scripts": {
     "prepublish": "npm run dist",
