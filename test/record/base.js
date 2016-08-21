@@ -1,5 +1,5 @@
 import test from 'tape'
-import Record from '../../src/record/base.js'
+import Record from '../../dist/record/base.js'
 
 test('record', (t) => {
   t.test('installation and selection', (t) => {

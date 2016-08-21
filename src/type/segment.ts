@@ -1,4 +1,4 @@
-import vn from './vn.js'
+import vn from './vn.ts'
 
 export function read (stream) {
   var length = vn.read(stream)

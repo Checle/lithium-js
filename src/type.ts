@@ -1,5 +1,5 @@
-import cs from './type/cs.js'
-import segment from './type/segment.js'
-import vn from './type/vn.js'
+import cs from './type/cs.ts'
+import segment from './type/segment.ts'
+import vn from './type/vn.ts'
 
 export { cs, segment, vn }

@@ -5,11 +5,10 @@
   "main": "dist/r.js",
   "scripts": {
     "prepublish": "npm run dist",
-    "test": "babel-node test/index.js && npm run lint",
-    "lint": "find src/ -name '*.js' -print0 | xargs -0 -n1 eslint",
-    "console": "babel-node bin/console.js",
-    "deploy": "git subtree push --prefix dist origin gh-pages",
-    "dist": "webpack --optimize-minimize src/r.js dist/r.js"
+    "test": "node test/index.js && npm run lint",
+    "lint": "find src/ -name '*.ts' -print0 | xargs -0 -n1 eslint",
+    "console": "node bin/console.js",
+    "dist": "find . -name '*.ts' | xargs tsc --rootDir src/ --outDir dist/ --moduleResolution node"
   },
   "bin": {
     "record": "bin/record.js"
@@ -26,10 +25,6 @@
   },
   "homepage": "https://github.com/checle/record-js#readme",
   "devDependencies": {
-    "babel-cli": "^6.11.4",
-    "babel-core": "^6.13.2",
-    "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.13.2",
     "devtool": "^2.0.3",
     "eslint": "^3.3.1",
     "eslint-config-standard": "^5.3.5",

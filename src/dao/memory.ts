@@ -1,10 +1,12 @@
-import BaseDAO from './base.js'
+import BaseDAO from './base.ts'
 
-export class MemoryDAO extends BaseDAO {
+export default class MemoryDAO extends BaseDAO {
   constructor () {
     super()
     this.map = {}
   }
+
+  private map
 
   get (key) {
     if (!this.map.hasOwnProperty(key)) return null

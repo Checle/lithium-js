@@ -1,16 +1,17 @@
 import Crypto from 'crypto'
-import Type from '../../type.js'
-import Stream from '../../stream.js'
+import Type from '../../type.ts'
+import Readable from '../../type/stream.ts'
 
 export default function hash (buffer) {
-  var stream = new Stream(buffer)
+  var stream = new Readable(buffer)
   var algorithm = 'sha256'
   var hash = Type.cs.read(stream)
   var data = Type.stream.toBuffer()
 
-  if ((algorithm = /^(\w+):/.exec(hash))) {
-    hash = hash.substr(algorithm[0].length)
-    algorithm = algorithm[1]
+  var match = /^(\w+):/.exec(hash)
+  if (match) {
+    hash = hash.substr(match[0].length)
+    algorithm = match[1]
   }
 
   var verifyHash = Crypto.createHash(algorithm).update(data).digest('hex')

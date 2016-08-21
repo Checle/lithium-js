@@ -1,6 +1,6 @@
 import Readable from 'stream'
 
-export class BaseDAO {
+export default class BaseDAO {
   get (id) {
     return null
   }

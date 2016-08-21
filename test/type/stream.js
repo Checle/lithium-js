@@ -1,5 +1,5 @@
 import test from 'tape'
-import Stream from '../../src/type/stream.js'
+import Stream from '../../dist/type/stream.js'
 
 test('Stream', (t) => {
   var stream = new Stream()

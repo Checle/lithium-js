@@ -16,6 +16,12 @@ export default class Stream extends stream.PassThrough {
     return Stream.isReadable(stream) && Stream.isWriteable(stream)
   }
 
+  private head
+  private chunkLengths
+  private position
+
+  length
+
   constructor (source) {
     super()
 
@@ -42,7 +48,7 @@ export default class Stream extends stream.PassThrough {
     return String(this.valueOf())
   }
 
-  push (chunk, encoding) {
+  push (chunk, encoding?) {
     if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string') chunk = String(chunk)
 
     var length = chunk.length
