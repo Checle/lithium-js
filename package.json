@@ -5,17 +5,18 @@
   "main": "dist/r.js",
   "scripts": {
     "prepublish": "npm run dist",
+    "postpublish": "npm run deploy",
     "postinstall": "typings install",
-    "build": "tsc",
-    "test": "npm run build && node test/index.js && npm run lint",
+    "test": "npm run dist && node test/index.js && npm run lint",
     "lint": "find src/ -name '*.ts' -print0 | xargs -0 -n1 eslint",
     "console": "node bin/console.js",
-    "dist": "npm run build && webpack --optimize-minimize build/r.js dist/r.js"
+    "dist": "rm -rf dist && tsc",
+    "build": "npm run dist && rm -rf build && webpack --optimize-minimize dist/r.js build/r.js",
+    "deploy": "npm run build && gh-pages -d build -m \"Deploy $(npm view record-js version)\""
   },
   "bin": {
     "record": "bin/record.js"
   },
-  "preferGlobal": "true",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/checle/record-js.git"
@@ -32,6 +33,7 @@
     "eslint-config-standard": "^5.3.5",
     "eslint-plugin-promise": "^2.0.1",
     "eslint-plugin-standard": "^2.0.0",
+    "gh-pages": "^0.11.0",
     "tape": "^4.6.0",
     "typescript": "^1.8.10",
     "typescript-eslint-parser": "^0.1.2",
