@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 var repl = require('repl')
-var Record = require('../dist/r.js')
+var Record = require('../build/r.js')
 
 global.R = global.Record = Record
 global.r = global.record = new Record

@@ -1,18 +1,17 @@
 {
   "name": "record-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "JavaScript implementation of a universal blockchain OS",
-  "main": "dist/r.js",
+  "main": "build/r.js",
   "scripts": {
-    "prepublish": "npm run dist",
+    "prepublish": "typings install && npm run build",
     "postpublish": "npm run deploy",
-    "postinstall": "typings install",
     "test": "npm run dist && node test/index.js && npm run lint",
     "lint": "find src/ -name '*.ts' -print0 | xargs -0 -n1 eslint",
     "console": "node bin/console.js",
-    "dist": "rm -rf dist && tsc",
-    "build": "npm run dist && rm -rf build && webpack --optimize-minimize dist/r.js build/r.js",
-    "deploy": "npm run build && gh-pages -d build -m \"Deploy $(npm view record-js version)\""
+    "build": "rm -rf build && tsc",
+    "dist": "npm run build && rm -rf dist && webpack --optimize-minimize build/r.js dist/r.js",
+    "deploy": "npm run dist && gh-pages -d dist -m \"Deploy $(npm view record-js version)\""
   },
   "bin": {
     "record": "bin/record.js"
