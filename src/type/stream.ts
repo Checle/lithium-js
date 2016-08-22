@@ -1,35 +1,27 @@
 import * as stream from 'stream'
 
-export default class Stream extends stream.PassThrough {
+export default class Readable extends stream.Readable {
   // Standard IO stream enhanced by string and seeking capabilities.
 
-  static isReadable (stream) {
-    // Condition in concordance with stream source
-    return (stream instanceof stream.Readable) || (stream instanceof stream.Duplex)
-  }
-  static isWriteable (stream) {
-    // Condition in concordance with stream source
-    return (stream instanceof stream.Writeable) || (stream instanceof stream.Duplex)
-  }
-  static isDuplex (stream) {
-    return Stream.isReadable(stream) && Stream.isWriteable(stream)
+  static isReadable (stream: any) {
+    return stream && stream.readable === true
   }
 
   private head
   private chunkLengths
-  private position
+  private pos
+  private len
 
-  length
-
-  constructor (source) {
+  constructor (source: any) {
     super()
 
     this.head = []
     this.chunkLengths = []
-    this.position = 0
+    this.pos = 0
+    this.len = 0
 
     if (source != null) {
-      if (source && Stream.isReadable(source)) {
+      if (source && Readable.isReadable(source)) {
         source.pipe(this)
       } else {
         this.push(source)
@@ -37,48 +29,48 @@ export default class Stream extends stream.PassThrough {
     }
   }
 
-  valueOf () {
+  valueOf (): Buffer {
     var buffer = super.read() // Read causes readable to copy chunks into single buffer
     if (buffer != null) this.unshift(buffer) // Add back single buffer as a single chunk
     return buffer
   }
 
-  toString () {
+  toString (): string {
     return String(this.valueOf())
   }
 
-  push (chunk, encoding?) {
+  push (chunk: any, encoding?: string): boolean {
     if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string') chunk = String(chunk)
 
     var length = chunk.length
     var result = super.push(chunk, encoding)
     if (!result) return false
 
-    this.length += length
+    this.len += length
     this.chunkLengths.push(length)
     return true
   }
 
-  unshift (chunk) {
+  unshift (chunk: any): any {
     if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string') chunk = String(chunk)
 
     var length = chunk.length
     var result = super.unshift(chunk)
     if (result) return false
 
-    this.length += result
+    this.len += result
     this.chunkLengths.unshift(length)
     return true
   }
 
-  read (size?) {
+  read (size?: number): any {
     var result = super.read(size)
     if (result == null) return null
     var length = result.length
 
     this.head.push(result)
-    this.position += length
-    this.length -= length
+    this.pos += length
+    this.len -= length
     while (length > 0 && this.chunkLengths.length) {
       length -= this.chunkLengths.shift()
     }
@@ -89,7 +81,7 @@ export default class Stream extends stream.PassThrough {
     return result
   }
 
-  seek (offset) {
+  seek (offset?: number): number {
     var chunk, length
 
     if (offset < 0) {
@@ -112,6 +104,16 @@ export default class Stream extends stream.PassThrough {
         offset -= chunk.length
       }
     }
-    return this.position
+    return this.pos
   }
+
+  get length (): number {
+    return this.len
+  }
+
+  get position (): number {
+    return this.pos
+  }
+
+  _read () { }
 }

@@ -2,52 +2,52 @@
 
 var apply = Function.prototype.apply
 var slice = Array.prototype.slice
-var global = function () { return this }() // Global scope
+var global = (function () { return this }()) // Global scope
 
 var caller, process // Context processing record (cf. POSIX current working directory)
 
-function BaseRecord (value) {
-  this.key = keyOf(value)
-  this.value = value
-  this.instantiate()
-}
-BaseRecord.prototype = {
-  map: {}, // Map of following records
-  value: null, // Immutable record value
-  name: null, // Immutable function name
-  parent: null, // Creating record
-  accessor: null, // Public function interface of the record
-  process: null, // Calling record of the current transformation
-  running: false,
-  processing: null,
-  inputs: null, // List of all transition inputs that have been applied on the current branch
-  next: null, // Next in input stream
-  target: null, // Greatest descendant record
-  written: false, // Branch state differs from origin
+class BaseRecord {
+  constructor (value: any) {
+    this.key = keyOf(value)
+    this.value = value
+    this.instantiate()
+  }
 
-  instantiate: function () {
+  map: Object = {} // Map of following records
+  key: string // Immutable record key
+  value: any // Immutable record value
+  parent: BaseRecord // Creating record
+  origin: BaseRecord
+  accessor: any // Public function interface of the record
+  process: BaseRecord // Calling record of the current transformation
+  running: boolean = false
+  input: string
+  inputs: any[] // List of all transition inputs that have been applied on the current branch
+  next: Function = null // Next in input stream
+  target: Function // Greatest descendant record
+  written: boolean = false // Branch state differs from origin
+
+  instantiate () {
     var self = this
 
-    /**
-     * Public record interface.
-     * @param {...*} input - One or more sequential inputs.
-     * @return {Record} Selected or created record; next record if called with zero arguments.
-     */
-    function Record () {
-      var branch = self
+    function Record (...inputs): Function {
+      // Public record interface
+      // Returns a selected or created record or the next record in sequence if called with zero arguments
+
+      var branch : BaseRecord = self // FIXME
       var parentProcess, context
 
       // Instantiated by the `new` operator
       if (this instanceof Record) {
         branch = self.branch()
-        if (arguments.length > 0) return branch.accessor.apply(null, arguments)
+        if (inputs.length > 0) return branch.accessor.apply(null, inputs)
         return branch.accessor
       }
       // Called in a function context that is not the system-specific global scope
       if (typeof this === 'function' && this !== global && (!process || this !== process.accessor)) {
         context = this
         self.merge(context) // Merge self into context
-        if (arguments.length > 0) return context.apply(null, arguments)
+        if (inputs.length > 0) return context.apply(null, inputs)
         return context
       }
 
@@ -55,13 +55,13 @@ BaseRecord.prototype = {
       // if (!process) branch = self.branch();
 
       // Protocol sequence of raw inputs
-      if (arguments.length > 0) branch.inputs.push(arguments)
+      if (inputs.length > 0) branch.inputs.push(inputs)
 
       parentProcess = process
       process = branch
       process.running = true
       try {
-        var result = branch.exec.apply(branch, arguments)
+        var result = branch.exec.apply(branch, inputs)
         // self = branch; // Switch to branch if no error occurred
         return result
       } finally {
@@ -80,20 +80,20 @@ BaseRecord.prototype = {
 
     // Define accessor interface
     Object.defineProperties(this.accessor, {
-      valueOf: { value: function () { return self.value } },
-      toString: { value: function () { return String(self.valueOf()) } },
+      valueOf: { value: () => this.value },
+      toString: { value: () => String(this.valueOf()) },
       name: { value: this.key }
     })
-  },
+  }
 
-  branch: function () {
+  branch (): BaseRecord {
     var branch = Object.create(this)
     branch.instantiate()
     branch.origin = this
     return branch
-  },
+  }
 
-  merge: function (target) {
+  merge (target: Function): Function {
     // TODO: analyze conflict graph
     // Perform full re-execution
     if (this.origin) target = this.origin.merge(target)
@@ -101,9 +101,9 @@ BaseRecord.prototype = {
       try { target = target.apply(null, this.inputs[i]) } catch (e) { }
     }
     return target
-  },
+  }
 
-  get: function (key) {
+  getChild (key: string) {
     var child = this.map[key]
     if (!child) return
 
@@ -116,14 +116,14 @@ BaseRecord.prototype = {
       // TODO: do not branch here but branch by splitting off underlying layer on write, recognize branch by global variable
       return (this.map[key] = child.branch())
     }
-  },
+  }
 
-  select: function (input) {
+  select (input: any): Function {
     var key = keyOf(input)
     var child
 
     // Route input to existing transition
-    if (key != null) if ((child = this.get(key))) return child
+    if (key != null) if ((child = this.getChild(key))) return child
 
     // Stub records accept without verification and direct recursion with identical leads to unverified acceptance
     if (!this.target || key != null && this.input === key) {
@@ -137,9 +137,9 @@ BaseRecord.prototype = {
       if (!this.target) this.target = child.accessor
       return child.accessor
     }
-  },
+  }
 
-  exec: function (input) {
+  exec (input: any): Function {
     if (!arguments.length) return this.next
 
     var annex = slice.call(arguments, 1)
@@ -180,9 +180,9 @@ BaseRecord.prototype = {
       caller = parentCaller
       this.input = parentInput
     }
-  },
+  }
 
-  create: function (value) {
+  create (value: any): BaseRecord {
     var key = keyOf(value)
     var child = new BaseRecord(value)
     child.parent = this
@@ -192,7 +192,7 @@ BaseRecord.prototype = {
   }
 }
 
-function keyOf (value) {
+function keyOf (value: any): string {
   var key = value == null ? value : value.valueOf()
   // Key must derive from primitive
   if (key instanceof Object || typeof value === 'function') return null
