@@ -1,9 +1,8 @@
-import stream from 'stream'
+import * as stream from 'stream'
 
-/**
- * Standard IO stream enhanced by string and seeking capabilities.
- */
 export default class Stream extends stream.PassThrough {
+  // Standard IO stream enhanced by string and seeking capabilities.
+
   static isReadable (stream) {
     // Condition in concordance with stream source
     return (stream instanceof stream.Readable) || (stream instanceof stream.Duplex)
@@ -72,7 +71,7 @@ export default class Stream extends stream.PassThrough {
     return true
   }
 
-  read (size) {
+  read (size?) {
     var result = super.read(size)
     if (result == null) return null
     var length = result.length

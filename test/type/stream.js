@@ -1,5 +1,5 @@
-import test from 'tape'
-import Stream from '../../dist/type/stream.js'
+var test = require('tape')
+var Stream = require('../../build/type/stream.js').default
 
 test('Stream', (t) => {
   var stream = new Stream()

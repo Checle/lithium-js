@@ -1,1 +1,1 @@
-import './base.js'
+require('./base.js')

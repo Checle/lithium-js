@@ -1,2 +1,2 @@
-import './record/index.js'
-import './type/index.js'
+require('./record/index.js')
+require('./type/index.js')
