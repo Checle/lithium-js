@@ -1,20 +1,21 @@
 {
   "name": "record-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "JavaScript implementation of a universal blockchain OS",
-  "main": "dist/r.js",
+  "main": "build/r.js",
   "scripts": {
-    "prepublish": "npm run dist",
-    "test": "babel-node test/index.js && npm run lint",
-    "lint": "find src/ -name '*.js' -print0 | xargs -0 -n1 eslint",
-    "console": "babel-node bin/console.js",
-    "deploy": "git subtree push --prefix dist origin gh-pages",
-    "dist": "webpack --optimize-minimize src/r.js dist/r.js"
+    "prepublish": "typings install && npm run build",
+    "postpublish": "npm run deploy",
+    "test": "npm run dist && node test/index.js && npm run lint",
+    "lint": "find src/ -name '*.ts' -print0 | xargs -0 -n1 eslint",
+    "console": "node bin/console.js",
+    "build": "rm -rf build && tsc",
+    "dist": "npm run build && rm -rf dist && webpack --optimize-minimize build/r.js dist/r.js",
+    "deploy": "npm run dist && gh-pages -d dist -m \"Deploy $(npm view record-js version)\""
   },
   "bin": {
     "record": "bin/record.js"
   },
-  "preferGlobal": "true",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/checle/record-js.git"
@@ -26,16 +27,16 @@
   },
   "homepage": "https://github.com/checle/record-js#readme",
   "devDependencies": {
-    "babel-cli": "^6.11.4",
-    "babel-core": "^6.13.2",
-    "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.13.2",
     "devtool": "^2.0.3",
-    "eslint": "^3.2.2",
+    "eslint": "^3.3.1",
     "eslint-config-standard": "^5.3.5",
     "eslint-plugin-promise": "^2.0.1",
     "eslint-plugin-standard": "^2.0.0",
+    "gh-pages": "^0.11.0",
     "tape": "^4.6.0",
+    "typescript": "^1.8.10",
+    "typescript-eslint-parser": "^0.1.2",
+    "typings": "^1.3.2",
     "webpack": "^1.13.1"
   }
 }

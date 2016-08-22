@@ -1,5 +1,5 @@
-import test from 'tape'
-import Record from '../../src/record/base.js'
+var test = require('tape')
+var Record = require('../../build/record/base.js').default
 
 test('record', (t) => {
   t.test('installation and selection', (t) => {

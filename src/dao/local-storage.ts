@@ -1,6 +1,6 @@
-import BaseDAO from './base.js'
+import BaseDAO from './base.ts'
 
-export class LocalStorageDAO extends BaseDAO {
+export default class LocalStorageDAO extends BaseDAO {
   get (key) {
     return String(localStorage.getItem(key))
   }

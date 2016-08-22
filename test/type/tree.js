@@ -1,5 +1,5 @@
-import test from 'tape'
-import Tree from '../../src/type/tree.js'
+var test = require('tape')
+var Tree = require('../../build/type/tree.js').default
 
 test('Tree.contains', (t) => {
   var tree = new Tree

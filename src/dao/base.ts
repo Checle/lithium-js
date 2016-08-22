@@ -1,6 +1,6 @@
-import Readable from 'stream'
+import { Readable } from 'stream'
 
-export class BaseDAO {
+export default class BaseDAO {
   get (id) {
     return null
   }
@@ -8,7 +8,7 @@ export class BaseDAO {
   remove (id) { }
   open (id) {
     var string = this.get(id)
-    var stream = new Readable
+    var stream = new Readable()
 
     if (string == null) return null
     stream.push(string)

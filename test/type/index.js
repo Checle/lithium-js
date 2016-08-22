@@ -1,2 +1,2 @@
-import './stream.js'
-import './tree.js'
+require('./stream.js')
+require('./tree.js')
