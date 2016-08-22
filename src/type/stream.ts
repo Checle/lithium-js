@@ -12,7 +12,7 @@ export default class Readable extends stream.Readable {
   private pos
   private len
 
-  constructor (source: any) {
+  constructor (source?: any) {
     super()
 
     this.head = []

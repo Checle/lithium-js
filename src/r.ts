@@ -7,3 +7,5 @@ if (typeof window !== 'undefined') {
 }
 
 export default Record
+
+module.exports = Record
