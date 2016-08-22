@@ -1,6 +1,6 @@
 {
   "name": "record-js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JavaScript implementation of a universal blockchain OS",
   "main": "build/r.js",
   "scripts": {
