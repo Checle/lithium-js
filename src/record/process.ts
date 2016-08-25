@@ -1,13 +1,48 @@
 import * as vm from 'vm'
+import * as fs from 'fs'
 import { Readable, Writable } from 'stream'
 import { EventEmitter } from 'events'
 import { Script, Context } from 'vm'
-import { prototype } from '../decorator'
-import { Stream, Input, SystemError } from './type'
+
+import * as interfaces from './interfaces'
+import { prototype } from '../decorators'
+import { SystemError } from './errors'
+import { Input } from './types'
 import { IDs } from './pool'
 import Global from '../context/global'
 import Tree from '../type/tree'
 import Sequence from '../type/sequence'
+
+class Stream extends Readable implements fs.ReadStream, fs.WriteStream, interfaces.Sequence {
+  path: string
+  position: number
+  length: number
+  seekable: boolean
+  readable: boolean
+  writable: boolean
+  bytesWritten: number
+
+  read (size?: number): Buffer { throw new SystemError('EBADF') }
+  write (chunk: Input): boolean { throw new SystemError('EBADF') }
+  seek (offset: number): number { throw new SystemError('EBADF') }
+  close (): void { throw new SystemError('EBADF') }
+
+  end (): void { }
+  unshift (chunk: Input): void { }
+  slice(start?: number, end?: number): Buffer { return null }
+  valueOf(): Buffer { return null }
+  next (): IteratorResult<Buffer> { return { done: true, value: undefined } }
+
+  _read (size: number): void { }
+  _write (chunk: Input, encoding: string, callback: Function): void { }
+
+  static isReadable (stream): boolean {
+    return stream.readable === true
+  }
+  static isWritable (stream): boolean {
+    return stream.writable === true
+  }
+}
 
 class FileStream extends Stream {
   fd: number
