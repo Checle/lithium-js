@@ -1,4 +1,4 @@
-import BaseDAO from './base.ts'
+import BaseDAO from './base'
 
 export default class MemoryDAO extends BaseDAO {
   constructor () {

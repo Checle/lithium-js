@@ -1,6 +1,8 @@
 import * as crypto from 'crypto'
-import * as type from '../../type.ts'
-import Readable from '../../type/stream.ts'
+import * as type from '../../type'
+import Readable from '../../type/stream'
+
+type Input = Buffer | string
 
 export default function hash (buffer: Buffer) {
   var stream = new Readable(buffer)

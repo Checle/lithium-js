@@ -3,7 +3,7 @@
 // Modified by Jeremy Stephens.
 
 export default class Tree {
-  constructor (value: any) {
+  constructor (value?: any) {
     this.value = value
     this.depth = 1
   }

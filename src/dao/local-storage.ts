@@ -1,4 +1,4 @@
-import BaseDAO from './base.ts'
+import BaseDAO from './base'
 
 export default class LocalStorageDAO extends BaseDAO {
   get (key) {
