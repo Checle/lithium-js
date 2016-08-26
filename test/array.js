@@ -10,7 +10,7 @@ test('Array', (t) => {
     t.deepLooseEqual(parent, [1, 2, 3], 'should not affect the parent array')
 
     parent.push(5)
-    t.deepLooseEqual(child.slice(), [1, 2, 3, 4], 'should cover parent array properties')
+    t.deepLooseEqual(child.slice(), [1, 2, 3, 4], 'should cover up parent array properties')
 
     parent.push(6)
     t.deepLooseEqual(child.slice(), [1, 2, 3, 4], 'does not alter the child array')

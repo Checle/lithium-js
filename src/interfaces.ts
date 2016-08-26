@@ -2,11 +2,7 @@ import { Duplex } from 'stream'
 import { WriteStream } from 'fs'
 import { Input } from './types'
 
-export interface Output {
-  push (chunk: Input): void
-}
-
-export interface Sequence extends Output, Iterator<Buffer> {
+export interface Sequence extends Iterator<Buffer> {
   position: number
   length: number
 
@@ -18,12 +14,16 @@ export interface Sequence extends Output, Iterator<Buffer> {
   unshift (chunk: any): void
   shift (): Buffer
   pop (): Buffer
-  slice(start?: number, end?: number): Buffer
+  slice(start?: number, end?: number): Sequence
 
   toString(): string
   valueOf(): Buffer
   next (): IteratorResult<Buffer>
   compare (target: any): number
+}
+
+export interface Output {
+  push (chunk: Input): void
 }
 
 export interface Record extends WriteStream {

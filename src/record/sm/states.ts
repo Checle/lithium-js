@@ -1,8 +1,8 @@
-import * as types from '../types'
+import * as types from '../../types'
+import { Forkable } from '../../utils'
+import { State } from '../../interfaces'
+import Sequence from '../../sequence'
 import * as vm from './vm'
-import { Forks } from '../../utils'
-import { State } from '../interfaces'
-import Sequence from '../sequence'
 
 export class FunctionState implements State {
   constructor (protected acceptor: types.Acceptor) { }
@@ -13,7 +13,7 @@ export class FunctionState implements State {
   }
 }
 
-export default class CodeState extends Forks implements State {
+export default class CodeState extends Forkable implements State {
   input = new Sequence()
 
   transform (input?, output?): State {

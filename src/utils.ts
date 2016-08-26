@@ -1,18 +1,22 @@
-function instantiate (fork: Forks): void {
-  for (var name of Object.getOwnPropertyNames(Object.getPrototypeOf(fork))) {
-    let value = fork[name]
-    if (value instanceof Forks) {
-      this[name] = value.fork()
-    }
-    else if (typeof value !== 'function' && value instanceof Object) {
-      fork[name] = Object.create(value)
-    }
+const FORKABLE = Symbol()
+
+function instantiate (object: Forkable): void {
+  for (var name of Object.getOwnPropertyNames(Object.getPrototypeOf(object))) {
+    let value = fork(object[name])
+    if (value != null) object[name] = value
   }
 }
 
-export class Forks {
+export function fork (object: any): any {
+  if (typeof object === 'function') return
+  if (FORKABLE in this) return object.fork()
+  if (object instanceof Object) return Object.create(object)
+}
+
+export class Forkable {
   constructor () {
     instantiate(this)
+    this[FORKABLE] = true
   }
 
   fork (): this {
@@ -20,4 +24,10 @@ export class Forks {
     instantiate(fork)
     return fork
   }
+
+  static isForkable (object: any) {
+    return FORKABLE in object
+  }
+
+  static fork = fork
 }

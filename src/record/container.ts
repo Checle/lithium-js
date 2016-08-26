@@ -1,6 +1,6 @@
 import { Duplex } from 'stream'
 
-import * as interfaces from './interfaces'
+import * as interfaces from '../interfaces'
 
 export default class Container extends Duplex implements interfaces.Container {
   path

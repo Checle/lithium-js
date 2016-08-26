@@ -1,5 +1,5 @@
 import * as crypto from 'crypto'
-import * as types from '../../types'
+import { Str } from '../../types'
 import Readable from '../../type/stream'
 
 type Input = Buffer | string
@@ -7,7 +7,7 @@ type Input = Buffer | string
 export default function hash (buffer: Buffer) {
   var stream = new Readable(buffer)
   var algorithm = 'sha256'
-  var hash = types.cs.read(stream)
+  var hash = Str.read(stream)
   var data = stream.read()
 
   var match = /^(\w+):/.exec(hash)

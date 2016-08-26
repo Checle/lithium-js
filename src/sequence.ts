@@ -1,10 +1,10 @@
 // TODO: must be interatable without deleting portions
 
 import * as interfaces from './interfaces'
-import { prototype } from '../decorators'
-import { Forks } from '../utils'
+import { prototype } from './decorators'
+import { Forkable } from './utils'
 
-export default class Sequence extends Forks implements interfaces.Sequence {
+export default class Sequence extends Forkable implements interfaces.Sequence {
   private portions: Buffer[] = []
 
   position: number
@@ -18,7 +18,7 @@ export default class Sequence extends Forks implements interfaces.Sequence {
   unshift (chunk: any): void { return null }
   shift (): Buffer { return null }
   pop (): Buffer { return null }
-  slice(start?: number, end?: number): Buffer { return null }
+  slice(start?: number, end?: number): Sequence { return null }
 
   toString(): string { return null }
   valueOf(): Buffer { return null }

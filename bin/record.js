@@ -1,12 +1,5 @@
 #! /usr/bin/env node
 
-var Record = require('../build/r.js')
+var cli = require('../build/record/apis/cli.js')
 
-var record = new Record
-
-process.stdin.resume()
-
-process.stdin.on('data', function (chunk) {
-  var data = String(chunk)
-  record(data)
-})
+cli.start()

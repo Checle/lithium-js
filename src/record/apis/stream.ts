@@ -1,9 +1,10 @@
 import { Duplex } from 'stream'
-import Sequence from '../sequence'
-import State from '../sm/state'
+import Sequence from '../../sequence'
+import InitialState from '../sm/states'
+import { State } from '../../interfaces'
 
 export class RecordStream extends Duplex {
-  state = new State()
+  state: State = new InitialState()
   output = new Sequence()
 
   _read () { }
