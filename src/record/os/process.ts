@@ -4,14 +4,14 @@ import { Readable, Writable } from 'stream'
 import { EventEmitter } from 'events'
 import { Script, Context } from 'vm'
 
-import * as interfaces from './interfaces'
-import { prototype } from '../decorators'
-import { SystemError } from './errors'
-import { Input } from './types'
+import * as interfaces from '../interfaces'
+import { prototype } from '../../decorators'
+import { SystemError } from '../errors'
+import { Input } from '../types'
 import { IDs } from './pool'
-import Global from '../context/global'
-import Tree from '../type/tree'
-import Sequence from '../type/sequence'
+import Global from '../../context/global'
+import Tree from '../../type/tree'
+import Sequence from '.././sequence'
 
 class Stream extends Readable implements fs.ReadStream, fs.WriteStream, interfaces.Sequence {
   path: string
@@ -28,10 +28,13 @@ class Stream extends Readable implements fs.ReadStream, fs.WriteStream, interfac
   close (): void { throw new SystemError('EBADF') }
 
   end (): void { }
+  shift (): Buffer { return null }
+  pop (): Buffer { return null }
   unshift (chunk: Input): void { }
   slice(start?: number, end?: number): Buffer { return null }
   valueOf(): Buffer { return null }
   next (): IteratorResult<Buffer> { return { done: true, value: undefined } }
+  compare () { return null }
 
   _read (size: number): void { }
   _write (chunk: Input, encoding: string, callback: Function): void { }

@@ -1,6 +1,8 @@
 export default function Global() {
   var cache = {}
 
+  this.console = console // REMOVE
+
   this.require = function (path: string): any {
     if (!/^[-\w]+$/.test(path)) throw new Error(`Cannot find module '${path}'`)
 

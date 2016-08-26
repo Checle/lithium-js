@@ -1,5 +1,31 @@
-export default class Sequence {
-  private portions: Buffer[]
+// TODO: must be interatable without deleting portions
+
+import * as interfaces from './interfaces'
+import { prototype } from '../decorators'
+import { Forks } from '../utils'
+
+export default class Sequence extends Forks implements interfaces.Sequence {
+  private portions: Buffer[] = []
+
+  position: number
+  length: number
+
+  read (size?: number): Buffer { return null }
+  write (chunk: any): boolean { return null }
+  seek (offset: number): number { return null }
+
+  push (chunk: any): void { return null }
+  unshift (chunk: any): void { return null }
+  shift (): Buffer { return null }
+  pop (): Buffer { return null }
+  slice(start?: number, end?: number): Buffer { return null }
+
+  toString(): string { return null }
+  valueOf(): Buffer { return null }
+  next (): IteratorResult<Buffer> { return null }
+  compare (target: any): number { return null }
+
+  /*
   private size: number
 
   push (...portions: any[]): number {
@@ -46,4 +72,5 @@ export default class Sequence {
   get length (): number {
     return this.size
   }
+  */
 }
