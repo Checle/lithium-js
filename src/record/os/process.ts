@@ -9,6 +9,7 @@ import { prototype } from '../../decorators'
 import { Input } from '../../types'
 import { SystemError } from '../errors'
 import { IDs } from './pool'
+import fork from '../../fork'
 import Global from '../../context/global'
 import Tree from '../../type/tree'
 import Sequence from '../../sequence'
@@ -80,7 +81,7 @@ class WriteStream extends ReadStream {
   writable = true
 }
 
-class RecordStream extends WriteStream {
+@fork class RecordStream extends WriteStream {
   constructor (protected origin: RecordStream = null) {
     super()
     this.on('data', (chunk: Input) => this.data(chunk))
@@ -195,28 +196,21 @@ class File {
   */
 }
 
-@prototype(class {
-  cwd = new RecordStream()
-  stdin = this.cwd.clone()
-  stdout = this.cwd.clone()
-  files = {}
-  fds = new IDs()
-  pids = new IDs()
-})
-export class Process extends Writable {
+@fork export class Process extends Writable {
   constructor (protected parent: Process) {
     super()
     console.log(this.pid)
   }
 
-  stdin: RecordStream = Object.create(this.stdin)
-  stdout: RecordStream = Object.create(this.stdout)
-  protected files: { [fd: number]: RecordStream } = Object.create(this.files)
-  protected fds: IDs = Object.create(this.fds)
-  protected pids: IDs = Object.create(this.pids)
-  protected cwd: RecordStream
+  get pid(): number { return Number(this.pids) }
 
-  protected pid: number = this.pids.acquire()
+  protected files: { [fd: number]: RecordStream } = {}
+  protected fds = new IDs()
+  protected pids = new IDs()
+  protected cwd = new RecordStream()
+
+  stdin: RecordStream = fork(this.cwd)
+  stdout: RecordStream = fork(this.cwd)
 
   exit(code?: number): void { }
 
@@ -229,18 +223,6 @@ export class Process extends Writable {
 
   exec(filename: Input, argv: string, envp: string[]): Process {
     return null
-  }
-
-  fork(): Process {
-    var pid = this.pids.acquire()
-    var child = this.clone(pid)
-    return child
-  }
-
-  clone (...args): this {
-    var clone = Object.create(this)
-    clone.constructor(...args)
-    return clone
   }
 
   static current: Process = null
