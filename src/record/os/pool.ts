@@ -1,4 +1,4 @@
-import fork from '../../fork'
+import fork from 'forks'
 
 @fork export abstract class Pool<T> {
   abstract create (): T

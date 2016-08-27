@@ -1,10 +1,10 @@
 // TODO: must be interatable without deleting portions
 
-import * as interfaces from './interfaces'
-import { prototype } from './decorators'
-import { Forkable } from './utils'
+import { prototype } from 'decorators'
+import fork from 'forks'
+import * as interfaces from 'interfaces'
 
-export default class Sequence extends Forkable implements interfaces.Sequence {
+@fork export default class Sequence implements interfaces.Sequence {
   private portions: Buffer[] = []
 
   position: number

@@ -1,5 +1,5 @@
 import * as vm from 'vm'
-import Global from '../../context/global'
+import Global from 'context/global'
 
 export function exec (code: string | Buffer, ...args): any {
   var path = String(args[0])

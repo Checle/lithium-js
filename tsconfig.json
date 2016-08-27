@@ -5,7 +5,8 @@
         "experimentalDecorators": true,
         "noImplicitAny": false,
         "sourceMap": false,
-        "outDir": "build"
+        "outDir": "build",
+        "baseUrl": "src"
     },
     "filesGlob": [
         "src/**/*.ts"

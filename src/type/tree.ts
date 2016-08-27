@@ -2,7 +2,9 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-export default class Tree {
+import { mergeable, forkable } from 'forks'
+
+@forkable export default class Tree {
   constructor (value?: any) {
     this.value = value
     this.depth = 1
@@ -78,8 +80,6 @@ export default class Tree {
 
   add (value: any): boolean {
     // Clone subtrees into own properties
-    if (this.left && !this.hasOwnProperty('left')) this.left = Object.create(this.left)
-    if (this.right && !this.hasOwnProperty('right')) this.right = Object.create(this.right)
     if (this.value === value) return false
 
     var ret = false

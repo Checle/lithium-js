@@ -23,11 +23,10 @@ export function fork (object: any, name?: string): any {
     object[name] = fork(object[name])
     return
   }
-  var branch = Symbol('object') // Create a new branch
-
   if (object instanceof Function) { // Class decorator
-    assign(object.prototype, object.prototype, branch)
+    assign(object.prototype, object.prototype, ANY)
   }
+  var branch = Symbol('object') // Create a new branch
   // TODO: do not rebranch functions!
   return copy (object, branch)
 }
@@ -65,8 +64,6 @@ export function isMergeable (object: any): boolean {
 export const forkable = fork
 export const mergeable = merge
 
-var id = 1 // TODO: delete
-
 function copy (object: any, branch: symbol): any  {
   if (!(object instanceof Object)) return object
   if (object[FORK] === branch) return object // Object has already been copied in this fork
@@ -78,6 +75,8 @@ function copy (object: any, branch: symbol): any  {
 }
 
 function assign (target:any, origin: any, branch: symbol): any  {
+  if (origin[FORK] === branch) return origin // Object has already been copied in this fork
+
   for (let object = origin; object; object = Object.getPrototypeOf(object)) {
     let merge = object[MERGE]
     let names = Object.keys(object)

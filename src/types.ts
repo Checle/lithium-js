@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'
-import * as interfaces from './interfaces'
+import * as interfaces from 'interfaces'
 
 export type Input = Buffer | string
 

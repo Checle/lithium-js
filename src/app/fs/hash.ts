@@ -1,6 +1,6 @@
 import * as crypto from 'crypto'
-import { Str } from '../../types'
-import Readable from '../../type/stream'
+import { Str } from 'types'
+import Readable from 'type/stream'
 
 type Input = Buffer | string
 

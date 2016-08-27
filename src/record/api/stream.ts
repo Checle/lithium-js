@@ -1,9 +1,10 @@
 import { Duplex } from 'stream'
-import Sequence from '../../sequence'
+import { State } from 'interfaces'
 import InitialState from '../sm/states'
-import { State } from '../../interfaces'
+import fork from 'forks'
+import Sequence from 'sequence'
 
-export class RecordStream extends Duplex {
+@fork export class RecordStream extends Duplex {
   state: State = new InitialState()
   output = new Sequence()
 
@@ -11,7 +12,9 @@ export class RecordStream extends Duplex {
 
   _write (chunk: Buffer) {
     try {
+      var position = this.output.position
       this.state = this.state.transform(chunk, this.output)
+      
     } catch (e) {
       this.end()
     }

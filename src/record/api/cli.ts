@@ -1,12 +1,11 @@
 import * as readline from 'readline'
 import { createInterface, ReadLine } from 'readline'
 import { Writable } from 'stream'
-import FileStream from '../devices/fs'
+//import FileStream from '../devices/fs'
 import { RecordStream } from './stream'
 
 var stream = new RecordStream()
-var fs = new FileStream(stream)
-stream.pipe(fs).pipe(stream)
+//var fs = new FileStream(stream).stream.pipe(fs).pipe(stream)
 
 export function start () {
   var cwd = process.cwd()

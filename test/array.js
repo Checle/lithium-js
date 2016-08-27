@@ -1,7 +1,7 @@
 var test = require('tape')
 
 test('Array', (t) => {
-  t.test('Object.create', (t) => {
+  t.test('create', (t) => {
     var parent = [1, 2, 3]
     var child = Object.create(parent)
 

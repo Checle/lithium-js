@@ -1,6 +1,6 @@
 import { Duplex } from 'stream'
 import { WriteStream } from 'fs'
-import { Input } from './types'
+import { Input } from 'types'
 
 export interface Sequence extends Iterator<Buffer> {
   position: number
