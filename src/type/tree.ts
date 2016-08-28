@@ -2,7 +2,7 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-import { mergeable, forkable } from 'forks'
+import { mergeable, forkable } from '../forks'
 
 @forkable export default class Tree {
   constructor (value?: any) {

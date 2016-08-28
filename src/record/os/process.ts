@@ -4,17 +4,17 @@ import { Readable, Writable } from 'stream'
 import { EventEmitter } from 'events'
 import { Script, Context } from 'vm'
 
-import * as interfaces from 'interfaces'
-import { prototype } from 'decorators'
-import { Input } from 'types'
+import * as interfaces from '../../interfaces'
+import { prototype } from '../../decorators'
+import { Input } from '../../types'
 import { SystemError } from '../errors'
 import { IDs } from './pool'
-import fork from 'forks'
-import Global from 'context/global'
-import Tree from 'type/tree'
-import Sequence from 'sequence'
+import fork from '../../forks'
+import Global from '../../context/global'
+import Tree from '../../type/tree'
+import Sequence from '../../sequence'
 
-class Stream extends Readable implements fs.ReadStream, fs.WriteStream, interfaces.Sequence {
+class Stream extends Readable implements fs.ReadStream, fs.WriteStream {
   path: string
   position: number
   length: number

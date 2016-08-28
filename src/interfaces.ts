@@ -1,8 +1,8 @@
 import { Duplex } from 'stream'
 import { WriteStream } from 'fs'
-import { Input } from 'types'
+import { Input } from './types'
 
-export interface Sequence extends Iterator<Buffer> {
+export interface Sequence extends Iterable<Buffer> {
   position: number
   length: number
 
@@ -16,13 +16,13 @@ export interface Sequence extends Iterator<Buffer> {
   pop (): Buffer
   slice(start?: number, end?: number): Sequence
 
-  toString(): string
-  valueOf(): Buffer
-  next (): IteratorResult<Buffer>
+  toString (): string
+  valueOf (): Buffer
+  [Symbol.iterator] (): Iterator<Buffer>
   compare (target: any): number
 }
 
-export interface Output {
+export interface Sink {
   push (chunk: Input): void
 }
 
@@ -32,7 +32,7 @@ export interface Record extends WriteStream {
 }
 
 export interface State {
-  transform (input?: Buffer, output?: Sequence): State
+  transform (output: Sink, input: Buffer): State
 }
 
 export interface Container extends Record, Duplex {
@@ -41,5 +41,5 @@ export interface Container extends Record, Duplex {
 
 export interface Process {
   exec (any)
-  fork ()
+  fork (): Process
 }

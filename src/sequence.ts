@@ -1,11 +1,16 @@
 // TODO: must be interatable without deleting portions
 
-import { prototype } from 'decorators'
-import fork from 'forks'
-import * as interfaces from 'interfaces'
+import { prototype } from './decorators'
+import fork from './forks'
+import * as interfaces from './interfaces'
 
 @fork export default class Sequence implements interfaces.Sequence {
-  private portions: Buffer[] = []
+  constructor (...args) {
+    this.push.apply(this, args)
+  }
+
+  private list: Buffer[] = []
+  private size: number = 0
 
   position: number
   length: number
@@ -14,30 +19,42 @@ import * as interfaces from 'interfaces'
   write (chunk: any): boolean { return null }
   seek (offset: number): number { return null }
 
-  push (chunk: any): void { return null }
+  push (...chunks: any[]): number {
+    for (let chunk of chunks) {
+      let buffer = null
+      if (typeof chunk === 'string') buffer = Buffer.from(chunk)
+      else if (chunk instanceof Buffer) buffer = chunk
+      else if (chunk instanceof Array) this.push(...chunk)
+      else if (Symbol.iterator in chunk) for (let item of chunk) this.push(item)
+      else buffer = Buffer.from(String(chunk))
+      if (buffer == null) continue
+
+      this.size += buffer.length
+      this.list.push(buffer)
+    }
+    return this.size
+  }
+
+  valueOf (): Buffer {
+    var buffer = Buffer.concat(this.list, this.size)
+    this.list = [buffer]
+    return buffer
+  }
+  toString(): string {
+    return String(this.valueOf())
+  }
+
   unshift (chunk: any): void { return null }
   shift (): Buffer { return null }
   pop (): Buffer { return null }
   slice(start?: number, end?: number): Sequence { return null }
 
-  toString(): string { return null }
-  valueOf(): Buffer { return null }
-  next (): IteratorResult<Buffer> { return null }
   compare (target: any): number { return null }
+  [Symbol.iterator] (): Iterator<Buffer> { return null }
 
   /*
   private size: number
 
-  push (...portions: any[]): number {
-    for (var portion of portions) {
-      if (portion instanceof Buffer) var buffer = portion
-      else if (portion instanceof Array) buffer = Buffer.from(portion.join(''))
-      else buffer = Buffer.from(String(portion))
-      this.size += buffer.length
-      this.portions.push(buffer)
-    }
-    return this.size
-  }
 
   read (size?: number): Buffer {
     if (this.portions[0].length == size) return this.portions[0]
@@ -54,17 +71,6 @@ import * as interfaces from 'interfaces'
   shift (): Buffer {
     if (!this.portions.length) return null
     return this.portions.shift()
-  }
-
-  valueOf (): Buffer {
-    var buffer = new Buffer(this.size)
-    for (var offset = 0, i = 0; i < this.portions.length; i++) {
-      var portion = this.portions[i]
-      portion.copy(buffer, offset)
-      offset += portion.length
-    }
-    this.portions = [buffer]
-    return buffer
   }
 
   compare (target: any): number { return -1 }

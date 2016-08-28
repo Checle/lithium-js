@@ -32,6 +32,9 @@ export function fork (object: any, name?: string): any {
 }
 
 export function merge (object: any, origin?: any) {
+  // TODO: fork mergeable function results (assign(branch)) and arguments
+  // TODO: only merge functions marked mergeable (align with fork, no private methods etc.)
+
   if (object instanceof Function) { // Class decorator
     object.prototype[MERGE] = []
     // TODO: set object.merge?
@@ -88,8 +91,8 @@ function assign (target:any, origin: any, branch: symbol): any  {
       let writable = descriptor.writable || descriptor.set
 
       if (!descriptor.configurable) continue
-      if (!merge && !value[FORK]) continue // Object shall not be forked
-      if (value[FORK] === branch) continue // Object has already been copied in this fork
+      if (!merge && value && !value[FORK]) continue // Object shall not be forked
+      if (value && value[FORK] === branch) continue // Object has already been copied in this fork
 
       Object.defineProperty(target, name, {
         get () {
@@ -121,6 +124,9 @@ function create (object: any) {
 
   var target = function () {
     var args = arguments
+    if (this instanceof target) {
+      return new object(...args) // New instantiations are irrelevant as this variable is unrelated
+    }
     if (this[MERGE]) this[MERGE].push(function () { object.apply(this, args) })
     return object.apply(this, args)
   }

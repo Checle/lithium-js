@@ -1,6 +1,7 @@
 import { Readable } from 'stream'
 import { ReadStream, WriteStream } from 'fs'
-import * as interfaces from 'interfaces'
+import Sequence from './sequence'
+import * as interfaces from './interfaces'
 
 export type Input = Buffer | string
 
@@ -17,5 +18,27 @@ export const Str = {
   write (sequence, string) {
     sequence.push(string)
     sequence.push(0)
+  }
+}
+
+export const VN = {
+  read (sequence: Sequence) {
+    return sequence.read(4).readUInt32LE(0)
+  },
+  write (sequence, integer) {
+    var buffer = new Buffer(4)
+    buffer.writeUInt32LE(integer, 0)
+    sequence.push(buffer)
+  }
+}
+
+export const VarInt = {
+  read (sequence: Sequence) {
+    return sequence.read(4).readUInt32LE(0)
+  },
+  write (sequence, integer) {
+    var buffer = new Buffer(4)
+    buffer.writeUInt32LE(integer, 0)
+    sequence.push(buffer)
   }
 }

@@ -42,6 +42,7 @@ test('forks', (t) => {
     Func = fork(Func)
     object = new Func()
 
+    t.ok(object instanceof Func, 'should instatiate a constructor when called with new')
     t.ok(object.forkable !== Func.prototype.forkable, 'should be usable as class decorator')
 
     t.end()

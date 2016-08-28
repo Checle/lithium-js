@@ -1,34 +1,100 @@
-import fork from 'forks'
-import * as types from 'types'
-import * as interfaces from 'interfaces'
-import Sequence from 'sequence'
-import * as vm from './vm'
+import * as interfaces from '../../interfaces'
+import * as types from '../../types'
+import * as vm from 'vm'
+import Global from '../api/js'
+import { Sink } from '../../interfaces'
+import fork from '../../forks'
+import Sequence from '../../sequence'
+import Tree from '../../type/tree'
 
-@fork abstract class State implements interfaces.State {
-  abstract transform (input?, output?): State
+@fork export abstract class State implements interfaces.State {
+  abstract transform (output: Sink, input: Buffer): State
+}
+
+export default State
+
+export class StateContext implements Sink {
+  constructor (private output: Sink, private state: State) { }
+
+  push (input: any) {
+    // TODO: treat input and output variations
+    var state = this.state.transform(this.output, input)
+    this.state = state != null ? state : fork(this.state)
+  }
 }
 
 export class FunctionState implements State {
   constructor (protected acceptor: types.Acceptor) { }
 
-  transform (input?: Buffer, output = new Sequence()): State {
+  transform (output: Sink, input: Buffer): State {
     // TODO: handle any output type
-    return new FunctionState(this.acceptor.call(output, input))
+    var result = this.acceptor.call.apply(this.acceptor, arguments)
+    if (result != null) return new FunctionState(result)
   }
 }
 
-export default class CodeState implements State {
+export class MultilineCodeState implements State {
+  input = new Sequence()
+  @fork global = new Global()
+
+  // TODO: end script on 0 char
+  // TODO: just reexecute script on new context on SyntaxError
+
+  transform (output: Sink, input: Buffer): State {
+    this.input.push(input)
+    var buffer = this.input.valueOf()
+    for (var i = buffer.length - 1; i >= 0; i--) if (buffer[i] < 32) break
+    var code = String(buffer.slice(0, i))
+    try {
+      // Variables assigned in the global scope will be reflected in this.global
+      vm.runInNewContext(code, this.global)
+    } catch (error) {
+      if (error instanceof SyntaxError) return
+      process.stderr.write(String(error) + '\r') // Print (and execute) any throw result to out like node
+      // TODO: meaningful output = type string and Sequence
+    }
+    this.input = new Sequence(buffer.slice(i))
+  }
+}
+
+export class CodeState implements State {
+  @fork global = vm.createContext(new Global())
+
+  transform (output: Sink, input: Buffer): any {
+    var code = String(input)
+    try {
+      // Variables assigned in the global scope will be reflected in this.global
+      vm.runInContext(code, this.global)
+    } catch (result) {
+      output.push(String(result))
+      process.stderr.write('\r' + String(result) + '\r\n') // Print (and execute) any throw result to out like node
+    }
+  }
+}
+
+export abstract class SegmentState implements State {
   input = new Sequence()
 
-  transform (input?: Buffer, output?: Sequence): State {
+  abstract process (output: Sink, input: Sequence): State
+
+  transform (output: Sink, input: Buffer): State {
     if (input == null) {
-      var acceptor = vm.Function('input', String(this.input))
-      return new FunctionState(acceptor).transform(input, output)
+      let sequence = this.input
+      this.input = new Sequence()
+      return this.process(output, sequence)
     }
     this.input.push(input)
-
-    return fork(this)
   }
 }
 
-export const InitialState = CodeState
+export class RecordState extends SegmentState {
+  process (output: Sink, input: Sequence): State {
+    return null
+  }
+}
+
+export class ProcessState implements State {
+  transform (output: Sink, input: Buffer): State {
+    return null
+  }
+}

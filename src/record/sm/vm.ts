@@ -1,5 +1,5 @@
 import * as vm from 'vm'
-import Global from 'context/global'
+import Global from '../../context/global'
 
 export function exec (code: string | Buffer, ...args): any {
   var path = String(args[0])
@@ -13,7 +13,7 @@ export function exec (code: string | Buffer, ...args): any {
 
 export function Function (...args) {
   var context = { this: null }
-  var expression = String(Function.apply(null, args))
+  var expression = String(Function.constructor.apply(null, args))
   var options = { filename: String(this), displayErrors: true, lineOffset: -1 }
   var code = 'this.this='+expression
   vm.runInNewContext(code, context, options)

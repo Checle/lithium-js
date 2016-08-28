@@ -1,5 +1,5 @@
 #! /usr/bin/env node
 
-var cli = require('../build/record/apis/cli.js')
+var cli = require('../build/record/api/cli.js')
 
 cli.start()

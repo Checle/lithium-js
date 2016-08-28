@@ -1,35 +1,27 @@
 import * as fs from 'fs'
-import { Readable, Writable } from 'stream'
+import { Writable, Transform } from 'stream'
 import { prototype } from '../../decorators'
-import Sequence from '../../sequence'
 import { Str } from '../../types'
-import { Forkable } from '../../utils'
+import fork from '../../forks'
+import Sequence from '../../sequence'
+import State from '../../record/sm/states'
 
-@prototype(Forkable)
-export default class FileStream extends Writable {
-  // Target will be forked if forkable
-  constructor (private target: Writable & Forkable) {
-    super()
-    Forkable.call(this)
-    this.on('finish', () => this.send())
-  }
+/*
+export default class LocalFileSystemState extends State {
+  pathLength: number
 
-  path: string
-  buffer = new Sequence()
-
-  _read () { }
-  _write (chunk: Buffer) {
-    this.buffer.push(chunk)
-    for (let i = 0; i < chunk.length; i++) if (chunk[i] == 0) {
-      chunk = chunk.slice(0, i)
-      this.buffer.push(chunk)
+  transform (input: Buffer, output: Sequence) {
+    for (let length = 0; length < input.length && input[length]; length++) continue
+    output.push(input.slice(0, length))
+    if (length < input.length) this.open(length)
+    if (this.pathLength != null) this.
       this.end()
     }
-    this.buffer.push(chunk)
+    this.output.push(chunk)
   }
 
-  private send () {
-    this.path = this.buffer.toString()
+  private open (length: number) {
+    this.path = this.output.toString()
     fs.stat(this.path, (err, stats) => err || this.stat(stats))
   }
   private stat (stats: fs.Stats) {
@@ -38,7 +30,44 @@ export default class FileStream extends Writable {
     else if (stats.isDirectory()) fs.readdir(this.path, (err, files) => err || this.readdir(files))
   }
   private readdir (files: string[]) {
-    for (let file of files) this.target.write(file+'\0')
+    for (let file of files) this.target.write(file + '\0')
     this.target.end()
   }
 }
+
+@fork export default class FileSystemDevice extends Transform {
+  // Target will be forked if forkable
+  constructor (private target: Writable) {
+    super()
+  }
+
+  path: string
+  output = new Sequence()
+
+  _transform (chunk: output, encoding: string, callback: Function) {
+    this.output.push(chunk)
+    for (let i = 0; i < chunk.length; i++) if (chunk[i] == 0) {
+      chunk = chunk.slice(0, i)
+      this.push(chunk)
+      this.output.push(chunk)
+      this.end()
+    }
+    this.output.push(chunk)
+  }
+
+  private send () {
+    this.path = this.output.toString()
+    fs.stat(this.path, (err, stats) => err || this.stat(stats))
+  }
+  private stat (stats: fs.Stats) {
+    this.target.write(this.path+'\0')
+    if (stats.isFile()) fs.createReadStream(this.path).pipe(this.target)
+    else if (stats.isDirectory()) fs.readdir(this.path, (err, files) => err || this.readdir(files))
+  }
+  private readdir (files: string[]) {
+    for (let file of files) this.target.write(file + '\0')
+    this.target.end()
+  }
+}
+
+*/
