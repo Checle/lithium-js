@@ -1,7 +1,7 @@
 module.exports = {
   resolve {
     alias: {
-      vm: 'vm-shim'
+      vm: 'browser-vm'
     }
   }
 };

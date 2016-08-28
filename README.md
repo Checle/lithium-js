@@ -26,3 +26,11 @@ Unstable and non-functional: early proof of concept.
 **Command-line interface** `record`
 
 **Node developer console** `npm run console`
+
+## Contributions
+
+### Project conventions
+
+* [Coding style](https://github.com/feross/standard/blob/master/RULES.md)
+* [Coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines)
+* [Module best practices](https://github.com/mattdesl/module-best-practices)

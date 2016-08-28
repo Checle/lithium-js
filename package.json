@@ -41,6 +41,7 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
-    "vm-shim": "0.0.6"
+    "bashful": "^1.8.0",
+    "browser-vm": "0.0.6"
   }
 }
