@@ -8,3 +8,10 @@ export class SystemError extends Error {
   code = this.errno
   name = 'SystemError'
 }
+
+export function catchError (func) {
+  return function (...args) {
+    try { return func.apply(this, args) }
+    catch (error) { this.emit('error', error) }
+  }
+}

@@ -11,9 +11,8 @@ export function start () {
   var cwd = process.cwd()
   var args = process.argv.slice(2)
 
-  stream.write(cwd+'\t')
-  for (let arg of args) stream.write(arg+'\0')
-  stream.write('\0')
+  // Enter path and execute command line arguments via shebang
+  stream.write(cwd+'\0#!'+args.map(escape).join(' ')+'\n')
 
   process.stdin.pipe(stream).pipe(process.stdout)
 }

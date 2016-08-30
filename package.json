@@ -2,7 +2,7 @@
   "name": "record-js",
   "version": "0.0.4",
   "description": "JavaScript implementation of a universal blockchain OS",
-  "main": "build/r.js",
+  "main": "index.js",
   "scripts": {
     "prepublish": "npm run clean && typings install && npm run build",
     "postpublish": "npm run deploy",
@@ -33,6 +33,7 @@
     "eslint-config-standard": "^5.3.5",
     "eslint-plugin-promise": "^2.0.1",
     "eslint-plugin-standard": "^2.0.0",
+    "object-fork": "^1.1.2",
     "gh-pages": "^0.11.0",
     "tape": "^4.6.0",
     "typescript": "^1.8.10",
@@ -42,6 +43,6 @@
   },
   "dependencies": {
     "bashful": "^1.8.0",
-    "browser-vm": "0.0.6"
+    "browser-vm": "0.0.7"
   }
 }

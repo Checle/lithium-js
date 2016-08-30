@@ -3,10 +3,6 @@ import { ReadStream, WriteStream } from 'fs'
 import Sequence from './sequence'
 import * as interfaces from './interfaces'
 
-export type Input = Buffer | string
-
-export type Acceptor = (/*this: interfaces.Sequence,*/ buffer?: Buffer) => any
-
 export const Str = {
   read (sequence) {
     var tail = sequence.slice()

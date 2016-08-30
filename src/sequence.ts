@@ -1,7 +1,7 @@
 // TODO: must be interatable without deleting portions
 
 import { prototype } from './decorators'
-import fork from './forks'
+import fork from 'object-fork'
 import * as interfaces from './interfaces'
 
 @fork export default class Sequence implements interfaces.Sequence {

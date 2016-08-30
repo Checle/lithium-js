@@ -1,6 +1,5 @@
-import { Duplex } from 'stream'
+import { Readable, Duplex } from 'stream'
 import { WriteStream } from 'fs'
-import { Input } from './types'
 
 export interface Sequence extends Iterable<Buffer> {
   position: number
@@ -26,6 +25,9 @@ export interface Sink {
   push (chunk: Input): void
 }
 
+export interface JS extends Function, Array<any> {
+}
+
 export interface Record extends WriteStream {
   position: number
   path: string
@@ -43,3 +45,9 @@ export interface Process {
   exec (any)
   fork (): Process
 }
+
+export type Input = Record | Readable | Buffer | Function | string | any
+
+export type Acceptor = (/*this: interfaces.Sequence,*/ ...buffer: Buffer[]) => any
+
+export type Accessor = (/*this: interfaces.Record,*/ ...inputs: Input[]) => Accessor

@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import { Writable, Transform } from 'stream'
 import { prototype } from '../../decorators'
 import { Str } from '../../types'
-import fork from '../../forks'
+import fork from 'object-fork'
 import Sequence from '../../sequence'
 import State from '../../record/sm/states'
 

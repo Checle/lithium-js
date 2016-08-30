@@ -3,15 +3,15 @@ import * as types from '../../types'
 import * as vm from 'vm'
 import Global from '../api/js'
 import { Sink } from '../../interfaces'
-import fork from '../../forks'
+import fork from 'object-fork'
 import Sequence from '../../sequence'
 import Tree from '../../type/tree'
+
+export default State
 
 @fork export abstract class State implements interfaces.State {
   abstract transform (output: Sink, input: Buffer): State
 }
-
-export default State
 
 export class StateContext implements Sink {
   constructor (private output: Sink, private state: State) { }
@@ -24,7 +24,7 @@ export class StateContext implements Sink {
 }
 
 export class FunctionState implements State {
-  constructor (protected acceptor: types.Acceptor) { }
+  constructor (protected acceptor: interfaces.Acceptor) { }
 
   transform (output: Sink, input: Buffer): State {
     // TODO: handle any output type
