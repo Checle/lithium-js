@@ -32,5 +32,5 @@ Unstable and non-functional: early proof of concept.
 ### Project conventions
 
 * [Coding style](https://github.com/feross/standard/blob/master/RULES.md)
-* [Coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines)
+* Naming: [TypeScript coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines), align names with [Java API](https://docs.oracle.com/javase/7/docs/api/overview-summary.html) counterparts if applicable
 * [Module best practices](https://github.com/mattdesl/module-best-practices)
