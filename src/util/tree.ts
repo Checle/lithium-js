@@ -4,16 +4,16 @@
 
 import { mergeable, forkable } from 'object-fork'
 
-@forkable export default class Tree {
-  constructor (value?: any) {
+@forkable export default class Tree <T> {
+  constructor (value?: T) {
     this.value = value
     this.depth = 1
   }
 
-  private value: any
+  private value: T
   private depth: number
-  private left: Tree = null
-  private right: Tree = null
+  private left: Tree<T> = null
+  private right: Tree<T> = null
 
   private balance () {
     var ldepth = this.left == null ? 0 : this.left.depth
@@ -78,7 +78,7 @@ import { mergeable, forkable } from 'object-fork'
     if (this.right != null && this.depth <= this.right.depth) this.depth = this.right.depth + 1
   }
 
-  add (value: any): boolean {
+  add (value: T): boolean {
     // Clone subtrees into own properties
     if (this.value === value) return false
 
@@ -105,7 +105,7 @@ import { mergeable, forkable } from 'object-fork'
     return ret
   }
 
-  contains (value: any): boolean {
+  contains (value: T): boolean {
     if (value < this.value) {
       if (this.left) return this.left.contains(value)
       return false
@@ -117,7 +117,7 @@ import { mergeable, forkable } from 'object-fork'
     return true
   }
 
-  find (value: any): any {
+  find (value: T): T {
     if (value < this.value) {
       if (this.left) return this.left.find(value)
       return null
