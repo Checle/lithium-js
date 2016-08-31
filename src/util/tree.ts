@@ -117,13 +117,14 @@ import { mergeable, forkable } from 'object-fork'
     return true
   }
 
+
+  // Find the greatest node that is less or equal `value` or the least node if there is no such
   find (value: T): T {
     if (value < this.value) {
       if (this.left) return this.left.find(value)
-      return null
     }
     if (value !== this.value) {
-      if (this.right) return this.right.find(value) || this.value
+      if (this.right) return this.right.find(value)
     }
     return this.value
   }
