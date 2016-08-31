@@ -4,6 +4,8 @@ import { Writable } from 'stream'
 //import FileStream from '../devices/fs'
 import { RecordStream } from './stream'
 
+function escape () { }
+
 var stream = new RecordStream()
 //var fs = new FileStream(stream).stream.pipe(fs).pipe(stream)
 

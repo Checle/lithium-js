@@ -5,7 +5,7 @@ import Global from '../api/js'
 import { Sink } from '../../interfaces'
 import fork from 'object-fork'
 import Sequence from '../../sequence'
-import Tree from '../../type/tree'
+import Tree from '../../util/tree'
 
 export default State
 
@@ -35,7 +35,7 @@ export class FunctionState implements State {
 
 export class MultilineCodeState implements State {
   input = new Sequence()
-  @fork global = new Global()
+  global = new Global()
 
   // TODO: end script on 0 char
   // TODO: just reexecute script on new context on SyntaxError
@@ -58,7 +58,7 @@ export class MultilineCodeState implements State {
 }
 
 export class CodeState implements State {
-  @fork global = vm.createContext(new Global())
+  global = vm.createContext(new Global())
 
   transform (output: Sink, input: Buffer): any {
     var code = String(input)
