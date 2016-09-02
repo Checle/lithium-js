@@ -86,4 +86,26 @@ export default class BufferList {
     }
     return ret
   }
+
+  compare (target) {
+    if (!Buffer.isBuffer(target)) {
+      target = new Buffer(String(target))
+    }
+    var p = this.head
+    var i = 0;
+    while (p && i <= target.length) {
+      var cmp = p.data.compare(target)
+      if (cmp) return cmp
+      i += p.data.length
+      p = p.next
+    }
+    if (target.length == this.length) {
+      return 0
+    }
+    return target.length > this.length ? 1 : -1
+  }
+
+  toString () {
+    return this.join('')
+  }
 }
