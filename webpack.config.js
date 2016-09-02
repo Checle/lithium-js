@@ -1,5 +1,5 @@
 module.exports = {
-  resolve {
+  resolve: {
     alias: {
       vm: 'browser-vm'
     }
