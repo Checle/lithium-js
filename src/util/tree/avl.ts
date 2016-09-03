@@ -2,9 +2,10 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-import { mergeable, forkable } from 'object-fork'
+import { mergeable, forkable } from '../forks'
+import { Tree } from '../../interfaces'
 
-@forkable export default class Tree <T> {
+@forkable export default class AVLTree <T> implements Tree<T> {
   constructor (value?: T) {
     this.value = value
     this.depth = 1
@@ -12,8 +13,8 @@ import { mergeable, forkable } from 'object-fork'
 
   private value: T
   private depth: number
-  private left: Tree<T> = null
-  private right: Tree<T> = null
+  private left: AVLTree<T> = null
+  private right: AVLTree<T> = null
 
   private balance () {
     var ldepth = this.left == null ? 0 : this.left.depth
@@ -85,7 +86,7 @@ import { mergeable, forkable } from 'object-fork'
     var ret = false
     if (value < this.value) {
       if (this.left == null) {
-        this.left = new Tree(value)
+        this.left = new AVLTree(value)
         ret = true
       } else {
         ret = this.left.add(value)
@@ -93,7 +94,7 @@ import { mergeable, forkable } from 'object-fork'
       }
     } else {
       if (this.right == null) {
-        this.right = new Tree(value)
+        this.right = new AVLTree(value)
         ret = true
       } else {
         ret = this.right.add(value)
@@ -118,15 +119,14 @@ import { mergeable, forkable } from 'object-fork'
   }
 
 
-  // Find the greatest node that is less or equal `value` or the least node if there is no such
-  find (value: T): T {
+  find (value: T): Tree<T> {
     if (value < this.value) {
       if (this.left) return this.left.find(value)
     }
     if (value !== this.value) {
       if (this.right) return this.right.find(value)
     }
-    return this.value
+    return this
   }
 
   toString (): string {
