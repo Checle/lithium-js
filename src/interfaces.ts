@@ -46,6 +46,24 @@ export interface Process {
   fork (): Process
 }
 
+export interface Tree <T> {
+  /**
+   * Add a given value to the tree so that it will be contained in the tree.
+   * Return true if the value has been added or false if it already has been contained in the tree.
+   */
+  add (value: T): boolean
+  /**
+   * Return if an equivalent value exists as node of the tree.
+   */
+  contains (value: T): boolean
+  /**
+   * Return the node of the tree with greatest value that is less than or equal to the given value.
+   * If none exists, return the node with least overall value.
+   */
+  find (value: T): Tree<T>
+}
+
+
 export type Input = Record | Readable | Buffer | Function | string | any
 
 export type Acceptor = (/*this: interfaces.Sequence,*/ ...buffer: Buffer[]) => any
