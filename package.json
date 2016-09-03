@@ -6,13 +6,14 @@
   "scripts": {
     "prepublish": "npm run clean && typings install && npm run build && cp -Rn src/* build/",
     "postpublish": "npm run deploy",
-    "test": "npm run dist && node test/index.js && ts-node test/index.js && bash test/index.sh && npm run lint",
+    "test": "npm run dist && node --harmony test/index.js && ts-node test/index.js && bash test/index.sh && npm run lint",
     "lint": "find src -name '*.ts' -print0 | xargs -0 -n1 eslint",
-    "console": "node bin/console.js",
+    "console": "node --harmony bin/console.js",
     "build": "tsc",
     "dist": "npm run build && webpack --optimize-minimize build/index.js dist/index.js",
     "clean": "rm -rf build && rm -rf dist",
-    "deploy": "npm run dist && gh-pages -d dist -m \"Deploy $(npm view record-js version)\""
+    "deploy": "npm run dist && gh-pages -d dist -m \"Deploy $(npm view record-js version)\"",
+    "debug": "devtool test/index.js"
   },
   "bin": {
     "record": "bin/record.js"
