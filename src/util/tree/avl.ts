@@ -5,14 +5,10 @@
 import { mergeable, forkable } from '../forks'
 import { Tree } from '../../interfaces'
 
-@forkable export default class AVLTree <T> implements Tree<T> {
-  constructor (value?: T) {
-    this.value = value
-    this.depth = 1
-  }
+@forkable export default class AVLTree<T> implements Tree<T> {
+  constructor (public value?: T, public next?: AVLTree<T>, private previous?: AVLTree<T>) { }
 
-  private value: T
-  private depth: number
+  private depth: number = 1
   private left: AVLTree<T> = null
   private right: AVLTree<T> = null
 
@@ -27,10 +23,10 @@ import { Tree } from '../../interfaces'
 
       if (lldepth < lrdepth) {
         // LR rotation consists of a RR rotation of the left child
-        this.left.rotateRR()
+        this.left.rotateRightLeft()
         // plus a LL rotation of this value, which happens anyway
       }
-      this.rotateLL()
+      this.rotateLeftRight()
     } else if (ldepth + 1 < rdepth) {
       // RR or RL rorarion
       var rrdepth = this.right.right == null ? 0 : this.right.right.depth
@@ -38,37 +34,35 @@ import { Tree } from '../../interfaces'
 
       if (rldepth > rrdepth) {
         // RR rotation consists of a LL rotation of the right child
-        this.right.rotateLL()
+        this.right.rotateLeftRight()
         // plus a RR rotation of this value, which happens anyway
       }
-      this.rotateRR()
+      this.rotateRightLeft()
     }
   }
-  private rotateLL () {
-    // the left side is too long => rotate from the left (_not_ leftwards)
-    var value = this.value
-    var right = this.right
-    this.value = this.left.value
-    this.right = this.left
-    this.left = this.left.left
-    this.right.left = this.right.right
-    this.right.right = right
-    this.right.value = value
-    this.right.updateInNewLocation()
-    this.updateInNewLocation()
-  }
-  private rotateRR () {
+  private rotate (from: string, to: string) {
     // the right side is too long => rotate from the right (_not_ rightwards)
     var value = this.value
-    var left = this.left
-    this.value = this.right.value
-    this.left = this.right
-    this.right = this.right.right
-    this.left.right = this.left.left
-    this.left.left = left
-    this.left.value = value
-    this.left.updateInNewLocation()
+    var next = this.next
+    var target = this[to]
+    this.value = this[from].value
+    this.next = this[from].next
+    this[to] = this[from]
+    this[from] = this[from][from]
+    this[to][from] = this[to][to]
+    this[to][to] = target
+    this[to].value = value
+    this[to].next = next
+    this[to].updateInNewLocation()
     this.updateInNewLocation()
+  }
+  private rotateLeftRight () {
+    // Left side too long, so rotate from the left
+    return this.rotate('left', 'right')
+  }
+  private rotateRightLeft () {
+    // Right side too long, so rotate from the right
+    return this.rotate('right', 'left')
   }
   private updateInNewLocation () {
     this.getDepthFromChildren()
@@ -86,7 +80,9 @@ import { Tree } from '../../interfaces'
     var ret = false
     if (value < this.value) {
       if (this.left == null) {
-        this.left = new AVLTree(value)
+        this.left = new AVLTree(value, this, this.previous)
+        if (this.previous) this.previous.next = this.left
+        this.previous = this.left
         ret = true
       } else {
         ret = this.left.add(value)
@@ -94,7 +90,9 @@ import { Tree } from '../../interfaces'
       }
     } else {
       if (this.right == null) {
-        this.right = new AVLTree(value)
+        this.right = new AVLTree(value, this.next)
+        if (this.next) this.next.previous = this.right
+        this.next = this.right
         ret = true
       } else {
         ret = this.right.add(value)
@@ -118,8 +116,7 @@ import { Tree } from '../../interfaces'
     return true
   }
 
-
-  find (value: T): Tree<T> {
+  find (value: T): AVLTree<T> {
     if (value < this.value) {
       if (this.left) return this.left.find(value)
     }
@@ -129,7 +126,32 @@ import { Tree } from '../../interfaces'
     return this
   }
 
+  valueOf (): T {
+    return this.value
+  }
+
   toString (): string {
-    return '[' + this.left + ',' + this.value + ',' + this.right + ']'
+    return String(this.value)
+  }
+
+  [Symbol.iterator](): Iterator<T> {
+    var current: AVLTree<T> = this
+
+    return {
+      next (): IteratorResult<T> {
+        if (current) {
+          let value = current.value
+          current = current.next
+          return {
+            done: false,
+            value: current.value
+          }
+        } else {
+          return {
+            done: true
+          }
+        }
+      }
+    }
   }
 }

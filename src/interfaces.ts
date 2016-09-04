@@ -46,7 +46,11 @@ export interface Process {
   fork (): Process
 }
 
-export interface Tree <T> {
+export interface Tree<T> implements Iterable<T> {
+  value: T
+  next: Tree<T>
+  [Symbol.iterator](): Iterator<T>
+
   /**
    * Add a given value to the tree so that it will be contained in the tree.
    * Return true if the value has been added or false if it already has been contained in the tree.
