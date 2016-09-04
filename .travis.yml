@@ -1,7 +1,10 @@
+branches:
+  only: dev
+
 language: node_js
+
 node_js:
   - "6"
-branches:
-  only:
-  - master
-  - dev
+
+after_success:
+  - git push origin dev:master -f
