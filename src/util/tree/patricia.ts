@@ -95,36 +95,38 @@ export default class PatriciaTrie <T> extends Node<T> {
     }
   }
 
-  has (value: T, path?: Sequence): boolean {
-    if (path == null) path = toSequence(value)
+  has (value: any): boolean {
+    var path = toSequence(value)
+
     if (path < this.path) return false
     if (!(path > this.path)) return true
 
     let element = path[0]
 
     if (this.length && element <= this.path[0]) {
-      return this.next.has(value, path.slice(this.length))
+      return this.next.has(path.slice(this.length))
     }
 
     if (this.children.hasOwnProperty(element)) {
-      return this.children[element].has(value, path.slice(1))
+      return this.children[element].has(path.slice(1))
     }
 
     return false
   }
 
-  find (value: T, path?: Sequence): PatriciaTrie<T> {
-    if (path == null) path = toSequence(value)
+  find (value: any): PatriciaTrie<T> {
+    var path = toSequence(value)
+
     if (path <= this.path) return this
 
     let element = path[0]
 
     if (this.length && element <= this.path[0]) {
-      return this.next.find(value, path.slice(this.length))
+      return this.next.find(path.slice(this.length))
     }
 
     if (this.children.hasOwnProperty(element)) {
-      return this.children[element].find(value, path.slice(1))
+      return this.children[element].find(path.slice(1))
     }
 
     return this
