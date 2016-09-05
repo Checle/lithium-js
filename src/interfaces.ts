@@ -46,11 +46,17 @@ export interface Process {
   fork (): Process
 }
 
-export interface Tree<T> implements Iterable<T> {
-  value: T
-  next: Tree<T>
-  [Symbol.iterator](): Iterator<T>
+export interface Comparable {
+  compare (target: any): number
+}
 
+export interface Node <T> {
+  value: T
+  next: Node<T>
+  [Symbol.iterator](): Iterator<T>
+}
+
+export interface Tree <T> extends Node<T>, Iterable<T> {
   /**
    * Add a given value to the tree so that it will be contained in the tree.
    * Return true if the value has been added or false if it already has been contained in the tree.
@@ -59,12 +65,12 @@ export interface Tree<T> implements Iterable<T> {
   /**
    * Return if an equivalent value exists as node of the tree.
    */
-  contains (value: T): boolean
+  has (value: T): boolean
   /**
    * Return the node of the tree with greatest value that is less than or equal to the given value.
    * If none exists, return the node with least overall value.
    */
-  find (value: T): Tree<T>
+  find (value: any): Node<T>
 }
 
 

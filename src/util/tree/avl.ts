@@ -3,36 +3,38 @@
 // Modified by Jeremy Stephens.
 
 import { mergeable, forkable } from '../forks'
-import { Tree } from '../../interfaces'
+import Node from './node'
 
-@forkable export default class AVLTree<T> implements Tree<T> {
-  constructor (public value?: T, public next?: AVLTree<T>, private previous?: AVLTree<T>) { }
+@forkable export default class AVLTree <T> extends Node<T> {
+  constructor (value?: T, public next?: AVLTree<T>, private previous?: AVLTree<T>) {
+    super(value, next)
+  }
 
   private depth: number = 1
   private left: AVLTree<T> = null
   private right: AVLTree<T> = null
 
   private balance () {
-    var ldepth = this.left == null ? 0 : this.left.depth
-    var rdepth = this.right == null ? 0 : this.right.depth
+    var ld = this.left == null ? 0 : this.left.depth
+    var rd = this.right == null ? 0 : this.right.depth
 
-    if (ldepth > rdepth + 1) {
+    if (ld > rd + 1) {
       // LR or LL rotation
-      var lldepth = this.left.left == null ? 0 : this.left.left.depth
-      var lrdepth = this.left.right == null ? 0 : this.left.right.depth
+      var lld = this.left.left == null ? 0 : this.left.left.depth
+      var lrd = this.left.right == null ? 0 : this.left.right.depth
 
-      if (lldepth < lrdepth) {
+      if (lld < lrd) {
         // LR rotation consists of a RR rotation of the left child
         this.left.rotateRightLeft()
         // plus a LL rotation of this value, which happens anyway
       }
       this.rotateLeftRight()
-    } else if (ldepth + 1 < rdepth) {
+    } else if (ld + 1 < rd) {
       // RR or RL rorarion
-      var rrdepth = this.right.right == null ? 0 : this.right.right.depth
-      var rldepth = this.right.left == null ? 0 : this.right.left.depth
+      var rrd = this.right.right == null ? 0 : this.right.right.depth
+      var rld = this.right.left == null ? 0 : this.right.left.depth
 
-      if (rldepth > rrdepth) {
+      if (rld > rrd) {
         // RR rotation consists of a LL rotation of the right child
         this.right.rotateLeftRight()
         // plus a RR rotation of this value, which happens anyway
@@ -104,19 +106,34 @@ import { Tree } from '../../interfaces'
     return ret
   }
 
-  contains (value: T): boolean {
-    if (value < this.value) {
-      if (this.left) return this.left.contains(value)
+  compare (target: any): number {
+    if (this.value != null && typeof this.value['compare'] === 'function') {
+      return this.value['compare'](target)
+    }
+    if (target) {
+      if (target < this.value) return -1
+      if (target !== this.value) return 1
+    } else {
+      if (target > this.value) return 1
+      if (target !== this.value) return -1
+    }
+    return 0
+  }
+
+  has (value: any): boolean {
+    var compares = this.compare(value)
+    if (compares < 0) {
+      if (this.left) return this.left.has(value)
       return false
     }
-    if (value !== this.value) {
-      if (this.right) return this.right.contains(value)
+    if (compares > 0) {
+      if (this.right) return this.right.has(value)
       return false
     }
     return true
   }
 
-  find (value: T): AVLTree<T> {
+  find (value: any): AVLTree<T> {
     if (value < this.value) {
       if (this.left) return this.left.find(value)
     }
@@ -124,34 +141,5 @@ import { Tree } from '../../interfaces'
       if (this.right) return this.right.find(value)
     }
     return this
-  }
-
-  valueOf (): T {
-    return this.value
-  }
-
-  toString (): string {
-    return String(this.value)
-  }
-
-  [Symbol.iterator](): Iterator<T> {
-    var current: AVLTree<T> = this
-
-    return {
-      next (): IteratorResult<T> {
-        if (current) {
-          let value = current.value
-          current = current.next
-          return {
-            done: false,
-            value: current.value
-          }
-        } else {
-          return {
-            done: true
-          }
-        }
-      }
-    }
   }
 }
