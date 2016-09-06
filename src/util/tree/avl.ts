@@ -2,12 +2,14 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
+import { Section } from '../../interfaces'
+import { toSequence } from '../../utils'
 import { mergeable, forkable } from '../forks'
 import Node from './node'
 
-@forkable export default class AVLTree <T> extends Node<T> {
-  constructor (value?: T, public next?: AVLTree<T>, private previous?: AVLTree<T>) {
-    super(value, next)
+@forkable export default class AVLTree <T> extends Node<Section, T> {
+  constructor (key: any = '', value?: T, public next?: AVLTree<T>, private previous?: AVLTree<T>) {
+    super(toSequence(key), value, next)
   }
 
   private depth: number = 1
@@ -82,7 +84,7 @@ import Node from './node'
     var ret = false
     if (value < this.value) {
       if (this.left == null) {
-        this.left = new AVLTree(value, this, this.previous)
+        this.left = new AVLTree<T>(value, value, this, this.previous)
         if (this.previous) this.previous.next = this.left
         this.previous = this.left
         ret = true
@@ -92,7 +94,7 @@ import Node from './node'
       }
     } else {
       if (this.right == null) {
-        this.right = new AVLTree(value, this.next)
+        this.right = new AVLTree<T>(value, value, this.next)
         if (this.next) this.next.previous = this.right
         this.next = this.right
         ret = true
@@ -120,25 +122,25 @@ import Node from './node'
     return 0
   }
 
-  has (value: any): boolean {
-    var compares = this.compare(value)
+  has (key: any): boolean {
+    var compares = this.compare(key)
     if (compares < 0) {
-      if (this.left) return this.left.has(value)
+      if (this.left) return this.left.has(key)
       return false
     }
     if (compares > 0) {
-      if (this.right) return this.right.has(value)
+      if (this.right) return this.right.has(key)
       return false
     }
     return true
   }
 
-  find (value: any): AVLTree<T> {
-    if (value < this.value) {
-      if (this.left) return this.left.find(value)
+  find (key: any): AVLTree<T> {
+    if (key < this.key) {
+      if (this.left) return this.left.find(key)
     }
-    if (value !== this.value) {
-      if (this.right) return this.right.find(value)
+    if (key !== this.key) {
+      if (this.right) return this.right.find(key)
     }
     return this
   }

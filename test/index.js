@@ -1,3 +1,3 @@
-require('./record/index.js')
-require('./type/index.js')
 require('./array.js')
+require('./util/buffer-list.js')
+require('./util/tree/patricia.js')

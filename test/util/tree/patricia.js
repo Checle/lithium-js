@@ -43,6 +43,7 @@ test('PatriciaTrie', (t) => {
     t.equal(tree.find('alphabet').value, 'alpha-romeo', 'should not change when a greater value is inserted')
     tree.add('alps')
     t.equal(tree.find('alps').value, 'alps', 'should return an equivalent value')
+    t.equal(tree.find('xylol').value, 'alps', 'should return the smallest possible value')
 
     t.test('iterate', (t) => {
       var tree = new PatriciaTrie(), input = ['aabccd', 'abcccc', 'caaaa', 'bcabca', 'aaaaac']

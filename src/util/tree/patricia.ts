@@ -1,11 +1,9 @@
-import { Tree } from '../../interfaces'
-import { getCommonPrefix, sortedIndexOf, toSequence } from '../../utils'
+import { Tree, Section } from '../../interfaces'
+import { getCommonPrefix, sortedIndexOf, toSequence, elementOf } from '../../utils'
 import Node from './node'
 
-export type Sequence = Array<any> | Buffer | string
-
-export default class PatriciaTrie <T> extends Node<Sequence, T> {
-  constructor (key: any, value: T = null, protected offset: number = 0) {
+export default class PatriciaTrie <T> extends Node<Section, T> {
+  constructor (key: any = '', value: T = null, protected offset: number = 0) {
     super(toSequence(key), value)
     this.path = this.key.slice(offset)
   }
@@ -13,7 +11,6 @@ export default class PatriciaTrie <T> extends Node<Sequence, T> {
   next: PatriciaTrie<T> = null
   previous: PatriciaTrie<T> = null
 
-  protected key
   protected path
   protected last: PatriciaTrie<T> = this
   protected children: { [element: string]: PatriciaTrie<T> } = {}
@@ -79,7 +76,7 @@ export default class PatriciaTrie <T> extends Node<Sequence, T> {
         }
       }
 
-      let element = path[0]
+      let element = elementOf(path, 0)
 
       // Value has a common prefix with an existing child
       if (this.children.hasOwnProperty(element)) {
@@ -117,9 +114,9 @@ export default class PatriciaTrie <T> extends Node<Sequence, T> {
     if (path < this.path) return false
     if (!(path > this.path)) return true
 
-    let element = path[0]
+    let element = elementOf(path, 0)
 
-    if (this.shared && element <= this.path[0]) {
+    if (this.shared && element <= elementOf(this.path, 0)) {
       return this.next.has(path.slice(this.shared))
     }
 
@@ -130,16 +127,16 @@ export default class PatriciaTrie <T> extends Node<Sequence, T> {
     return false
   }
 
-  match (key: Sequence): T {
+  match (key: Section): T {
     var path = toSequence(key)
 
     if (path.length == 0) return this.value
     if (path < this.path) return null
     if (path <= this.path) return this.value
 
-    let element = path[0]
+    let element = elementOf(path, 0)
 
-    if (this.shared && element <= this.path[0]) {
+    if (this.shared && element <= elementOf(this.path, 0)) {
       return this.next.match(path.slice(this.shared))
     }
 
@@ -161,9 +158,9 @@ export default class PatriciaTrie <T> extends Node<Sequence, T> {
 
     if (path <= this.path) return this
 
-    let element = path[0]
+    let element = elementOf(path, 0)
 
-    if (this.shared && element <= this.path[0]) {
+    if (this.shared && element <= elementOf(this.path, 0)) {
       return this.next.find(path.slice(this.shared))
     }
 
@@ -185,7 +182,7 @@ export default class PatriciaTrie <T> extends Node<Sequence, T> {
     return slice
   }
 
-  select (path: Sequence): PatriciaTrie<T> {
+  select (path: Section): PatriciaTrie<T> {
     var target = this.find(path)
     if (target == null) return null
     var prefix = target.key.slice(0, path.length)

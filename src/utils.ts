@@ -1,9 +1,9 @@
-export type Sequence = Array<any> | Buffer | string
+export type Section = Array<any> | Buffer | string
 
 /**
- * Get the longest common prefix of a set of sequences.
+ * Get the longest common prefix of a set of Sections.
  */
-export function getCommonPrefix <T extends Sequence> (...values: T[]): T {
+export function getCommonPrefix <T extends Section> (...values: T[]): T {
     values = values.concat().sort()
     var min = values[0], max = values[values.length - 1]
     var length = min.length
@@ -13,19 +13,28 @@ export function getCommonPrefix <T extends Sequence> (...values: T[]): T {
 }
 
 /**
- * Create sequence derived from the given value.
+ * Convert value to string in record-js fashion:
+ * booleans and numbers are interpreted as character codes.
  */
-export function toSequence (object: any): Sequence {
-  if (object == null) return ''
-  var value = object.valueOf()
-
-  if (typeof value.length === 'number' && typeof value.slice === 'function') {
-    return value
-  }
+export function toString (value: any) {
+  if (value == null) return ''
   if (typeof value === 'boolean') value = Number(value)
   if (typeof value === 'number') value = String.fromCharCode(value)
   else value = String(value)
   return value
+}
+
+/**
+ * Create Section derived from the given value.
+ */
+export function toSection (object: any): Section {
+  if (object == null) return ''
+  var value = object.valueOf()
+  if (typeof value.length === 'number' && typeof value.slice === 'function') {
+    // Value implements the Section interface
+    return value
+  }
+  return toString(value)
 }
 
 /**
@@ -59,15 +68,10 @@ export function sortedIndexOf (array: any[], value: any): number {
 }
 
 /**
- * Get the first element if value is a sequence or the value of the argument itself.
+ * Get the first element if value is a Section or the value of the argument itself.
  */
-export function firstElementOf (value: any) {
-  // Get first portion of a sequence of unkown type
-  if (value != null) {
-    value = value.valueOf()
-    if (0 in value) {
-      return value[0]
-    }
-  }
-  return value
+export function elementOf (Section: Section, index: number = 0): string {
+  // Get first portion of a Section of unkown type
+  if (Section == null || index >= Section.length) return null
+  return toString(Section[index]) // Converts non-character values to strings
 }

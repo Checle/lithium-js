@@ -53,7 +53,7 @@ export interface Comparable {
 export interface Node <K, V> {
   key: K
   value: V
-  next: Node<V>
+  next: Node<K, V>
   [Symbol.iterator](): Iterator<V>
 }
 
@@ -87,3 +87,5 @@ export type Input = Record | Readable | Buffer | Function | string | any
 export type Acceptor = (/*this: interfaces.Sequence,*/ ...buffer: Buffer[]) => any
 
 export type Accessor = (/*this: interfaces.Record,*/ ...inputs: Input[]) => Accessor
+
+export type Section = Array<any> | Buffer | string
