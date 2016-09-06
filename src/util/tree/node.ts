@@ -1,10 +1,10 @@
 import * as interfaces from '../../interfaces'
 
-export default class Node <T> implements interfaces.Node<T> {
-  constructor (public value: T, public next: Node<T> = null) {
+export default class Node <K, V> implements interfaces.Node<K, V> {
+  constructor (public key: K, public value: V, public next: Node<K, V> = null) {
   }
 
-  valueOf (): T {
+  valueOf (): V {
     return this.value
   }
 
@@ -12,11 +12,11 @@ export default class Node <T> implements interfaces.Node<T> {
     return String(this.value)
   }
 
-  [Symbol.iterator](): Iterator<T> {
-    var current: Node<T> = this
+  [Symbol.iterator](): Iterator<V> {
+    var current: Node<K, V> = this
 
     return {
-      next (): IteratorResult<T> {
+      next (): IteratorResult<V> {
         if (current) {
           let value = current.value
           current = current.next

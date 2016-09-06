@@ -4,23 +4,25 @@ import Node from './node'
 
 export type Sequence = Array<any> | Buffer | string
 
-export default class PatriciaTrie <T> extends Node<T> {
-  constructor (value: T = null, protected sequence = toSequence(value), protected offset: number = 0) {
-    super(value)
+export default class PatriciaTrie <T> extends Node<Sequence, T> {
+  constructor (key: any, value: T = null, protected offset: number = 0) {
+    super(toSequence(key), value)
+    this.path = this.key.slice(offset)
   }
 
   next: PatriciaTrie<T> = null
   previous: PatriciaTrie<T> = null
 
-  protected path = this.sequence.slice(this.offset)
+  protected key
+  protected path
   protected last: PatriciaTrie<T> = this
   protected children: { [element: string]: PatriciaTrie<T> } = {}
   protected elements: string[] = []
-  protected shared: number = null
+  protected shared: number = 0
   protected skipped: number = 0
 
   valueOf (): any {
-    return this.path
+    return this.value
   }
 
   private push (child: PatriciaTrie<T>): void {
@@ -37,18 +39,20 @@ export default class PatriciaTrie <T> extends Node<T> {
     this.previous = child
   }
 
-  add (value: T, sequence: Sequence = toSequence(value), offset: number = 0): boolean {
-    if (sequence == null) return false
-    var path = sequence.slice(offset)
+  set (key: any, value: T, offset: number = 0): boolean {
+    if (key == null) return false
+    key = toSequence(key)
+
+    var path = key.slice(offset)
 
     // Added value is lesser than the minimal value of the tree
     if (path < this.path) {
       // Flip new and old values
-      let add = this.add.bind(this, this.value, this.sequence, this.offset)
+      let set = this.set.bind(this, this.value, this.key, this.offset)
       this.value = value
-      this.sequence = sequence
+      this.key = key
       this.path = path
-      return add()
+      return set()
     }
 
     // Paths are equal
@@ -67,9 +71,9 @@ export default class PatriciaTrie <T> extends Node<T> {
       // The value to be added has a common prefix with the node itself
       if (length > 0) {
         if (this.shared && length > this.shared) {
-          return this.next.add(value, sequence, this.offset + this.shared - this.skipped)
+          return this.next.set(key, value, this.offset + this.shared - this.skipped)
         } else {
-          this.push(new PatriciaTrie<T>(value, sequence, this.offset + prefix.length))
+          this.push(new PatriciaTrie<T>(key, value, this.offset + prefix.length))
           this.shared = length
           return true
         }
@@ -80,10 +84,10 @@ export default class PatriciaTrie <T> extends Node<T> {
       // Value has a common prefix with an existing child
       if (this.children.hasOwnProperty(element)) {
         let child: PatriciaTrie<T> = this.children[element]
-        return child.add(value, sequence, this.offset + 1)
+        return child.set(key, value, this.offset + 1)
       }
 
-      let child = new PatriciaTrie<T>(value, sequence, this.offset + 1)
+      let child = new PatriciaTrie<T>(key, value, this.offset + 1)
 
       let index = sortedIndexOf(this.elements, element)
       if (index < this.elements.length) {
@@ -103,8 +107,12 @@ export default class PatriciaTrie <T> extends Node<T> {
     }
   }
 
-  has (value: any): boolean {
-    var path = toSequence(value)
+  add (value: T): boolean {
+    return this.set(value, value)
+  }
+
+  has (key: any): boolean {
+    var path = toSequence(key)
 
     if (path < this.path) return false
     if (!(path > this.path)) return true
@@ -122,8 +130,34 @@ export default class PatriciaTrie <T> extends Node<T> {
     return false
   }
 
-  find (value: any): PatriciaTrie<T> {
-    var path = toSequence(value)
+  match (key: Sequence): T {
+    var path = toSequence(key)
+
+    if (path.length == 0) return this.value
+    if (path < this.path) return null
+    if (path <= this.path) return this.value
+
+    let element = path[0]
+
+    if (this.shared && element <= this.path[0]) {
+      return this.next.match(path.slice(this.shared))
+    }
+
+    if (this.children.hasOwnProperty(element)) {
+      return this.children[element].match(path.slice(1))
+    }
+
+    return null
+  }
+
+  get (key: any): T {
+    var match = this.match(key)
+    if (match == null || toSequence(match).length !== toSequence(key).length) return null
+    return match
+  }
+
+  find (key: any): PatriciaTrie<T> {
+    var path = toSequence(key)
 
     if (path <= this.path) return this
 
@@ -141,17 +175,21 @@ export default class PatriciaTrie <T> extends Node<T> {
   }
 
   slice (start?: number): PatriciaTrie<T> {
+    var length = this.key.length
+    if (this.next && start > length && this.shared === length) {
+      return this.next.slice(start)
+    }
     var slice: PatriciaTrie<T> = Object.create(this)
-    slice.path = this.sequence.slice(start)
-    slice.skipped += start - this.offset
+    slice.path = this.key.slice(start)
+    slice.skipped = start - this.offset
     return slice
   }
 
   select (path: Sequence): PatriciaTrie<T> {
     var target = this.find(path)
     if (target == null) return null
-    var prefix = target.sequence.slice(0, path.length)
-    if (prefix < path || prefix > path) return null // Object-tolerant equivalence test
+    var prefix = target.key.slice(0, path.length)
+    if (prefix < path || prefix > path) return null // Object-tolerant non-equivalence test
     return target.slice(path.length)
   }
 }

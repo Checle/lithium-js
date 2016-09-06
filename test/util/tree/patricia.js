@@ -10,6 +10,30 @@ test('PatriciaTrie', (t) => {
     t.end()
   })
 
+  t.test('get', (t) => {
+    var tree = new PatriciaTrie()
+    var object = { toString: function () { return 'token' } }
+
+    t.equal(tree.get('token'), null, 'should not contain a value initially')
+    tree.add(object)
+    t.equal(tree.get('token'), object, 'should return the value of a string representation')
+    t.equal(tree.get('toke'), null, 'should not match prefixes')
+    t.equal(tree.get(object), object, 'should accept object values')
+    t.end()
+  })
+
+  t.test('match', (t) => {
+    var tree = new PatriciaTrie()
+    var object = { toString: function () { return 'token' } }
+
+    t.equal(tree.match('token'), null, 'should not contain a value initially')
+    tree.add(object)
+    t.equal(tree.match('token'), object, 'should return the value for a perfect match')
+    t.equal(tree.match('toke'), null, 'should return the value for a prefix match')
+    t.equal(tree.match(object), object, 'should accept object values')
+    t.end()
+  })
+
   t.test('find', (t) => {
     var tree = new PatriciaTrie()
     t.deepLooseEqual(tree.find('alphabet').value, null, 'should return null for a non-existing value')

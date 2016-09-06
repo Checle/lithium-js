@@ -50,27 +50,35 @@ export interface Comparable {
   compare (target: any): number
 }
 
-export interface Node <T> {
-  value: T
-  next: Node<T>
-  [Symbol.iterator](): Iterator<T>
+export interface Node <K, V> {
+  key: K
+  value: V
+  next: Node<V>
+  [Symbol.iterator](): Iterator<V>
 }
 
-export interface Tree <T> extends Node<T>, Iterable<T> {
+export interface Tree <K, V> extends Node<K, V>, Iterable<V> { // TODO: extends Map, Set
   /**
-   * Add a given value to the tree so that it will be contained in the tree.
+   * Add a given value to the tree so that it will be contained in the tree and addressable via
+   * its string representation.
    * Return true if the value has been added or false if it already has been contained in the tree.
    */
-  add (value: T): boolean
+  add (value: V): boolean
+  /**
+   * Set a given key to the corresponding value so that it will be contained in the tree and
+   * addressable via its key.
+   * Return true if the value has been added or false if it already has been contained in the tree.
+   */
+  set (key: K, value: V): boolean
   /**
    * Return if an equivalent value exists as node of the tree.
    */
-  has (value: T): boolean
+  has (key: K): boolean
   /**
    * Return the node of the tree with greatest value that is less than or equal to the given value.
    * If none exists, return the node with least overall value.
    */
-  find (value: any): Node<T>
+  find (key: K): Node<K, V>
 }
 
 
