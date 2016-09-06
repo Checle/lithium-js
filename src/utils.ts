@@ -1,9 +1,9 @@
-export type Section = Array<any> | Buffer | string
+import { Slice } from './interfaces'
 
 /**
  * Get the longest common prefix of a set of Sections.
  */
-export function getCommonPrefix <T extends Section> (...values: T[]): T {
+export function getCommonPrefix <T extends Slice> (...values: T[]): T {
     values = values.concat().sort()
     var min = values[0], max = values[values.length - 1]
     var length = min.length
@@ -25,13 +25,13 @@ export function toString (value: any) {
 }
 
 /**
- * Create Section derived from the given value.
+ * Create slice derived from the given value.
  */
-export function toSection (object: any): Section {
+export function toSlice (object: any): Slice {
   if (object == null) return ''
   var value = object.valueOf()
   if (typeof value.length === 'number' && typeof value.slice === 'function') {
-    // Value implements the Section interface
+    // Value implements the slice interface
     return value
   }
   return toString(value)
@@ -68,10 +68,50 @@ export function sortedIndexOf (array: any[], value: any): number {
 }
 
 /**
- * Get the first element if value is a Section or the value of the argument itself.
+ * Get the first element if value is a slice or the value of the argument itself.
  */
-export function elementOf (Section: Section, index: number = 0): string {
-  // Get first portion of a Section of unkown type
-  if (Section == null || index >= Section.length) return null
-  return toString(Section[index]) // Converts non-character values to strings
+export function elementOf (Slice: Slice, index: number = 0): string {
+  // Get first portion of a slice of unkown type
+  if (Slice == null || index >= Slice.length) return null
+  return toString(Slice[index]) // Converts non-character values to strings
+}
+
+/**
+ * Get the descriptor of an property of the object itself or of the closest
+ * prototype if undefined.
+ */
+export function getDescriptor (object: any, name: string): PropertyDescriptor {
+  var ancestor = object
+  do { var descriptor = Object.getOwnPropertyDescriptor(ancestor, name) }
+  while (!descriptor && (ancestor = Object.getPrototypeOf(ancestor)))
+  return descriptor || { writable: true, configurable: true, enumerable: true }
+}
+
+/**
+ * Get the closest common prototype in the prototype chain of two objects.
+ */
+export function getCommonPrototype (target: Object, object: Object): Object {
+  if (target === object) return target
+  if (object == null) return null
+  if (object.isPrototypeOf(target)) return object
+  return getCommonPrototype(target, Object.getPrototypeOf(object))
+}
+
+/**
+ * Creates a proxy function that binds both a callback and a target function.
+ */
+export function bindFunction (target: Function, callback: Function): Function {
+  let proxy = function (...args) {
+    if (this instanceof proxy) {
+      let object = Object.create(target.prototype)
+      return callback.apply(object, args) && target.apply(object, args)
+    }
+    return callback.apply(this, args) && target.apply(this, args)
+  }
+  Object.defineProperties(proxy, {
+    name: { value: getDescriptor(target, 'name') },
+    length: { value: getDescriptor(target, 'length') }
+  })
+  proxy.prototype = target.prototype
+  return proxy
 }
