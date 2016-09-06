@@ -11,6 +11,7 @@ export default class PatriciaTrie <T> extends Node<T> {
 
   next: PatriciaTrie<T> = null
   previous: PatriciaTrie<T> = null
+  offset: number = 0
 
   protected last: PatriciaTrie<T> = this
   protected children: { [element: string]: PatriciaTrie<T> } = {}
@@ -55,14 +56,15 @@ export default class PatriciaTrie <T> extends Node<T> {
 
     try {
       let prefix = getCommonPrefix(path, this.path)
+      let length = prefix.length + this.offset
 
       // The value to be added has a common prefix with the node itself
-      if (prefix.length > 0) {
-        if (this.length && prefix.length > this.length) {
-          return this.next.add(value, path.slice(this.length))
+      if (length > 0) {
+        if (this.length && length > this.length) {
+          return this.next.add(value, path.slice(this.length - this.offset))
         } else {
           this.push(new PatriciaTrie<T>(value, path.slice(prefix.length)))
-          this.length = prefix.length
+          this.length = length
           return true
         }
       }
@@ -130,5 +132,19 @@ export default class PatriciaTrie <T> extends Node<T> {
     }
 
     return this
+  }
+
+  slice (start?: number): PatriciaTrie<T> {
+    var slice: PatriciaTrie<T> = Object.create(this)
+    slice.path = slice.path.slice(start)
+    slice.offset += start
+    return slice
+  }
+
+  select (path: Sequence): PatriciaTrie<T> {
+    var target = this.find(path)
+    var prefix = target.path.slice(0, path.length)
+    if (prefix < path || prefix > path) return null // Object-safe value equivalence test
+    return target.slice(path.length)
   }
 }
