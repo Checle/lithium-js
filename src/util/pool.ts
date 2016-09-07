@@ -1,9 +1,9 @@
-import fork from 'object-fork'
+import { forkable } from './fork'
 
-@fork export abstract class Pool<T> {
+@forkable export abstract class Pool<T> {
   abstract create (): T
 
-  @fork private free: T[] = []
+  @forkable private free: T[] = []
   private value: T
 
   acquire (): T {
@@ -12,8 +12,9 @@ import fork from 'object-fork'
     for (var object of this.free) if (!(object >= min)) min = object
     return min
   }
-  release (object: T) {
+  release (object: T): boolean {
     this.free.push(object)
+    return true
   }
   valueOf (): T {
     if (!this.hasOwnProperty('value')) this.value = this.acquire()
@@ -21,10 +22,24 @@ import fork from 'object-fork'
   }
 }
 
-export class IDs extends Pool<number> {
+class IDPool extends Pool<number> {
   private id: number = 0
 
   create (): number {
     return this.id++
+  }
+}
+
+export class IDMap <T> extends Map<number, T> {
+  private ids = new IDPool()
+
+  add (value: T): number {
+    var id = this.ids.create()
+    this.set(id, value)
+    return id
+  }
+
+  delete (id: number): boolean {
+    return super.delete(id) && this.ids.release(id)
   }
 }
