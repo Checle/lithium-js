@@ -1,7 +1,7 @@
-import { forkable } from './fork'
-import { EventEmitter as BaseEventEmitter } from 'events'
+import { forkable } from './decorators'
+import { EventEmitter } from 'events'
 
-@forkable export class EventEmitter extends BaseEventEmitter {
+@forkable export class ForkableEventEmitter extends EventEmitter {
   private map: { [event: string]: Set<Function> }
 
   /**
