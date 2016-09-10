@@ -9,10 +9,10 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
 
   next: PatriciaTrie<T> = null
   previous: PatriciaTrie<T> = null
+  parent: PatriciaTrie<T> = null
+  first: PatriciaTrie<T> = this
+  last: PatriciaTrie<T> = this
 
-  private first: PatriciaTrie<T> = this
-  private last: PatriciaTrie<T> = this
-  private parent: PatriciaTrie<T>
   private children: { [element: string]: PatriciaTrie<T> } = {}
   private elements: string[] = []
 
@@ -25,11 +25,15 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
   }
 
   private update (): void {
-    if (!this.elements.length) return
-    let first = this.elements[0]
-    let last = this.elements[this.elements.length - 1]
-    if (this.value === undefined) this.first = this.children[first].first
-    this.last = this.children[last].last
+    if (this.elements.length) {
+      let first = this.elements[0]
+      let last = this.elements[this.elements.length - 1]
+      if (this.value === undefined) this.first = this.children[first].first
+      this.last = this.children[last].last
+    } else {
+      this.first = this
+      this.last = this
+    }
   }
 
   private splice (child: PatriciaTrie<T>, offset?: number): PatriciaTrie<T> {
@@ -117,10 +121,10 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
   /**
    * Inserts a new element to the tree at a sorted position.
    */
-  add (value: T): boolean {
+  add (value: T): T {
     let child = new PatriciaTrie<T>(toSlice(value), value)
     // Insert and return false if a node with equal key exists
-    return this.insert(child) === child
+    return this.insert(child).value
   }
 
   /**
