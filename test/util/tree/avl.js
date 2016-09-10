@@ -1,6 +1,6 @@
 var test = require('tape')
 var AVLTree = require('../../../build/util/tree/avl.js').default
-var fork = require('../../../build/util/forks.js').default
+var fork = require('../../../build/util/fork.js').default
 
 test('AVLTree', (t) => {
   t.test('has', (t) => {

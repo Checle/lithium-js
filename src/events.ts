@@ -1,6 +1,8 @@
 import { forkable } from './decorators'
 import { EventEmitter } from 'events'
 
+export * from 'events'
+
 @forkable export class ForkableEventEmitter extends EventEmitter {
   private map: { [event: string]: Set<Function> }
 

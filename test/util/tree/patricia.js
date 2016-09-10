@@ -14,14 +14,15 @@ test('PatriciaTrie', (t) => {
     var tree = new PatriciaTrie()
     var object = { toString: function () { return 'token' } }
 
-    t.equal(tree.get('token'), null, 'should not contain a value initially')
+    t.equal(tree.get('token'), undefined, 'should not contain a value initially')
     tree.add(object)
     t.equal(tree.get('token'), object, 'should return the value of a string representation')
-    t.equal(tree.get('toke'), null, 'should not match prefixes')
+    t.equal(tree.get('toke'), undefined, 'should not match prefixes')
     t.equal(tree.get(object), object, 'should accept object values')
     t.end()
   })
 
+  /*
   t.test('match', (t) => {
     var tree = new PatriciaTrie()
     var object = { toString: function () { return 'token' } }
@@ -33,6 +34,7 @@ test('PatriciaTrie', (t) => {
     t.equal(tree.match(object), object, 'should accept object values')
     t.end()
   })
+  */
 
   t.test('find', (t) => {
     var tree = new PatriciaTrie()
@@ -44,17 +46,30 @@ test('PatriciaTrie', (t) => {
     tree.add('alps')
     t.equal(tree.find('alps').value, 'alps', 'should return an equivalent value')
     t.equal(tree.find('xylol').value, 'alps', 'should return the smallest possible value')
+    t.end()
+  })
 
-    t.test('iterate', (t) => {
-      var tree = new PatriciaTrie(), input = ['aabccd', 'abcccc', 'caaaa', 'bcabca', 'aaaaac']
-      for (var str of input) tree.add(str)
-      var output = []
-      for (var node = tree.find('aaaaac'); node; node = node.next) output.push(node.value)
-      input.sort()
+  t.test('iterate', (t) => {
+    var tree = new PatriciaTrie(), input = ['aabccd', 'abcccc', 'caaaa', 'bcabca', 'aaaaac']
+    for (var str of input) tree.add(str)
+    var output = []
+    for (var node = tree.find('aaaaac'); node; node = node.next) output.push(node.value)
+    input.sort()
 
-      t.deepLooseEqual(output, input, 'nodes should be iterable in sorted order')
-      t.end()
-    })
+    t.deepLooseEqual(output, input, 'nodes should be iterable in sorted order')
+
+    var tree1 = new PatriciaTrie()
+    var tree2 = new PatriciaTrie()
+    tree1.next = tree2
+    var input1 = ['aabccd', 'abcccc', 'caaaa']
+    var input2 = ['bcabca', 'aaaaac']
+    for (var str of input1) tree1.add(str)
+    for (var str of input2) tree2.add(str)
+    var output = []
+    for (var node = tree1.first; node; node = node.next) output.push(node.value)
+    input = input1.sort().concat(input2.sort())
+
+    t.deepLooseEqual(output, input, 'trees should be concatenable')
     t.end()
   })
 

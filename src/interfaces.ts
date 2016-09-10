@@ -50,14 +50,20 @@ export interface Comparable {
   compare (target: any): number
 }
 
-export interface Node <K, V> {
-  key: K
-  value: V
-  next: Node<K, V>
-  [Symbol.iterator](): Iterator<V>
+export interface Element <T> extends Iterable<T> {
+  value: T
+  next: Element<T>
+  previous: Element<T>
 }
 
-export interface Tree <K, V> extends Node<K, V>, Iterable<V> { // TODO: extends Map, Set
+export interface Entry <K, V> extends Iterable<V> {
+  key: K
+  value: V
+  next: Entry<K, V>
+  previous: Entry<K, V>
+}
+
+export interface Tree <K, V> extends Entry<K, V> { // TODO: extends Map, Set
   /**
    * Add a given value to the tree so that it will be contained in the tree and addressable via
    * its string representation.
@@ -69,7 +75,7 @@ export interface Tree <K, V> extends Node<K, V>, Iterable<V> { // TODO: extends 
    * addressable via its key.
    * Return true if the value has been added or false if it already has been contained in the tree.
    */
-  set (key: K, value: V): boolean
+  set (key: K, value: V): this
   /**
    * Return if an equivalent value exists as node of the tree.
    */
@@ -78,9 +84,8 @@ export interface Tree <K, V> extends Node<K, V>, Iterable<V> { // TODO: extends 
    * Return the node of the tree with greatest value that is less than or equal to the given value.
    * If none exists, return the node with least overall value.
    */
-  find (key: K): Node<K, V>
+  find (key: K): Entry<K, V>
 }
-
 
 export type Input = Record | Readable | Buffer | Function | string | any
 
@@ -88,4 +93,4 @@ export type Acceptor = (/*this: interfaces.Sequence,*/ ...buffer: Buffer[]) => a
 
 export type Accessor = (/*this: interfaces.Record,*/ ...inputs: Input[]) => Accessor
 
-export type Section = Array<any> | Buffer | string
+export type Slice = Array<any> | Buffer | string

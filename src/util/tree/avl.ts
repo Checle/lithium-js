@@ -2,15 +2,19 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-import { Section } from '../../interfaces'
-import { toSequence } from '../../utils'
-import { mergeable, forkable } from '../forks'
-import Node from './node'
+import { Slice } from '../../interfaces'
+import { toSlice } from '../../utils'
+import { mergeable } from '../merge'
+import { forkable } from '../fork'
+import Entry from '../entry'
 
-@forkable export default class AVLTree <T> extends Node<Section, T> {
-  constructor (key: any = '', value?: T, public next?: AVLTree<T>, private previous?: AVLTree<T>) {
-    super(toSequence(key), value, next)
+@forkable export default class AVLTree <T> extends Entry<Slice, T> {
+  constructor (key: any = '', value?: T, next?: AVLTree<T>, previous?: AVLTree<T>) {
+    super(toSlice(key), value, next, previous)
   }
+
+  next: AVLTree<T>
+  previous: AVLTree<T>
 
   private depth: number = 1
   private left: AVLTree<T> = null

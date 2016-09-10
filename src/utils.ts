@@ -1,7 +1,7 @@
 import { Slice } from './interfaces'
 
 /**
- * Get the longest common prefix of a set of Sections.
+ * Get the longest common prefix of a set of slices.
  */
 export function getCommonPrefix <T extends Slice> (...values: T[]): T {
     values = values.concat().sort()
@@ -61,7 +61,7 @@ export function sortedIndexOf (array: any[], value: any): number {
 
     while (low < high) {
         var mid = (low + high) >>> 1
-        if (array[mid] < value) low = mid + 1
+        if (array[mid] <= value) low = mid + 1
         else high = mid
     }
     return low
@@ -70,10 +70,10 @@ export function sortedIndexOf (array: any[], value: any): number {
 /**
  * Get the first element if value is a slice or the value of the argument itself.
  */
-export function elementOf (Slice: Slice, index: number = 0): string {
+export function elementOf (slice: Slice, index: number = 0): string {
   // Get first portion of a slice of unkown type
-  if (Slice == null || index >= Slice.length) return null
-  return toString(Slice[index]) // Converts non-character values to strings
+  if (slice == null || index >= slice.length) return null
+  return toString(slice[index]) // Converts non-character values to strings
 }
 
 /**
