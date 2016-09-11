@@ -1,5 +1,15 @@
-import { Readable, Duplex } from 'stream'
+import { Readable, Writable, Duplex } from 'stream'
 import { WriteStream } from 'fs'
+
+export interface Comparable {
+  compare (target: any): number
+}
+
+export interface Seekable {
+  seekable: Boolean
+
+  seek (offset: number): number
+}
 
 export interface Sequence extends Iterable<Buffer> {
   position: number
@@ -34,7 +44,26 @@ export interface Record extends WriteStream {
 }
 
 export interface State {
-  transform (output: Sink, input: Buffer): State
+  /**
+   * Creates a new state as a transition of the current state. May alter the
+   * current state.
+   */
+  transform (chunk?: Buffer): State
+}
+
+export interface Context extends State, Seekable {
+  /**
+   * Performs a state transition from the current context state via `chunk` and
+   * returns the target state. Updates the state of the context to the
+   * resulting state.
+   */
+  transform (chunk?: Buffer): State
+
+  /**
+   * Seeks relatively by `offset` bytes to a previous or next state. May trigger
+   * a new transition if the target position does not match a state boundary.
+   */
+  seek (offset: number): number
 }
 
 export interface Container extends Record, Duplex {
@@ -46,9 +75,7 @@ export interface Process {
   fork (): Process
 }
 
-export interface Comparable {
-  compare (target: any): number
-}
+export interface Stream extends Readable, Writable, Seekable { }
 
 export interface Element <T> extends Iterable<T> {
   value: T
@@ -65,23 +92,22 @@ export interface Entry <K, V> extends Iterable<V> {
 
 export interface Tree <K, V> extends Entry<K, V> { // TODO: extends Map, Set
   /**
-   * Add a given value to the tree so that it will be contained in the tree and addressable via
-   * its string representation.
-   * Return true if the value has been added or false if it already has been contained in the tree.
+   * Adds a specified value to the tree so that it will be contained in it.
+   * Return the added value or a different value if an entry with
+   * equal key exists in the tree.
    */
-  add (value: V): boolean
+  add (value: V): V
   /**
-   * Set a given key to the corresponding value so that it will be contained in the tree and
-   * addressable via its key.
-   * Return true if the value has been added or false if it already has been contained in the tree.
+   * Sets a specified key to the corresponding value so that it will be contained in it.
+   * Returns `this`.
    */
   set (key: K, value: V): this
   /**
-   * Return if an equivalent value exists as node of the tree.
+   * Returns true if an equivalent value exists as node of the tree or false otherwise.
    */
   has (key: K): boolean
   /**
-   * Return the node of the tree with greatest value that is less than or equal to the given value.
+   * Returns the node of the tree with greatest value that is less than or equal to the specified value.
    * If none exists, return the node with least overall value.
    */
   find (key: K): Entry<K, V>
