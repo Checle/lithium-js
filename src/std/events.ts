@@ -1,9 +1,7 @@
-import { forkable } from './decorators'
-import { EventEmitter } from 'events'
+import * as events from 'events'
+import { forkable } from '../decorators'
 
-export * from 'events'
-
-@forkable export class ForkableEventEmitter extends EventEmitter {
+@forkable export class EventEmitter extends events.EventEmitter {
   private map: { [event: string]: Set<Function> }
 
   /**
@@ -52,3 +50,5 @@ export * from 'events'
     return this
   }
 }
+
+export const ForkableEventEmitter = EventEmitter

@@ -19,7 +19,7 @@ export function getCommonPrefix <T extends Slice> (...values: T[]): T {
 export function toString (value: any) {
   if (value == null) return ''
   if (typeof value === 'boolean') value = Number(value)
-  if (typeof value === 'number') value = String.fromCharCode(value)
+  if (typeof value === 'number') value = String.fromCharCode(value) // TODO: convert numbers > 255 to multiple bytes
   else value = String(value)
   return value
 }
@@ -46,7 +46,7 @@ export function toBuffer (value: any): Buffer {
   value = value.valueOf()
   if (Buffer.isBuffer(value)) return value
   if (typeof value === 'boolean') value = Number(value)
-  if (typeof value === 'number') value = String.fromCharCode(value)
+  if (typeof value === 'number') value = String.fromCharCode(value) // TODO: convert numbers > 255 to multiple bytes
   if (typeof value === 'string') return Buffer.from(value)
   return null
 }
@@ -95,6 +95,39 @@ export function getCommonPrototype (target: Object, object: Object): Object {
   if (object == null) return null
   if (object.isPrototypeOf(target)) return object
   return getCommonPrototype(target, Object.getPrototypeOf(object))
+}
+
+/**
+ * Creates a new function with the specified prototype object and callable.
+ */
+export function create (proto: Function, properties?: PropertyDescriptorMap): Function {
+  if (typeof proto !== 'function') return Object.create(proto, properties)
+  let func = createFunction(proto)
+  if (properties) Object.defineProperties(func, properties)
+  return func
+}
+
+/**
+ * Creates a new function with the specified prototype object and callable.
+ */
+export function createFunction (proto: Function, callable: Function = proto): Function {
+  let proxy = function (...args) {
+    if (this instanceof proxy) {
+      let instance = Object.create(proto.prototype)
+      return callable.apply(instance, args)
+    }
+    return callable.apply(this, args)
+  }
+  for (let key of Object.getOwnPropertyNames(proxy)) {
+    if ((delete proxy[key])) {
+      let descriptor = Object.getOwnPropertyDescriptor(proto, key)
+      Object.defineProperty(proxy, key, descriptor)
+    } else { // Property is not configurable but may be writable
+      proxy[key] = proto[key]
+    }
+  }
+  Object.setPrototypeOf(proxy, proto)
+  return proxy
 }
 
 /**
