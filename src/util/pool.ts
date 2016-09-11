@@ -1,4 +1,5 @@
 import { forkable } from './fork'
+import { sortedIndexOf } from '../utils'
 
 @forkable export abstract class Pool<T> {
   abstract create (): T
@@ -8,12 +9,10 @@ import { forkable } from './fork'
 
   acquire (): T {
     if (!this.free.length) return this.create()
-    var min
-    for (var object of this.free) if (!(object >= min)) min = object
-    return min
+    return this.free.shift()
   }
   release (object: T): boolean {
-    this.free.push(object)
+    this.free.splice(sortedIndexOf(this.free, object), 0, object)
     return true
   }
   valueOf (): T {

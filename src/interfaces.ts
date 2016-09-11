@@ -53,15 +53,16 @@ export interface State {
 
 export interface Context extends State, Seekable {
   /**
-   * Performs a state transition from the current context state via `chunk` and
-   * returns the target state. Updates the state of the context to the
-   * resulting state.
+   * Performs a state transition from the current context state feeding `chunk`
+   * to the state machine and returns the resulting state. Updates the context
+   * state to the resulting state.
    */
   transform (chunk?: Buffer): State
 
   /**
-   * Seeks relatively by `offset` bytes to a previous or next state. May trigger
-   * a new transition if the target position does not match a state boundary.
+   * Reposition state to corresponding to the current input position plus
+   * `offset` bytes. A new transition may be invokes if the target position
+   * does not match a state boundary.
    */
   seek (offset: number): number
 }
@@ -93,22 +94,27 @@ export interface Entry <K, V> extends Iterable<V> {
 export interface Tree <K, V> extends Entry<K, V> { // TODO: extends Map, Set
   /**
    * Adds a specified value to the tree so that it will be contained in it.
-   * Return the added value or a different value if an entry with
-   * equal key exists in the tree.
+   * Returns `value` if it has been added to the tree or the existing value if
+   * an entry with equal key exists in the tree.
    */
   add (value: V): V
+
   /**
-   * Sets a specified key to the corresponding value so that it will be contained in it.
-   * Returns `this`.
+   * Sets a specified key to the specified value.
+   * Returns `value` if the value has been set successfully or the existing
+   * value stored under the specified key otherwise.
    */
-  set (key: K, value: V): this
+  set (key: K, value: V): V
+
   /**
    * Returns true if an equivalent value exists as node of the tree or false otherwise.
    */
   has (key: K): boolean
+
   /**
-   * Returns the node of the tree with greatest value that is less than or equal to the specified value.
-   * If none exists, return the node with least overall value.
+   * Returns the node of the tree with the greatest value that is less than or
+   * equal to the specified value.
+   * If none exists, returns the node with the least overall value.
    */
   find (key: K): Entry<K, V>
 }
