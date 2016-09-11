@@ -1,5 +1,6 @@
 import * as interfaces from '../interfaces'
 import { sortedIndexOf, toSlice } from '../utils'
+import { fork } from '../util/fork'
 import { Duplex } from 'stream'
 import RecordState from './record'
 
@@ -22,7 +23,7 @@ export class Context extends Duplex implements interfaces.Context {
   }
 
   transform (chunk: Buffer): RecordState {
-    var state = this.state.transform(chunk)
+    let state = fork(this.state).transform(chunk)
     if (state == null) return null
     this.offsets.push(this.offset)
     this.states.push(this.state)
