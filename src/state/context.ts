@@ -20,7 +20,7 @@ export class Context extends Duplex implements interfaces.Context {
 
   private transition = new Transition(0, this.initial)
   private transitions: Transition[] = [this.transition]
-  private index: number = 0
+  private index: number = 1
   private queue: Buffer[] = []
 
   private immediate () {

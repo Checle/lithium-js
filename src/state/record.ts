@@ -20,7 +20,7 @@ export default class RecordState implements State {
   }
 
   /**
-   * Execute arbitrary arguments on the current state.
+   * Executes arbitrary arguments on the current state, yielding a new state.
    */
   record (...inputs: any[]): RecordState {
     let input = inputs.shift()

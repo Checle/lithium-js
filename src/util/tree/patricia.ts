@@ -3,7 +3,7 @@ import { getCommonPrefix, sortedIndexOf, toSlice, elementOf } from '../../utils'
 import { Entry, Element } from '../entry'
 
 export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Slice, T> {
-  constructor (public key: any = '', public value: T = undefined) {
+  constructor (value: T = undefined, key: any = value) {
     super(toSlice(key), value)
   }
 
@@ -61,7 +61,7 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
       PatriciaTrie.concat(previous, child, next)
       this.elements.splice(index, 0, element)
       this.children[element] = child
-      child.parent = this
+      child.parent = this.value == null ? null : this
     }
     // Update first and last pointers
     this.update()
@@ -70,7 +70,7 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
 
   private split (offset: number): PatriciaTrie<T> {
     // Create a prefix node
-    let target = new PatriciaTrie<T>(this.key.slice(0, offset), undefined)
+    let target = new PatriciaTrie<T>(undefined, this.key.slice(0, offset))
     // Remove this node from parent
     this.remove()
     // Add prefix node to parent
@@ -109,20 +109,20 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
   /**
    * Adds or updates an element with a specified key and value to the tree.
    */
-  set (key: any, value: T): this {
+  set (key: any, value: T): T {
     key = toSlice(key)
-    let child = new PatriciaTrie<T>(key, value)
+    let child = new PatriciaTrie<T>(value, key)
     let target = this.insert(child)
     // Overwrite target node if an equal key exists
     if (target !== child) target.value = child.value
-    return this
+    return target.value
   }
 
   /**
    * Inserts a new element to the tree at a sorted position.
    */
   add (value: T): T {
-    let child = new PatriciaTrie<T>(toSlice(value), value)
+    let child = new PatriciaTrie<T>(value)
     // Insert and return false if a node with equal key exists
     return this.insert(child).value
   }
@@ -171,6 +171,10 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
       return this.children[element].find(key.slice(length))
     }
     return this.first
+  }
+
+  locate (key: any): T {
+    return this.find(key).value
   }
 
   /**
