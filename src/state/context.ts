@@ -6,50 +6,77 @@ import RecordState from './record'
 
 export default Context
 
+class Transition {
+  constructor (public offset: number, public state: RecordState, public chunk: Buffer = new Buffer(0)) { }
+  valueOf () { return this.offset }
+}
+
 export class Context extends Duplex implements interfaces.Context {
-  constructor (public state: RecordState) {
+  constructor (public initial: RecordState) {
     super()
   }
 
   seekable: boolean = true
 
-  private offset: number = 0
-  private offsets: number[] = []
-  private states : RecordState[] = []
+  private transition = new Transition(0, this.initial)
+  private transitions: Transition[] = [this.transition]
+  private index: number = 0
   private queue: Buffer[] = []
 
   private immediate () {
-    this.state.record(...this.queue.splice(0))
+    this.transition.state.record(...this.queue.splice(0))
   }
 
   transform (chunk: Buffer): RecordState {
-    let state = fork(this.state).transform(chunk)
+    let transition = this.transition
+    let state = fork(transition.state).transform(chunk)
     if (state == null) return null
-    this.offsets.push(this.offset)
-    this.states.push(this.state)
-    this.offset += chunk.length
-    return (this.state = state)
+    transition.chunk = chunk
+    this.transition = new Transition(transition.offset + chunk.length, state)
+    this.transitions.splice(this.index++, 0, this.transition)
+    return state
   }
 
-  seek (offset: number): number {
-    throw new Error('Not implemented')
+  seek (position: number): number {
+    let offset = this.transition.offset + position
+    if (!position) return offset
+
+    // Find state at or before `offset`
+    let index = sortedIndexOf(this.transitions, offset)
+    if (index < 0) return null
+
+    // Move pointer to target transition
+    let transition = this.transition = this.transitions[index - 1]
+    this.index = index
+
+    if (transition.offset < offset) {
+      // Perform a partial transition if necessary
+      this.transform(transition.chunk.slice(0, offset - transition.offset))
+    }
+    return offset
   }
 
   _write (chunk: Buffer, encoding: string, callback: Function): void {
-    this.transform(chunk)
     if (!this.queue.length) {
+      // Schedule queue to be worked off
       setImmediate(this.immediate.bind(this))
     }
+    // Queue chunks pushed during the same tick
     this.queue.push(chunk)
     callback()
   }
 
   _read (size: number): void {
-    let state = this.state
-    while ((state = state.transform()) && size > 0) {
-      let chunk = toSlice(state.valueOf())
-      if (chunk == null) break
-      this.push(chunk.length > size ? chunk.slice(0, size) : chunk)
+    while (this.index < this.transitions.length && size > 0) {
+      this.transition = this.transitions[this.index++]
+      let chunk = this.transition.chunk
+      if (chunk.length > size) {
+      // Perform a partial transition if necessary
+        this.transform(chunk.slice(0, size))
+      }
+      chunk = this.transition.chunk
+      // Add chunk to readable queue
+      this.push(chunk)
       size -= chunk.length
     }
   }
