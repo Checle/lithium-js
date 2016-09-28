@@ -1,8 +1,8 @@
 import * as readline from 'readline'
-import { createInterface, ReadLine } from 'readline'
-import { Writable } from 'stream'
+import {createInterface, ReadLine} from 'readline'
+import {Writable} from 'stream'
 //import FileStream from '../devices/fs'
-import { RecordStream } from './stream'
+import {RecordStream} from './stream'
 
 function escape () { }
 

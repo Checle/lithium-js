@@ -1,6 +1,6 @@
-import { Duplex } from 'stream'
-import { State, Sink } from '../../interfaces'
-import { CodeState, StateContext } from '../sm/states'
+import {Duplex} from 'stream'
+import {State, Sink} from '../../interfaces'
+import {CodeState, StateContext} from '../sm/states'
 import fork from 'object-fork'
 import Sequence from '../../sequence'
 

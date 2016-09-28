@@ -1,4 +1,4 @@
-import { getDescriptor } from '../utils'
+import {getDescriptor} from '../utils'
 
 const FORK = Symbol('fork')
 const ANY = {}

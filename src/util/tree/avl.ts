@@ -2,10 +2,10 @@
 // Licensed under GPL and LGPL.
 // Modified by Jeremy Stephens.
 
-import { Slice } from '../../interfaces'
-import { toSlice } from '../../utils'
-import { mergeable } from '../merge'
-import { forkable } from '../fork'
+import {Slice} from '../../interfaces'
+import {toSlice} from '../../utils'
+import {mergeable} from '../merge'
+import {forkable} from '../fork'
 import Entry from '../entry'
 
 @forkable export default class AVLTree <T> extends Entry<Slice, T> {

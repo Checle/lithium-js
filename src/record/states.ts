@@ -1,7 +1,7 @@
 import Tree from '../util/tree'
-import { Duplex, Readable, Writable } from 'stream'
-import { Input, Accessor, Acceptor } from '../interfaces'
-import { getCommonPrefix } from '../utils'
+import {Duplex, Readable, Writable} from 'stream'
+import {Input, Accessor, Acceptor} from '../interfaces'
+import {getCommonPrefix} from '../utils'
 
 function toBuffer (value: any): Buffer {
   if (Buffer.isBuffer(value)) return value

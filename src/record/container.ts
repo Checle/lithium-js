@@ -1,4 +1,4 @@
-import { Duplex } from 'stream'
+import {Duplex} from 'stream'
 
 import * as interfaces from '../interfaces'
 

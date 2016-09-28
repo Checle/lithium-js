@@ -1,7 +1,7 @@
-import { forkable, mixin } from '../decorators'
-import { EventEmitter } from '../std/events'
-import { Context } from '../state/context'
-import { Duplex } from 'stream'
+import {forkable, mixin} from '../decorators'
+import {EventEmitter} from '../std/events'
+import {Context} from '../state/context'
+import {Duplex} from 'stream'
 import Process from './process'
 import base from '../base'
 

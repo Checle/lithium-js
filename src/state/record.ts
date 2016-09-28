@@ -1,5 +1,5 @@
-import { State } from '../interfaces'
-import { toBuffer } from '../utils'
+import {State} from '../interfaces'
+import {toBuffer} from '../utils'
 import FunctionState from './function'
 
 export default class RecordState implements State {

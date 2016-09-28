@@ -1,5 +1,5 @@
-import { Readable } from 'stream'
-import { ReadStream, WriteStream } from 'fs'
+import {Readable} from 'stream'
+import {ReadStream, WriteStream} from 'fs'
 import Sequence from './sequence'
 import * as interfaces from './interfaces'
 

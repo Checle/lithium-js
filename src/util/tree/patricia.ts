@@ -1,6 +1,6 @@
-import { Tree, Slice } from '../../interfaces'
-import { getCommonPrefix, sortedIndexOf, toSlice, elementOf } from '../../utils'
-import { Entry, Element } from '../entry'
+import {Tree, Slice} from '../../interfaces'
+import {getCommonPrefix, sortedIndexOf, toSlice, elementOf} from '../../utils'
+import {Entry, Element} from '../entry'
 
 export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Slice, T> {
   constructor (value: T = undefined, key: any = value) {

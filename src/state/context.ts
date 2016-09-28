@@ -1,7 +1,7 @@
 import * as interfaces from '../interfaces'
-import { sortedIndexOf, toSlice } from '../utils'
-import { fork } from '../util/fork'
-import { Duplex } from 'stream'
+import {sortedIndexOf, toSlice} from '../utils'
+import {fork} from '../util/fork'
+import {Duplex} from 'stream'
 import RecordState from './record'
 
 export default Context

@@ -1,5 +1,5 @@
 import * as vm from 'vm'
-import { create } from '../utils'
+import {create} from '../utils'
 
 const global = (function () { return this })()
 

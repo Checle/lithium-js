@@ -1,5 +1,5 @@
-import { Readable, Writable, Duplex } from 'stream'
-import { WriteStream } from 'fs'
+import {Readable, Writable, Duplex} from 'stream'
+import {WriteStream} from 'fs'
 
 export interface Comparable {
   compare (target: any): number

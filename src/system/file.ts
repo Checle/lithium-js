@@ -1,6 +1,6 @@
 // Cf. include/linux/fs.h
 
-import { Stream } from '../interfaces'
+import {Stream} from '../interfaces'
 
 export default File
 

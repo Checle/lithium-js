@@ -1,4 +1,4 @@
-import { Slice } from './interfaces'
+import {Slice} from './interfaces'
 
 /**
  * Get the longest common prefix of a set of slices.

@@ -1,7 +1,7 @@
 import * as readline from 'readline'
-import { createInterface, ReadLine } from 'readline'
-import { Writable } from 'stream'
-import { RecordStream } from './stream'
+import {createInterface, ReadLine} from 'readline'
+import {Writable} from 'stream'
+import {RecordStream} from './stream'
 
 var record = new RecordStream()
 var terminal: ReadLine

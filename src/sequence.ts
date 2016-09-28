@@ -1,6 +1,6 @@
 // TODO: must be interatable without deleting portions
 
-import { prototype } from './decorators'
+import {prototype} from './decorators'
 import fork from 'object-fork'
 import * as interfaces from './interfaces'
 

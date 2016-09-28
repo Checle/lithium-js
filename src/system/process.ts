@@ -1,9 +1,9 @@
-import { EventEmitter } from 'events'
-import { Readable, Writable, Duplex } from 'stream'
-import { IDMap } from '../util/pool'
-import { fork, forkable } from '../util/fork'
+import {EventEmitter} from 'events'
+import {Readable, Writable, Duplex} from 'stream'
+import {IDMap} from '../util/pool'
+import {fork, forkable} from '../util/fork'
 import Environment from './environment'
-import { File, Mode } from './file'
+import {File, Mode} from './file'
 
 export default class Process extends EventEmitter {
   constructor () {

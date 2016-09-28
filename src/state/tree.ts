@@ -1,4 +1,4 @@
-import { toBuffer } from '../utils'
+import {toBuffer} from '../utils'
 import PatriciaTrie from '../util/tree/patricia'
 import RecordState from './record'
 

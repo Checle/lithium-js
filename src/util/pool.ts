@@ -1,5 +1,5 @@
-import { forkable } from './fork'
-import { sortedIndexOf } from '../utils'
+import {forkable} from './fork'
+import {sortedIndexOf} from '../utils'
 
 @forkable export abstract class Pool<T> {
   abstract create (): T

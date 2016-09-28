@@ -1,7 +1,7 @@
-import { Element } from './entry'
-import { forkable, fork } from './fork'
-import { Slice } from '../interfaces'
-import { toSlice } from '../utils'
+import {Element} from './entry'
+import {forkable, fork} from './fork'
+import {Slice} from '../interfaces'
+import {toSlice} from '../utils'
 
 export default List
 

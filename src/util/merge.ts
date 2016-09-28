@@ -1,4 +1,4 @@
-import { bindFunction, getCommonPrototype, getDescriptor } from '../utils'
+import {bindFunction, getCommonPrototype, getDescriptor} from '../utils'
 import fork from './fork'
 
 const MERGE = Symbol('merge')
