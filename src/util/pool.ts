@@ -1,10 +1,10 @@
-import {forkable} from './fork'
+import {fork} from './fork'
 import {sortedIndexOf} from '../utils'
 
-@forkable export abstract class Pool<T> {
+@fork export abstract class Pool <T> {
   abstract create (): T
 
-  @forkable private free: T[] = []
+  @fork private free: T[] = []
   private value: T
 
   acquire (): T {

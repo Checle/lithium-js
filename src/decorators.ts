@@ -1,5 +1,5 @@
-export { forkable } from './util/fork'
-export { mergeable } from './util/merge'
+export {forkable, fork} from './util/fork'
+export {mergeable, merge} from './util/merge'
 
 /**
  * Decorator that assigns properties of `value` or its prototype to

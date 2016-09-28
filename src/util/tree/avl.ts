@@ -4,11 +4,10 @@
 
 import {Slice} from '../../interfaces'
 import {toSlice} from '../../utils'
-import {mergeable} from '../merge'
-import {forkable} from '../fork'
+import {fork} from '../fork'
 import Entry from '../entry'
 
-@forkable export default class AVLTree <T> extends Entry<Slice, T> {
+@fork export default class AVLTree <T> extends Entry<Slice, T> {
   constructor (key: any = '', value?: T, next?: AVLTree<T>, previous?: AVLTree<T>) {
     super(toSlice(key), value, next, previous)
   }

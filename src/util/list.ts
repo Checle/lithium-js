@@ -1,13 +1,13 @@
 import {Element} from './entry'
-import {forkable, fork} from './fork'
+import {fork} from './fork'
 import {Slice} from '../interfaces'
 import {toSlice} from '../utils'
 
 export default List
 
-@forkable export class List <T extends Slice> extends Element <T> {
-  @forkable next: Element<T> = null // Head
-  @forkable previous: Element<T> = null // Tail
+@fork export class List <T extends Slice> extends Element <T> {
+  @fork next: Element<T> = null // Head
+  @fork previous: Element<T> = null // Tail
   length: number = 0
 
   toString () {

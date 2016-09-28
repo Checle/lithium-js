@@ -1,7 +1,7 @@
 import {EventEmitter} from 'events'
 import {Readable, Writable, Duplex} from 'stream'
 import {IDMap} from '../util/pool'
-import {fork, forkable} from '../util/fork'
+import {fork} from '../util/fork'
 import Environment from './environment'
 import {File, Mode} from './file'
 
@@ -12,10 +12,10 @@ export default class Process extends EventEmitter {
     this.files.add(new File(this.output, Mode.Write)) // Standard output
   }
 
-  @forkable private files = new IDMap<File>()
-  @forkable private processes = new IDMap<Process>()
-  @forkable private input = new Environment()
-  @forkable private output = new Environment()
+  @fork private files = new IDMap<File>()
+  @fork private processes = new IDMap<Process>()
+  @fork private input = new Environment()
+  @fork private output = new Environment()
 
   id: number = this.processes.add(this)
 

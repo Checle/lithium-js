@@ -7,17 +7,16 @@ type Fork = { [name: string]: PropertyDescriptor }
 
 export default fork
 
-export function fork <T> (object: T, name?: string): T {
-  // TODO: when fork is called on a non-callable object and the object has no FORK property, deep fork
-  // TODO: do not rebranch functions!
-  return copy(object)
-}
+export function fork (target: Object, name: string): void
+export function fork (target: Function): any
+export function fork <T> (object: T): T
 
-export function forkable (target: Object, name?: string): any {
+export function fork (target: Object, name?: string): any {
   // Property decorator
   if (name !== undefined) {
     target[name] = fork(target[name])
     if (FORK in target) target[FORK][name] = getDescriptor(target, name)
+    return
   }
   // Class decorator
   if (target instanceof Function) {
@@ -25,7 +24,12 @@ export function forkable (target: Object, name?: string): any {
     assign(func.prototype, func.prototype, ANY)
     return target
   }
+  // TODO: when fork is called on a non-callable object and the object has no FORK property, deep fork
+  // TODO: do not rebranch functions!
+  return copy(target)
 }
+
+export var forkable = fork
 
 export function isForkable (object: any): boolean {
   if (typeof object === 'function') return FORK in object.prototype

@@ -1,5 +1,5 @@
-import {forkable, mixin} from '../decorators'
-import {EventEmitter} from '../std/events'
+import {fork, mixin} from '../decorators'
+import {EventEmitter} from '../shim/events'
 import {Context} from '../state/context'
 import {Duplex} from 'stream'
 import Process from './process'
@@ -13,7 +13,7 @@ export default class Environment extends Context {
     this.on('error', this.error)
   }
 
-  @forkable process: Process
+  @fork process: Process
 
   error () {
     this.end()
