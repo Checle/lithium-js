@@ -5,8 +5,10 @@ export {mergeable, merge} from './util/merge'
  * Decorator that assigns properties of `value` or its prototype to
  * the prototype of the target.
  */
-export function prototype (value) {
-  if (typeof value === 'function') value = value.length ? Object.create(value.prototype) : new value()
+export function prototype (value: any) {
+  if (typeof value === 'function') {
+    value = Object.create(value.prototype)
+  }
 
   return function (target: any, key?): void {
     if (arguments.length > 1) target[key] = value // Property decorator

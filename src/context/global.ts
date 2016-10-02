@@ -1,5 +1,5 @@
 export default function Global() {
-  var cache = {}
+  let cache = {}
 
   this.console = console // REMOVE
 
@@ -8,9 +8,9 @@ export default function Global() {
 
     path = require.resolve('../context/' + path)
     if (cache.hasOwnProperty(path)) return cache[path]
-    var constructor = require(path).default
-    var exports = new constructor()
+    let constructor = require(path).default
+    let exports = new constructor()
     cache[path] = exports
     return exports
   }
-} 
+}

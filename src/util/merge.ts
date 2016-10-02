@@ -1,4 +1,4 @@
-import {bindFunction, getCommonPrototype, getDescriptor} from '../utils'
+import {bindFunction, getCommonPrototype} from '../utils'
 import fork from './fork'
 
 const MERGE = Symbol('merge')
@@ -21,7 +21,7 @@ export function merge <T> (object: T, origin: any): T | any {
   if (origin == null) return object
   if (!(origin instanceof Object)) return object
 
-  var ancestor = getCommonPrototype(object, origin)
+  let ancestor = getCommonPrototype(object, origin)
   apply(object, origin, ancestor)
   return object
 }
@@ -58,12 +58,12 @@ export function isMergeable (object: any): boolean {
 
 function apply (target: any, origin: any, ancestor: any) {
   if (origin === ancestor) return
-  var prototype = Object.getPrototypeOf(origin)
+  let prototype = Object.getPrototypeOf(origin)
   apply(target, prototype, ancestor)
 
   for (let call of origin[MERGE]) call.call(target)
 
-  var keys = Object.keys(origin) // Own properties are those that have been read within the branch
+  let keys = Object.keys(origin) // Own properties are those that have been read within the branch
   for (let key of keys) {
     let descriptor = Object.getOwnPropertyDescriptor(origin, key)
     if (descriptor.writable) { // Writable properties are those that have been written within the branch

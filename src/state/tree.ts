@@ -3,12 +3,12 @@ import PatriciaTrie from '../util/tree/patricia'
 import RecordState from './record'
 
 export default class TreeState extends RecordState {
+  tree: PatriciaTrie<RecordState>
+
   constructor (target: RecordState = undefined) {
     super()
     this.tree = new PatriciaTrie<RecordState>(target)
   }
-
-  tree: PatriciaTrie<RecordState>
 
   transform (chunk?: Buffer): RecordState {
     return this.exec(this, chunk)

@@ -29,7 +29,7 @@ export function fork (target: Object, name?: string): any {
   return copy(target)
 }
 
-export var forkable = fork
+export let forkable = fork
 
 export function isForkable (object: any): boolean {
   if (typeof object === 'function') return FORK in object.prototype
@@ -41,12 +41,12 @@ function copy (object: any, branch: any = null): any {
   if (branch == null) branch = FORK in object ? Object.create(object[FORK]) : {} // Create a new branch
   if (object[FORK] === branch) return object // Object has already been copied in this fork
 
-  var target = Object.create(object)
+  let target = Object.create(object)
   assign(target, object, branch)
   return target
 }
 
-function assign (target:any, origin: any, branch: any): any {
+function assign (target: any, origin: any, branch: any): any {
   if (origin[FORK] === branch) return origin // Object has already been copied in this fork
 
   // Add new properties set on the origin since last fork

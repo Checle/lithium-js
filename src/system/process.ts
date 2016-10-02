@@ -1,5 +1,4 @@
 import {EventEmitter} from 'events'
-import {Readable, Writable, Duplex} from 'stream'
 import {Zone} from 'zone.js'
 import {IDMap} from '../util/pool'
 import {fork} from '../util/fork'
@@ -7,11 +6,8 @@ import Environment from './environment'
 import {File, Mode} from './file'
 
 export default class Process extends EventEmitter {
-  constructor () {
-    super()
-    this.files.add(new File(this.input, Mode.Read)) // Standard input
-    this.files.add(new File(this.output, Mode.Write)) // Standard output
-  }
+  parent: Process = null
+  id: number = this.processes.add(this)
 
   @fork private files = new IDMap<File>()
   @fork private processes = new IDMap<Process>()
@@ -19,8 +15,11 @@ export default class Process extends EventEmitter {
   @fork private output = new Environment()
   private zone = new Zone()
 
-  parent: Process = null
-  id: number = this.processes.add(this)
+  constructor () {
+    super()
+    this.files.add(new File(this.input, Mode.Read)) // Standard input
+    this.files.add(new File(this.output, Mode.Write)) // Standard output
+  }
 
   exit (code: number) {
     if (code) {
@@ -33,7 +32,7 @@ export default class Process extends EventEmitter {
   }
 
   fork (): Process {
-    var copy = fork(this)
+    let copy = fork(this)
     copy.id = this.processes.add(copy)
     copy.parent = this
     copy.zone = this.zone.fork()

@@ -1,5 +1,5 @@
 import * as interfaces from '../interfaces'
-import {sortedIndexOf, toSlice} from '../utils'
+import {sortedIndexOf} from '../utils'
 import {fork} from '../util/fork'
 import {Duplex} from 'stream'
 import RecordState from './record'
@@ -11,11 +11,10 @@ class Transition {
   valueOf () { return this.offset }
 }
 
+/**
+ * A state machine context that can be fed as a write stream.
+ */
 export class Context extends Duplex implements interfaces.Context {
-  constructor (public initial: RecordState) {
-    super()
-  }
-
   seekable: boolean = true
 
   private transition = new Transition(0, this.initial)
@@ -23,8 +22,8 @@ export class Context extends Duplex implements interfaces.Context {
   private index: number = 1
   private queue: Buffer[] = []
 
-  private immediate () {
-    this.transition.state.record(...this.queue.splice(0))
+  constructor (public initial: RecordState) {
+    super()
   }
 
   transform (chunk: Buffer): RecordState {
@@ -79,5 +78,10 @@ export class Context extends Duplex implements interfaces.Context {
       this.push(chunk)
       size -= chunk.length
     }
+  }
+
+  private immediate () {
+    // Record queued chunks and flush queue
+    this.transition.state.record(...this.queue.splice(0))
   }
 }

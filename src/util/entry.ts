@@ -14,12 +14,11 @@ export class Element <T> implements interfaces.Element<T> {
   }
 
   [Symbol.iterator](): Iterator<T> {
-    var current: Element<T> = this
+    let current: Element<T> = this
 
     return {
       next (): IteratorResult<T> {
         if (current) {
-          let value = current.value
           current = current.next
           return {
             done: false,

@@ -72,7 +72,7 @@ export interface Container extends Record, Duplex {
 }
 
 export interface Process {
-  exec (any)
+  exec (program: any)
   fork (): Process
 }
 

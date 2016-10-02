@@ -2,10 +2,10 @@ import {fork} from './fork'
 import {sortedIndexOf} from '../utils'
 
 @fork export abstract class Pool <T> {
-  abstract create (): T
-
   @fork private free: T[] = []
   private value: T
+
+  abstract create (): T
 
   acquire (): T {
     if (!this.free.length) return this.create()
@@ -33,7 +33,7 @@ export class IDMap <T> extends Map<number, T> {
   private ids = new IDPool()
 
   add (value: T): number {
-    var id = this.ids.create()
+    let id = this.ids.create()
     this.set(id, value)
     return id
   }

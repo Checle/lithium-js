@@ -5,9 +5,10 @@ import {Slice} from './interfaces'
  */
 export function getCommonPrefix <T extends Slice> (...values: T[]): T {
     values = values.concat().sort()
-    var min = values[0], max = values[values.length - 1]
-    var length = min.length
-    var i = 0
+    let min = values[0]
+    let max = values[values.length - 1]
+    let length = min.length
+    let i = 0
     while (i < length && min[i] === max[i]) i++
     return min.slice(0, i) as T
 }
@@ -29,7 +30,7 @@ export function toString (value: any) {
  */
 export function toSlice (object: any): Slice {
   if (object == null) return ''
-  var value = object.valueOf()
+  let value = object.valueOf()
   if (typeof value.length === 'number' && typeof value.slice === 'function') {
     // Value implements the slice interface
     return value
@@ -56,11 +57,11 @@ export function toBuffer (value: any): Buffer {
  * value should be inserted via splice.
  */
 export function sortedIndexOf (array: any[], value: any): number {
-    var low = 0
-    var high = array.length
+    let low = 0
+    let high = array.length
 
     while (low < high) {
-        var mid = (low + high) >>> 1
+        let mid = (low + high) >>> 1
         if (array[mid] <= value) low = mid + 1
         else high = mid
     }
@@ -81,8 +82,9 @@ export function elementOf (slice: Slice, index: number = 0): string {
  * prototype if undefined.
  */
 export function getDescriptor (object: any, name: string): PropertyDescriptor {
-  var ancestor = object
-  do { var descriptor = Object.getOwnPropertyDescriptor(ancestor, name) }
+  let ancestor = object
+  let descriptor
+  do { descriptor = Object.getOwnPropertyDescriptor(ancestor, name) }
   while (!descriptor && (ancestor = Object.getPrototypeOf(ancestor)))
   return descriptor || { writable: true, configurable: true, enumerable: true }
 }

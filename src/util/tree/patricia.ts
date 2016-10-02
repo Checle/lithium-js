@@ -1,12 +1,8 @@
 import {Tree, Slice} from '../../interfaces'
 import {getCommonPrefix, sortedIndexOf, toSlice, elementOf} from '../../utils'
-import {Entry, Element} from '../entry'
+import {Entry} from '../entry'
 
 export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Slice, T> {
-  constructor (value: T = undefined, key: any = value) {
-    super(toSlice(key), value)
-  }
-
   next: PatriciaTrie<T> = null
   previous: PatriciaTrie<T> = null
   parent: PatriciaTrie<T> = null
@@ -16,93 +12,15 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
   private children: { [element: string]: PatriciaTrie<T> } = {}
   private elements: string[] = []
 
+  constructor (value: T = undefined, key: any = value) {
+    super(toSlice(key), value)
+  }
+
   private static concat <T> (previous: PatriciaTrie<T>, ...nodes: PatriciaTrie<T>[]): void {
     for (let next of nodes) {
       if (previous) previous.last.next = next && next.first
       if (next) next.first.previous = previous && previous.last
       previous = next
-    }
-  }
-
-  private update (): void {
-    if (this.elements.length) {
-      let first = this.elements[0]
-      let last = this.elements[this.elements.length - 1]
-      if (this.value === undefined) this.first = this.children[first].first
-      this.last = this.children[last].last
-    } else {
-      this.first = this
-      this.last = this
-    }
-  }
-
-  private splice (child: PatriciaTrie<T>, offset?: number): PatriciaTrie<T> {
-    if (offset) child.key = child.key.slice(offset)
-
-    // Get the first character of the key
-    let element = elementOf(child.key, 0)
-
-    // Value has a common prefix with an existing child
-    if (this.children.hasOwnProperty(element)) {
-      child = this.children[element].insert(child)
-    } else {
-      let index = sortedIndexOf(this.elements, element)
-      let previous, next
-      if (this.elements.length === 0) {
-        previous = this.value === undefined ? this.first.previous : this
-        next = this.last.next
-      } else if (index === 0) {
-        next = this.children[this.elements[0]].first
-        previous = next.first.previous
-      } else {
-        previous = this.children[this.elements[index - 1]].last
-        next = previous.last.next
-      }
-      PatriciaTrie.concat(previous, child, next)
-      this.elements.splice(index, 0, element)
-      this.children[element] = child
-      child.parent = this.value == null ? null : this
-    }
-    // Update first and last pointers
-    this.update()
-    return child
-  }
-
-  private split (offset: number): PatriciaTrie<T> {
-    // Create a prefix node
-    let target = new PatriciaTrie<T>(undefined, this.key.slice(0, offset))
-    // Remove this node from parent
-    this.remove()
-    // Add prefix node to parent
-    this.parent.splice(target)
-    // Add current node as a suffix node
-    target.splice(this, offset)
-    return target
-  }
-
-  private insert (child: PatriciaTrie<T>): PatriciaTrie<T> {
-    let prefix = getCommonPrefix(child.key, this.key)
-    let length = prefix.length
-
-    if (length < this.key.length) { // Ramify
-      return this.split(length).splice(child, length)
-    }
-    if (child.key.length > length) { // Append
-      return this.splice(child, length)
-    }
-    // Key exists
-    if (this.value === undefined) this.value = child.value
-    return this
-  }
-
-  private remove (): void {
-    if (this.previous) this.previous.next = this.next
-    if (this.next) this.next.previous = this.previous
-    if (this.parent) {
-      let element = this.key[0]
-      this.parent.elements.splice(sortedIndexOf(this.parent.elements, element) - 1, 1)
-      delete this.parent.children[element]
-      this.parent.update()
     }
   }
 
@@ -186,7 +104,7 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
       if (!this.elements.length) return null
       return this.children[this.elements[0]].slice(start - this.key.length)
     }
-    var slice: PatriciaTrie<T> = Object.create(this)
+    let slice: PatriciaTrie<T> = Object.create(this)
     slice.key = this.key.slice(start)
     return slice
   }
@@ -195,10 +113,92 @@ export default class PatriciaTrie <T> extends Entry<Slice, T> implements Tree<Sl
    * Returns a subtree whose path equals the specified key.
    */
   select (key: Slice): PatriciaTrie<T> {
-    var target = this.find(key)
+    let target = this.find(key)
     if (target == null) return null
-    var prefix = target.key.slice(0, key.length)
+    let prefix = target.key.slice(0, key.length)
     if (prefix < key || prefix > key) return null // Object-tolerant non-equivalence test
     return target.slice(key.length)
+  }
+
+  private update (): void {
+    if (this.elements.length) {
+      let first = this.elements[0]
+      let last = this.elements[this.elements.length - 1]
+      if (this.value === undefined) this.first = this.children[first].first
+      this.last = this.children[last].last
+    } else {
+      this.first = this
+      this.last = this
+    }
+  }
+
+  private splice (child: PatriciaTrie<T>, offset?: number): PatriciaTrie<T> {
+    if (offset) child.key = child.key.slice(offset)
+
+    // Get the first character of the key
+    let element = elementOf(child.key, 0)
+
+    // Value has a common prefix with an existing child
+    if (this.children.hasOwnProperty(element)) {
+      child = this.children[element].insert(child)
+    } else {
+      let index = sortedIndexOf(this.elements, element)
+      let previous, next
+      if (this.elements.length === 0) {
+        previous = this.value === undefined ? this.first.previous : this
+        next = this.last.next
+      } else if (index === 0) {
+        next = this.children[this.elements[0]].first
+        previous = next.first.previous
+      } else {
+        previous = this.children[this.elements[index - 1]].last
+        next = previous.last.next
+      }
+      PatriciaTrie.concat(previous, child, next)
+      this.elements.splice(index, 0, element)
+      this.children[element] = child
+      child.parent = this.value == null ? null : this
+    }
+    // Update first and last pointers
+    this.update()
+    return child
+  }
+
+  private split (offset: number): PatriciaTrie<T> {
+    // Create a prefix node
+    let target = new PatriciaTrie<T>(undefined, this.key.slice(0, offset))
+    // Remove this node from parent
+    this.remove()
+    // Add prefix node to parent
+    this.parent.splice(target)
+    // Add current node as a suffix node
+    target.splice(this, offset)
+    return target
+  }
+
+  private insert (child: PatriciaTrie<T>): PatriciaTrie<T> {
+    let prefix = getCommonPrefix(child.key, this.key)
+    let length = prefix.length
+
+    if (length < this.key.length) { // Ramify
+      return this.split(length).splice(child, length)
+    }
+    if (child.key.length > length) { // Append
+      return this.splice(child, length)
+    }
+    // Key exists
+    if (this.value === undefined) this.value = child.value
+    return this
+  }
+
+  private remove (): void {
+    if (this.previous) this.previous.next = this.next
+    if (this.next) this.next.previous = this.previous
+    if (this.parent) {
+      let element = this.key[0]
+      this.parent.elements.splice(sortedIndexOf(this.parent.elements, element) - 1, 1)
+      delete this.parent.children[element]
+      this.parent.update()
+    }
   }
 }

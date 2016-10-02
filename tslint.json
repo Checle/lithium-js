@@ -1,6 +1,9 @@
 {
   "extends": "tslint-config-standard",
   "rules": {
-    "curly": false
+    "curly": false,
+    "one-variable-per-declaration": false,
+    "one-line": false,
+    "no-conditional-assignment": false
   }
 }

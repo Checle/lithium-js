@@ -20,6 +20,9 @@ export function createContext (sandbox: any = {}): Context {
  * any statement of the script.
  */
 export class Script {
+  private script: vm.Script
+  private names: string[] = []
+
   constructor (code: string, options?: vm.ScriptOptions) {
     // TODO: tokenize
     const VariableName = /\w+/g // Not exact and standards compliant as not security relevant here
@@ -35,9 +38,6 @@ export class Script {
     while ((match = VariableName.exec(code))) this.names.push(match[0])
   }
 
-  private script: vm.Script
-  private names: string[] = []
-
   runInContext (context: Context, options?: vm.RunningScriptOptions) {
     let properties: PropertyDescriptorMap = {}
     let global = context.global
@@ -46,7 +46,7 @@ export class Script {
       if (!(key in context)) {
         properties[key] = {
           get: () => global[key],
-          set: (value) => global[key] = value
+          set: (value) => (global[key] = value)
         }
       }
     }

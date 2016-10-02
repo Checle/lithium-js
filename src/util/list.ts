@@ -71,8 +71,8 @@ export default List
     if (this.length === 0) {
       return ''
     }
-    var p = this.next
-    var ret = '' + p.value
+    let p = this.next
+    let ret = '' + p.value
     while ((p = p.next)) {
       ret += s + p.value
     }
@@ -80,16 +80,17 @@ export default List
   }
 
   toArray (): T[] {
-    var array: T[] = new Array<T>(this.length)
+    let array: T[] = new Array<T>(this.length)
     for (let i = 0, p = this.next; p; i++) {
       array[i] = p.value
+      p = p.next
     }
     return array
   }
 
   splice (index: number, count?: number, value?: T): void {
-    var p: Element<T> = this
-    var i
+    let p: Element<T> = this
+    let i
     for (i = 0; i < index && p.next; i++) p = p.next
     if (!p.next) {
       if (value) return this.push(value)
@@ -97,10 +98,12 @@ export default List
     }
     if (count == null) {
       p.next = null
-    } else for (i = 0; i < count && p.next; i++) {
-      --this.length
-      p.next.previous = p
-      p.next = p.next.next
+    } else {
+      for (i = 0; i < count && p.next; i++) {
+        --this.length
+        p.next.previous = p
+        p.next = p.next.next
+      }
     }
     if (!p.next) this.previous = p
     if (value) {
@@ -111,7 +114,7 @@ export default List
   }
 
   slice (begin?: number, end?: number): List<T> {
-    var copy = fork(this)
+    let copy = fork(this)
     if (begin != null) {
       copy.splice(0, begin)
       if (end != null) {
@@ -123,8 +126,8 @@ export default List
 
   compare (value: any) {
     value = toSlice(value)
-    var p = this.next
-    var i = 0
+    let p = this.next
+    let i = 0
     while (p && i <= value.length) {
       let slice = value.slice(i, i + p.value.length)
       if (slice < p.value) return 1
@@ -132,7 +135,7 @@ export default List
       i += p.value.length
       p = p.next
     }
-    if (value.length == this.length) {
+    if (value.length === this.length) {
       return 0
     }
     return value.length < this.length ? 1 : -1
@@ -148,8 +151,8 @@ export class BufferList extends List<Buffer> {
       return this.next.value
     }
     const ret = new Buffer(n >>> 0)
-    var p = this.next
-    var i = 0
+    let p = this.next
+    let i = 0
     while (p) {
       p.value.copy(ret, i)
       i += p.value.length

@@ -3,7 +3,13 @@ parser: typescript-eslint-parser
 env:
   node: true
 rules:
-  indent: off # REMOVE
-  space-before-function-paren: off # REMOVE
   no-console: error
   no-warning-comments: warn
+  # Temporary switch-offs due to instability of typescript-eslint-parser
+  indent: off
+  space-before-function-paren: off
+  no-undef: off
+  no-unused-vars: off
+  no-useless-constructor: off
+  new-parens: off
+  space-infix-ops: off

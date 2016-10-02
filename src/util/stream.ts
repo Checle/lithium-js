@@ -1,12 +1,9 @@
 import * as stream from 'stream'
 
+/**
+ * Standard IO stream enhanced by string and seeking capabilities.
+ */
 export default class Readable extends stream.Readable {
-  // Standard IO stream enhanced by string and seeking capabilities.
-
-  static isReadable (stream: any) {
-    return stream && stream.readable === true
-  }
-
   private head
   private chunkLengths
   private pos
@@ -29,8 +26,12 @@ export default class Readable extends stream.Readable {
     }
   }
 
+  static isReadable (stream: any) {
+    return stream && stream.readable === true
+  }
+
   valueOf (): Buffer {
-    var buffer = super.read() // Read causes readable to copy chunks into single buffer
+    let buffer = super.read() // Read causes readable to copy chunks into single buffer
     if (buffer != null) this.unshift(buffer) // Add back single buffer as a single chunk
     return buffer
   }
@@ -42,8 +43,8 @@ export default class Readable extends stream.Readable {
   push (chunk: any, encoding?: string): boolean {
     if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string') chunk = String(chunk)
 
-    var length = chunk.length
-    var result = super.push(chunk, encoding)
+    let length = chunk.length
+    let result = super.push(chunk, encoding)
     if (!result) return false
 
     this.len += length
@@ -54,8 +55,8 @@ export default class Readable extends stream.Readable {
   unshift (chunk: any): any {
     if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string') chunk = String(chunk)
 
-    var length = chunk.length
-    var result = super.unshift(chunk)
+    let length = chunk.length
+    let result = super.unshift(chunk)
     if (result) return false
 
     this.len += result
@@ -64,9 +65,9 @@ export default class Readable extends stream.Readable {
   }
 
   read (size?: number): any {
-    var result = super.read(size)
+    let result = super.read(size)
     if (result == null) return null
-    var length = result.length
+    let length = result.length
 
     this.head.push(result)
     this.pos += length
@@ -82,7 +83,7 @@ export default class Readable extends stream.Readable {
   }
 
   seek (offset?: number): number {
-    var chunk, length
+    let chunk, length
 
     if (offset < 0) {
       while (offset < 0 && this.head.length) {
@@ -115,5 +116,5 @@ export default class Readable extends stream.Readable {
     return this.pos
   }
 
-  _read () { }
+  _read () { return }
 }
