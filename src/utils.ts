@@ -62,7 +62,7 @@ export function sortedIndexOf (array: any[], value: any): number {
 
     while (low < high) {
         let mid = (low + high) >>> 1
-        if (array[mid] <= value) low = mid + 1
+        if (array[mid] < value) low = mid + 1
         else high = mid
     }
     return low

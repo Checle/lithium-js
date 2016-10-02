@@ -41,7 +41,7 @@ export class Context extends Duplex implements interfaces.Context {
     if (!position) return offset
 
     // Find state at or before `offset`
-    let index = sortedIndexOf(this.transitions, offset)
+    let index = sortedIndexOf(this.transitions, offset + 1)
     if (index < 0) return null
 
     // Move pointer to target transition
