@@ -1,8 +1,7 @@
-import {fork} from './fork'
 import {sortedIndexOf} from '../utils'
 
-@fork export abstract class Pool <T> {
-  @fork private free: T[] = []
+export abstract class Pool <T> {
+  private free: T[] = []
   private value: T
 
   abstract create (): T
@@ -21,7 +20,7 @@ import {sortedIndexOf} from '../utils'
   }
 }
 
-class IDPool extends Pool<number> {
+export class IDPool extends Pool<number> {
   private id: number = 0
 
   create (): number {

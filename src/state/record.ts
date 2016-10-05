@@ -1,31 +1,49 @@
-import {State} from '../interfaces'
-import {toBuffer} from '../utils'
-import FunctionState from './function'
+import {EventEmitter} from 'events'
 
-export default class RecordState implements State {
-  transform (chunk?: Buffer): RecordState {
-    return this
+import * as types from '../types'
+import {toBuffer} from '../utils'
+
+abstract class RecordState extends EventEmitter implements types.State {
+  next: RecordState = null
+  accessor: types.Record
+
+  constructor (public value?, public owner: RecordState = null, public chunk: Buffer = toBuffer(value)) {
+    super()
+
+    let accessor: any = (...inputs) => {
+      if (!inputs.length) return this.next && this.next.accessor
+      return this.record(...inputs).accessor
+    }
+
+    Object.defineProperties(accessor, {
+      path: { get: () => this.path },
+      name: { get: () => String(this.value) },
+      position: { get: () => this.position },
+    })
+    accessor.valueOf = () => this.next && this.next.value
+    accessor.toString = () => String(this.valueOf())
+
+    this.accessor = accessor
   }
 
-  resolve (input: any): RecordState {
-    // Undefined identity causes no state transition
-    if (input === undefined) return this
+  valueOf = () => this.value
 
-    let buffer = toBuffer(input)
-    if (buffer) return this.transform(buffer)
+  get path (): string {
+    return (this.owner ? this.owner.path : '') + this.chunk
+  }
 
-    if (typeof input === 'function') return new FunctionState(input, this)
-    // TODO: handle stream
-    return this
+  get position (): number {
+    return this.owner ? this.owner.position + this.owner.chunk.length : 0
+  }
+
+  transform (chunk?: Buffer): RecordState {
+    return this.record(chunk)
   }
 
   /**
    * Executes arbitrary arguments on the current state, yielding a new state.
    */
-  record (...inputs: any[]): RecordState {
-    let input = inputs.shift()
-    let target = this.resolve(input)
-    if (inputs.length) target = target.record(...inputs)
-    return target
-  }
+  abstract record (...inputs): RecordState
 }
+
+export default RecordState

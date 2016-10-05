@@ -1,6 +1,4 @@
-// Cf. include/linux/fs.h
-
-import {Stream} from '../interfaces'
+// See https://github.com/torvalds/linux/blob/master/include/linux/fs.h
 
 export default File
 
@@ -12,7 +10,7 @@ export enum Mode {
 }
 
 export class File {
-  constructor (public stream: Stream, public mode?: Mode) {
+  constructor (public stream, public mode?: Mode) {
     if (mode == null) {
       // Let mode default to maximum capabilities of the underlying stream
       this.mode = 0

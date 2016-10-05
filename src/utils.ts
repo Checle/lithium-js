@@ -1,4 +1,6 @@
-import {Slice} from './interfaces'
+import {Slice} from './types'
+
+const KEY = Symbol('key')
 
 /**
  * Get the longest common prefix of a set of slices.
@@ -17,7 +19,7 @@ export function getCommonPrefix <T extends Slice> (...values: T[]): T {
  * Convert value to string in record-js fashion:
  * booleans and numbers are interpreted as character codes.
  */
-export function toString (value: any) {
+export function toString (value) {
   if (value == null) return ''
   if (typeof value === 'boolean') value = Number(value)
   if (typeof value === 'number') value = String.fromCharCode(value) // TODO: convert numbers > 255 to multiple bytes
@@ -28,7 +30,7 @@ export function toString (value: any) {
 /**
  * Create slice derived from the given value.
  */
-export function toSlice (object: any): Slice {
+export function toSlice (object): Slice {
   if (object == null) return ''
   let value = object.valueOf()
   if (typeof value.length === 'number' && typeof value.slice === 'function') {
@@ -42,7 +44,7 @@ export function toSlice (object: any): Slice {
  * Convert value to buffer in record-js fashion:
  * booleans and numbers are interpreted as character codes.
  */
-export function toBuffer (value: any): Buffer {
+export function toBuffer (value): Buffer {
   if (value == null) return value
   value = value.valueOf()
   if (Buffer.isBuffer(value)) return value
@@ -53,19 +55,19 @@ export function toBuffer (value: any): Buffer {
 }
 
 /**
- * Via binary search, determine the position in a sorted array where the new
+ * Via binary search, determine the position in a sorted array where a new
  * value should be inserted via splice.
  */
-export function sortedIndexOf (array: any[], value: any): number {
-    let low = 0
-    let high = array.length
+export function sortedIndexOf (array: any[], value): number {
+  let low = 0
+  let high = array.length
 
-    while (low < high) {
-        let mid = (low + high) >>> 1
-        if (array[mid] < value) low = mid + 1
-        else high = mid
-    }
-    return low
+  while (low < high) {
+    let mid = (low + high) >>> 1
+    if (value > array[mid]) low = mid + 1
+    else high = mid
+  }
+  return low
 }
 
 /**
@@ -78,13 +80,22 @@ export function elementOf (slice: Slice, index: number = 0): string {
 }
 
 /**
+ * Get a unique property key for an object.
+ */
+export function keyOf (value) {
+  if (value instanceof Object) return value
+  if (KEY in value) return value[KEY]
+  return (value[KEY] = Symbol())
+}
+
+/**
  * Get the descriptor of an property of the object itself or of the closest
  * prototype if undefined.
  */
-export function getDescriptor (object: any, name: string): PropertyDescriptor {
+export function getDescriptor (object, key: string | number | symbol): PropertyDescriptor {
   let ancestor = object
   let descriptor
-  do { descriptor = Object.getOwnPropertyDescriptor(ancestor, name) }
+  do { descriptor = Object.getOwnPropertyDescriptor(ancestor, key) }
   while (!descriptor && (ancestor = Object.getPrototypeOf(ancestor)))
   return descriptor || { writable: true, configurable: true, enumerable: true }
 }
@@ -99,9 +110,6 @@ export function getCommonPrototype (target: Object, object: Object): Object {
   return getCommonPrototype(target, Object.getPrototypeOf(object))
 }
 
-/**
- * Creates a new function with the specified prototype object and callable.
- */
 export function create (proto: Function, properties?: PropertyDescriptorMap): Function {
   if (typeof proto !== 'function') return Object.create(proto, properties)
   let func = createFunction(proto)
@@ -129,24 +137,5 @@ export function createFunction (proto: Function, callable: Function = proto): Fu
     }
   }
   Object.setPrototypeOf(proxy, proto)
-  return proxy
-}
-
-/**
- * Creates a proxy function that binds both a callback and a target function.
- */
-export function bindFunction (target: Function, callback: Function): Function {
-  let proxy = function (...args) {
-    if (this instanceof proxy) {
-      let object = Object.create(target.prototype)
-      return callback.apply(object, args) && target.apply(object, args)
-    }
-    return callback.apply(this, args) && target.apply(this, args)
-  }
-  Object.defineProperties(proxy, {
-    name: { value: getDescriptor(target, 'name') },
-    length: { value: getDescriptor(target, 'length') }
-  })
-  proxy.prototype = target.prototype
   return proxy
 }

@@ -1,24 +1,47 @@
 import {EventEmitter} from 'events'
-import {Zone} from 'zone.js'
+import fork from 'fork.js'
+
 import {IDMap} from '../util/pool'
-import {fork} from '../util/fork'
-import Environment from './environment'
 import {File, Mode} from './file'
+import Readable from '../state/context/readable'
+import Writable from '../state/context/writable'
+import zone from '../util/zone'
+import base from '../base'
 
 export default class Process extends EventEmitter {
+  static current: Process = null
+
   parent: Process = null
   id: number = this.processes.add(this)
 
-  @fork private files = new IDMap<File>()
-  @fork private processes = new IDMap<Process>()
-  @fork private input = new Environment()
-  @fork private output = new Environment()
-  private zone = new Zone()
+  private files = new IDMap<File>()
+  private processes = new IDMap<Process>()
+  private input = new Readable(base)
+  private output = new Writable(base)
+  private zone = zone.fork({ name: String(this.id) })
 
   constructor () {
     super()
     this.files.add(new File(this.input, Mode.Read)) // Standard input
     this.files.add(new File(this.output, Mode.Write)) // Standard output
+  }
+
+  run (callback: Function) {
+    let current = Process.current
+    try {
+      Process.current = this
+      return this.zone.run(callback) as any
+    } finally {
+      Process.current = current
+    }
+  }
+
+  fork (): Process {
+    let copy = fork(this)
+    copy.id = this.processes.add(copy)
+    copy.parent = this
+    copy.zone = this.zone.fork({ name: String(copy.id) })
+    return copy
   }
 
   exit (code: number) {
@@ -28,14 +51,6 @@ export default class Process extends EventEmitter {
     this.emit('exit', code)
 
     // Release any references to functions owned by the process
-    this.files.forEach((file) => file.stream.removeAllListeners())
-  }
-
-  fork (): Process {
-    let copy = fork(this)
-    copy.id = this.processes.add(copy)
-    copy.parent = this
-    copy.zone = this.zone.fork()
-    return copy
+    this.files.forEach(file => file.stream.removeAllListeners())
   }
 }

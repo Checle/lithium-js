@@ -29,8 +29,9 @@ Unstable and non-functional: early proof of concept.
 
 ## Contributions
 
-### Project conventions
+### Conventions
 
 * [Coding style](https://github.com/feross/standard/blob/master/RULES.md)
 * Naming: [TypeScript coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines), align names with [Java API](https://docs.oracle.com/javase/7/docs/api/overview-summary.html) counterparts if applicable
-* [Module best practices](https://github.com/mattdesl/module-best-practices)
+
+MIT © 2016 Filip Dalüge ([see for full text](./LICENSE))

@@ -6,17 +6,17 @@
         "declaration": true,
         "experimentalDecorators": true,
         "noImplicitAny": false,
-        "sourceMap": false,
+        "sourceMap": true,
         "outDir": "build",
         "rootDir": "src"
     },
-    "filesGlob": [
-        "src/**/*.ts"
+    "include": [
+        "src/**/*",
+        "typings/**/*"
     ],
     "exclude": [
         "node_modules",
         "test",
-        "build",
-        "src/apps"
+        "build"
     ]
 }
