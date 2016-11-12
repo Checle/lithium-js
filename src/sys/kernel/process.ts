@@ -18,19 +18,27 @@ export class File {
   fd: number
 }
 
+const base: Process = Object.assign(Object.create(Process.prototype), {
+  owner: 0,
+  group: 0,
+  cwd: '/',
+  context: global,
+  require: require,
+})
+
 export default class Process extends Zone {
-  static current: Process = Object.create(Process.prototype)
+  static current: Process = base
 
   owner: number
   group: number
-  args: string[]
   cwd: string // Current working directory
-  paths: { [alias: string]: (path: string) => string } = Object.create(this.parent.paths)
-  cache: { [id: string]: Module } = {}
   id = processes.add(this)
+  args: string[] = this.parent.args.slice()
+  paths: { [alias: string]: (path: string) => string } = Object.assign({}, this.parent.paths)
+  cache: { [id: string]: Module } = {}
   files: IDMap<File> = new IDMap<File>(this.parent.files)
   env = Object.assign({}, this.parent.env)
-  context = vm.createContext(new Global(this))
+  context: any = vm.createContext(new Global(this))
 
   // Root process: load from stream (fexecve) - fexecve loads Module() and executes in process context
 
@@ -45,24 +53,8 @@ export default class Process extends Zone {
     finally { Process.current = previous }
   }
 
-  exec (filename: string, args: string[] = [], env?: any): void {
-    if (env) this.env = env
-
-    this.cache = {}
-    this.args = args
-
-    return this.require(path.isAbsolute(filename) ? filename : path.join('.', filename))
-  }
-
-  fork (): Process {
-    let process = Object.create(Process.prototype)
-    Object.assign(process, this)
-    Process.call(process, this)
-    return process
-  }
-
-  kill (): void {
-    this.cancel()
+  cancel (): void {
+    super.cancel()
     processes.delete(this.id)
   }
 
@@ -73,32 +65,6 @@ export default class Process extends Zone {
 
     // Return cached export
     if (this.cache.hasOwnProperty(id)) return this.cache[id].exports
-
-    let native = id.startsWith(ModulePath) && id.charAt(ModulePath.length) === path.delimiter
-
-    // Load a native module
-    if (native) {
-      // Normalize ID
-      id = require.resolve(id)
-
-      // Disable cache
-      let exists = require.cache.hasOwnProperty(id)
-      let current = require.cache[id]
-      delete require.cache[id]
-
-      // Perform native require
-      let exports = require(id)
-
-      // Restore cache
-      if (exists) require.cache[id] = current
-
-      // Let native ES6 modules export custom objects as default export
-      if (exports.hasOwnProperty('default')) exports = exports.default
-
-      let module = new Module(id)
-      module.exports = exports
-      return module
-    }
 
     // Read code from file system
     let code = this.require('fs').readFileSync(id)
@@ -115,15 +81,3 @@ export default class Process extends Zone {
     return module.exports
   }
 }
-
-Object.assign(Process.current, {
-  context: global,
-  require: require,
-  id: processes.add(this),
-  owner: 0,
-  group: 0,
-  cwd: '/',
-  context: global,
-  require: 
-  paths: {}
-})
