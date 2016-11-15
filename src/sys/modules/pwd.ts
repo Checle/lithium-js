@@ -1,4 +1,4 @@
-import * as fs from 'fs'//../../lib/modules/fs'
+import {readfile} from 'unistd'
 
 export interface Passwd {
   name: string
@@ -10,15 +10,10 @@ export interface Passwd {
 
 let lines: string[]
 
-export function getpwent (): Thenable<Passwd> {
+export async function getpwent (): Promise<Passwd> {
   if (lines == null) {
-    return new Promise<void>((resolve, reject) => {
-      fs.readFile('/etc/passwd', 'utf-8', (error, data) => {
-        if (error) return reject(error)
-        lines = data.split(/\r?\n/g).reverse()
-        resolve()
-      })
-    }).then(() => getpwent())
+    let content = await readfile('/etc/passwd')
+    lines = content.toString().split(/\r?\n/g).reverse()
   }
   if (!lines.length) return null
   let [name, pwd, uid, gid, title, dir, shell] = lines.pop().split(':')
