@@ -6,7 +6,6 @@ import {Dir} from './dirent'
 import {Stat} from './sys/stat'
 import {Size, Ssize, Uid, Gid, Off, Pid, Useconds} from './sys/types'
 import {fclose, tmpfile, Seek} from './stdio'
-import {SystemError} from '../errors'
 
 const process = Process.current
 

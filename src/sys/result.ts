@@ -1,56 +1,64 @@
 import './default'
 
-export default class Result <T> extends Promise<T> {
-  private value: T
-  private error: any
-  private pending = false
+function createResult (resolve, reject, parent = null) {
+  let state = 'pending'
+  let value
 
-  resolve: (value?: T | PromiseLike<T>) => void
-  reject: (reason?: any) => void
+  return {
+    resolve: result => {
+      if (state !== 'pending') return
+      state = 'fulfilled'
+      value = result
+      resolve(value)
+    },
+    reject: reason => {
+      if (state !== 'pending') return
+      state = 'rejected'
+      value = reason
+      reject(reason)
+    },
+    valueOf: () => {
+      if (state === 'rejected') throw value
+      if (state === 'fulfilled') return value
+      if (parent == null) throw new TypeError('Unresolved at runtime')
 
-  constructor (private async?: () => void, private sync?: () => T) {
-    super((resolve, reject) => {
-      this.resolve = resolve
-      this.reject = reject
-    })
-    this.then(
-      value => {
-        this.pending = false
-        this.value = value
-      },
-      error => {
-        this.pending = false
-        this.error = error
+      try {
+        value = parent.valueOf()
+        state = 'fulfilled'
+        resolve(value)
+        if (value === parent) throw new TypeError('Unresolved at runtime')
+        return value == null ? value : value.valueOf()
+      } catch (error) {
+        state = 'rejected'
+        reject(error)
+        throw error
       }
-    )
-  }
+    },
+    then: (resolve, reject): any => {
+      const result = createResult(resolve, reject, this)
+      const promise = Promise.prototype.then.call(this, result.resolve, result.reject)
 
-  then (resolve?: (value: T) => any , reject?: (reason: any) => any): PromiseLike<T> {
-    if (!this.pending) {
-      this.async()
-      this.pending = true
-    }
-    return super.then(resolve, reject)
-  }
-
-  valueOf (): T {
-    if (this.hasOwnProperty('value')) return this.value
-    if (this.sync && !this.pending) return (this.value = this.sync())
-    throw new Error('Value not resolved')
+      promise.valueOf = result.valueOf
+      promise.then = result.then
+      return promise
+    },
   }
 }
 
-export function promisify <T> (async?: Function, sync?: Function) {
-  return function (...args: any[]) {
-    let result = new Result<T>(
-      () => {
-        let callback = (error, value) => {
-          if (error == null) result.resolve(value)
-          else result.reject(error)
-        }
-        async.apply(null, args.concat(callback))
-      },
-      () => sync(...args)
-    )
-  }
+export default Result as any as PromiseConstructor
+
+function Result (executor) {
+  let result: any
+
+  const promise = new Promise((resolve, reject) => {
+    result = createResult(resolve, reject)
+  })
+
+  executor(result.resolve, result.reject)
+
+  promise.valueOf = result.valueOf
+  promise.then = result.then
+  return promise
 }
+
+Result.prototype = Promise.prototype
