@@ -3,20 +3,19 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es5",
+        "lib": ["dom", "es2015"],
         "declaration": true,
-        "experimentalDecorators": true,
         "noImplicitAny": false,
-        "sourceMap": false,
-        "outDir": "build",
-        "rootDir": "src"
+        "sourceMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "baseUrl": "src",
+        "paths": {
+            "*": ["sys/modules/*"]
+        }
     },
-    "filesGlob": [
-        "src/**/*.ts"
-    ],
     "exclude": [
         "node_modules",
-        "test",
-        "build",
-        "src/apps"
+        "dist"
     ]
 }

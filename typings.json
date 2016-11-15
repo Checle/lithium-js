@@ -1,6 +1,7 @@
 {
   "globalDependencies": {
-    "core-js": "registry:dt/core-js#0.0.0+20160725163759",
-    "node": "registry:dt/node#6.0.0+20160906134437"
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
+    "node": "registry:dt/node#6.0.0+20161019125345",
+    "tmp": "registry:dt/tmp#0.0.0+20160514170650"
   }
 }
