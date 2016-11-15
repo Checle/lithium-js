@@ -4,6 +4,7 @@ import {EventEmitter} from 'events'
 import {Zone} from 'operate'
 import {Readable} from 'stream'
 
+import {readfile} from '../modules/unistd'
 import resolve from '../util/resolve'
 import Global from './global'
 import Module from './module'
@@ -59,16 +60,15 @@ export default class Process extends Zone {
     processes.delete(this.id)
   }
 
-  require (pathname: string) {
+  require (...paths: string[]) {
     // Look up module
-    let id = resolve(pathname, this.context != null ? this.context.JSPATH : null, this.dirname || this.cwd)
-    if (id == null) throw new Error(`Cannot find module '${pathname}'`)
+    let id = resolve.apply(environ && environ['JSPATH'], paths)
 
     // Return cached export
     if (this.cache.hasOwnProperty(id)) return this.cache[id].exports
 
     // Read code from file system
-    let code = this.require('fs').readFileSync(id)
+    let code = readfile(id).valueOf()
 
     // Parse code
     let Function = vm.runInNewContext('Function', this.context)
@@ -76,7 +76,7 @@ export default class Process extends Zone {
 
     // Run module in process zone
     let module = new Module(id)
-    this.run(() => func(module.exports, this.require.bind(this), module))
+    this.run(() => func.call(module.exports, module.exports, this.require.bind(this, id), module))
 
     this.cache[id] = module
     return module.exports
