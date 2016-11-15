@@ -22,6 +22,7 @@ const base: Process = Object.assign(Object.create(Process.prototype), {
   owner: 0,
   group: 0,
   cwd: '/',
+  dirname: __dirname,
   context: global,
   require: require,
 })
@@ -32,12 +33,12 @@ export default class Process extends Zone {
   owner: number
   group: number
   cwd: string // Current working directory
+  dirname: string
   id = processes.add(this)
   args: string[] = this.parent.args.slice()
   paths: { [alias: string]: (path: string) => string } = Object.assign({}, this.parent.paths)
   cache: { [id: string]: Module } = {}
   files: IDMap<File> = new IDMap<File>(this.parent.files)
-  env = Object.assign({}, this.parent.env)
   context: any = vm.createContext(new Global(this))
 
   // Root process: load from stream (fexecve) - fexecve loads Module() and executes in process context
@@ -60,7 +61,7 @@ export default class Process extends Zone {
 
   require (pathname: string) {
     // Look up module
-    let id = resolve(pathname, this.cwd, this.env.JSPATH)
+    let id = resolve(pathname, this.context != null ? this.context.JSPATH : null, this.dirname || this.cwd)
     if (id == null) throw new Error(`Cannot find module '${pathname}'`)
 
     // Return cached export
