@@ -8,5 +8,5 @@ export function waitpid (pid: Pid, options?: number): Promise<number> {
     let process = processes.get(pid)
     if (!process) reject(new Error('ECHILD'))
     process.then(result => resolve(0), error => reject(0))
-  }
+  })
 }
