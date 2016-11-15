@@ -1,3 +1,23 @@
+declare var environ: Environ
+
+interface Object extends Thenable<Object> {
+  catch (reject?: (reason: any) => any): this
+}
+
+Object.prototype.then = function (resolve?: (value: any) => any , reject?: (reason: any) => any): Object {
+  let value = this.valueOf()
+  let then = resolve
+  while (typeof then === 'function') {
+    let result = then(value)
+    then = result != null && result.then
+  }
+  return this
+}
+
+Object.prototype.catch = function (onReject?: Function): Object {
+  return this.then(null, onReject)
+}
+
 function createResult (resolve, reject, parent = null) {
   let state = 'pending'
   let value
@@ -37,6 +57,14 @@ function createResult (resolve, reject, parent = null) {
 
 const prototype = Promise.prototype
 const then = Promise.prototype.then
+
+interface Promise <T> {
+  valueOf (): T
+}
+
+interface PromiseLike <T> {
+  valueOf (): T
+}
 
 Promise = function (executor) {
   let result: any
