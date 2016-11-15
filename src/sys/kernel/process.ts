@@ -4,20 +4,14 @@ import {EventEmitter} from 'events'
 import {Zone} from 'operate'
 import {Readable} from 'stream'
 
+import File from './file'
 import {readfile} from '../modules/unistd'
 import resolve from '../util/resolve'
 import Global from './global'
 import Module from './module'
 import {IDMap} from '../util/pool'
 
-const ModulePath = path.resolve(__dirname, '../modules')
-
-const processes = new IDMap<Process>()
-
-export class File {
-  fs: any
-  fd: number
-}
+export const processes = new IDMap<Process>()
 
 const base: Process = Object.assign(Object.create(Process.prototype), {
   owner: 0,
@@ -55,14 +49,13 @@ export default class Process extends Zone {
     finally { Process.current = previous }
   }
 
-  cancel (): void {
-    super.cancel()
-    processes.delete(this.id)
-  }
-
   require (...paths: string[]) {
     // Look up module
     let id = resolve.apply(environ && environ['JSPATH'], paths)
+
+    // TODO: refactor
+    let isNative = id.startsWith('/sys/')
+    let requireFunction = isNative ? require : this.require.bind(this, id)
 
     // Return cached export
     if (this.cache.hasOwnProperty(id)) return this.cache[id].exports
@@ -76,7 +69,7 @@ export default class Process extends Zone {
 
     // Run module in process zone
     let module = new Module(id)
-    this.run(() => func.call(module.exports, module.exports, this.require.bind(this, id), module))
+    this.run(() => func.call(module.exports, module.exports, requireFunction, module))
 
     this.cache[id] = module
     return module.exports
