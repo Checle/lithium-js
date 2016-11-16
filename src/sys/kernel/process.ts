@@ -1,15 +1,15 @@
 import * as path from 'path'
 import * as vm from 'jsvm'
+import {readfile} from 'unistd'
 import {EventEmitter} from 'events'
+import {IDMap} from 'util/pool'
 import {Zone} from 'operate'
 import {Readable} from 'stream'
 
 import File from './file'
-import {readfile} from '../modules/unistd'
-import resolve from '../util/resolve'
+import resolve from 'util/resolve'
 import Global from './global'
 import Module from './module'
-import {IDMap} from '../util/pool'
 
 export const processes = new IDMap<Process>()
 

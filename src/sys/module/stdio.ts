@@ -5,7 +5,7 @@ import {close, unlink} from 'unistd'
 import File from '../kernel/file'
 import {Off, Size, Ssize} from './sys/types'
 
-export {Off, Size, Ssize, VaList}
+export {File, Off, Size, Ssize, VaList}
 
 export type Fpos = number
 
@@ -54,7 +54,7 @@ export async function fopen (filename: string, mode: string = 'r+'): Promise<Fil
 }
 
 export function fclose (stream: File): Promise<void> {
-  return close(stream.fd)
+  return stream.close()
 }
 
 export function fileno (stream: File): number {

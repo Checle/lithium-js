@@ -1,4 +1,5 @@
 declare var environ: Environ
+declare var zone: any
 
 interface Object extends Thenable<Object> {
   catch (reject?: (reason: any) => any): this

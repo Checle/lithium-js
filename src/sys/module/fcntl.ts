@@ -31,7 +31,7 @@ export enum O {
   SYNC = 1 << 12,
 }
 
-export declare function open(path: string, oflag: number, mode?: number): Promise<number>
+export declare function open(path: string, oflag?: number, mode?: number): Promise<number>
 
 module.exports = Object.create(global)
 

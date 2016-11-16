@@ -35,11 +35,10 @@ export declare function lstat (path: string): Promise<Stat>
 export declare function mkdir (path: string, mode: number): Promise<void>
 export declare function mkdtemp (template: string): Promise<void>
 export declare function pread (fildes: number, nbyte: number, buf: null, offset: number): Promise<string>
-export declare function pread (fildes: number, nbyte: number, buf: Buffer, offset: number): Promise<void>
+export declare function pread (fildes: number, nbyte: number, buf: Buffer, offset: number): Promise<Ssize>
 export declare function pwrite (filedes: number, buf: string | Buffer, nbyte: Size, offset: number): Promise<Ssize>
-export declare function read (fildes: number, nbyte: number, buf: Buffer): Promise<void>
+export declare function read (fildes: number, nbyte: number, buf: Buffer): Promise<Ssize>
 export declare function read (fildes: number, nbyte?: number): Promise<string>
-export declare function readdir (path: string): Promise<Dir>
 export declare function readlink (path: string): Promise<string>
 export declare function realpath (file_name: string): Promise<string>
 export declare function rmdir (path: string): Promise<void>

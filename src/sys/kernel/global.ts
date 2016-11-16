@@ -2,7 +2,7 @@ import 'operate'
 import {freeze} from 'jsvm'
 
 import Process from './process'
-import record from '../../lib/modules/record'
+import record from 'record'
 import Module from './module'
 
 export default class Global {
