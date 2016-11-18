@@ -3,16 +3,10 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es6",
-        "lib": ["dom", "es2015"],
         "declaration": true,
         "noImplicitAny": false,
         "sourceMap": true,
-        "outDir": "dist",
-        "rootDirs": ["src"],
-        "baseUrl": "src",
-        "paths": {
-            "*": ["sys/module/*", "lib/module/*"]
-        }
+        "outDir": "dist"
     },
     "exclude": [
         "node_modules",

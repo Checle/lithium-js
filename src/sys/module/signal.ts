@@ -1,7 +1,9 @@
-import {processes} from '../kernel/process'
-import {Pid} from './sys/types'
+import {Pid, Uid} from 'sys/types'
 
-export {Pid}
+import Process from '../kernel/process'
+import {processes} from '../kernel/process'
+
+export {Pid, Uid}
 
 export const SIGHUP = 1
 export const SIGINT = 2
@@ -32,7 +34,40 @@ export const SIGPROF = 27
 export const SIGPOLL = 29
 export const SIGSYS = 31
 
-export function kill (pid: Pid, status?: number): void {
-  processes.get(pid).cancel()
-  processes.delete(pid)
+export type Sigset = number
+
+export interface Siginfo {
+  signo: number
+  code: number
+  errno: number
+  pid: Pid
+  uid: Uid
+  addr: Function
+  status: number
+  band: number
+}
+
+export interface Sigaction {
+  handler: (sig: number) => void
+  mask?: Sigset
+  flags?: number
+  sigaction?: (signo: number, info: Siginfo, context: any) => void
+}
+
+const defaultAction: Sigaction = {
+  handler (sig: number): void {
+    Process.current.cancel()
+  }
+}
+
+export function raise (sig: number): void {
+  return kill(Process.current.id, sig)
+}
+
+export function kill (pid: Pid, sig?: number): void {
+  const process = processes.get(pid)
+  if (!process) throw new Error('ESRCH')
+
+  const action: Sigaction = process.actions[sig] || defaultAction
+  action.handler(sig)
 }

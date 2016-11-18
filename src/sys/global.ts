@@ -1,42 +1,34 @@
 declare var environ: Environ
-declare var zone: any
+declare var stdin: File
+declare var stdout: File
+declare var stderr: File
+declare var arguments: string[]
 
-interface Object extends Thenable<Object> {
-  catch (reject?: (reason: any) => any): this
-}
+class Result {
+  resolve: Function
+  reject: Function
+  valueOf: () => any
 
-Object.prototype.then = function (resolve?: (value: any) => any , reject?: (reason: any) => any): Object {
-  let value = this.valueOf()
-  let then = resolve
-  while (typeof then === 'function') {
-    let result = then(value)
-    then = result != null && result.then
-  }
-  return this
-}
+  constructor (resolve, reject, parent = null) {
+    let state = 'pending'
+    let value
 
-Object.prototype.catch = function (onReject?: Function): Object {
-  return this.then(null, onReject)
-}
+    if (typeof resolve !== 'function') resolve = value => value
+    if (typeof reject !== 'function') reject = value => value
 
-function createResult (resolve, reject, parent = null) {
-  let state = 'pending'
-  let value
-
-  return {
-    resolve: result => {
+    this.resolve = result => {
       if (state !== 'pending') return
       state = 'fulfilled'
       value = result
       resolve(value)
-    },
-    reject: reason => {
+    }
+    this.reject = reason => {
       if (state !== 'pending') return
       state = 'rejected'
       value = reason
       reject(reason)
-    },
-    valueOf: () => {
+    }
+    this.valueOf = () => {
       if (state === 'rejected') throw value
       if (state === 'fulfilled') return value
       if (parent == null) throw new TypeError('Unresolved value')
@@ -52,10 +44,11 @@ function createResult (resolve, reject, parent = null) {
         reject(error)
         throw error
       }
-    },
+    }
   }
 }
 
+const constructor = Promise
 const prototype = Promise.prototype
 const then = Promise.prototype.then
 
@@ -68,10 +61,10 @@ interface PromiseLike <T> {
 }
 
 Promise = function (executor) {
-  let result: any
+  let result: Result
 
-  const promise = new Promise((resolve, reject) => {
-    result = createResult(resolve, reject)
+  const promise = new constructor((resolve, reject) => {
+    result = new Result(resolve, reject)
   })
 
   executor(result.resolve, result.reject)
@@ -80,12 +73,21 @@ Promise = function (executor) {
   return promise
 } as any as PromiseConstructor
 
+Promise.resolve = ((value) => new Promise((resolve, reject) => resolve(value))) as any
+Promise.reject = ((value) => new Promise((resolve, reject) => reject(value))) as any
+Promise.all = constructor.all as any
+Promise.race = constructor.race as any
+
 (Promise as any).prototype = prototype
 
-Promise.prototype.then = (resolve, reject): any => {
-  const result = createResult(resolve, reject, this)
+Promise.prototype.then = function (resolve, reject): any {
+  const result = new Result(resolve, reject, this)
   const promise = then.call(this, result.resolve, result.reject)
 
   promise.valueOf = result.valueOf
   return promise
+}
+
+Promise.prototype.catch = function (reject?: (reason: any) => void): any {
+  return this.then(null, reject)
 }

@@ -1,22 +1,17 @@
-import 'operate'
-import {freeze} from 'jsvm'
-
 import Process from './process'
 import record from 'record'
-import Module from './module'
 
-export default class Global {
-  constructor (process: Process) {
-    Object.assign(this, environ)
-    freeze(Global.prototype)
+export interface Global {
+  environ: Environ
+  arguments: string[]
+  console: Console
+  require: Require
+}
 
-    this.require = process.require.bind(process)
-  }
-
-  require: (id: string) => any
-  global = this
-  process = this.require('process')
-  console = this.require('console')
-  record = this.require('record')
-  environ: Environ = {}
+export default function Global (process: Process): void {
+  this.arguments = process.arguments && process.arguments.slice()
+  this.require = process.require.bind(process)
+  this.console = this.require('console')
+  this.environ = {}
+  this.global = this
 }

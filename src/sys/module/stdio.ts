@@ -3,16 +3,16 @@ import {open, O} from 'fcntl'
 import {close, unlink} from 'unistd'
 
 import File from '../kernel/file'
-import {Off, Size, Ssize} from './sys/types'
+import {Off, Size, Ssize} from 'sys/types'
 
 export {File, Off, Size, Ssize, VaList}
 
 export type Fpos = number
 
-export enum Seek {
-  SET,
-  CUR,
-  END,
+export const Seek = {
+  SET: 1,
+  CUR: 2,
+  END: 3,
 }
 
 // Constants
@@ -23,8 +23,6 @@ export const BUFSIZ = 1024
 export const EOF = Symbol('eof')
 
 // System calls
-
-module.exports = Object.create(global)
 
 export declare function eof (stream: File): boolean
 export declare function fseek (stream: File, offset: Off, whence: number)
@@ -46,11 +44,14 @@ const Modes = {
 }
 
 export async function fopen (filename: string, mode: string = 'r+'): Promise<File> {
+  const fd = await open(filename, Modes[mode])
+  return fdopen(fd)
+}
+
+export function fdopen (filedes: number, mode: string = 'r+'): File {
   mode = mode.replace('b', '')
   if (!Modes.hasOwnProperty(mode)) throw new Error('EINVAL')
-
-  const fd = await open(filename, Modes[mode])
-  return new File(fd)
+  return new File(filedes)
 }
 
 export function fclose (stream: File): Promise<void> {
@@ -71,7 +72,8 @@ export function tempnam (dir?: string, pfx: string = ''): string {
 }
 
 export async function tmpfile (): Promise<File> {
-  const file = await fopen(tempnam('/tmp'), 'w+')
-  file.release = () => unlink(file.fd)
+  const pathname = tempnam('/tmp')
+  const file = await fopen(pathname, 'w+')
+  unlink(pathname)
   return file
 }

@@ -32,6 +32,13 @@ Unstable and non-functional: early proof of concept.
 ### Conventions
 
 * [Coding style](https://github.com/feross/standard/blob/master/RULES.md)
-* Naming: [TypeScript coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines), align names with [Java API](https://docs.oracle.com/javase/7/docs/api/overview-summary.html) counterparts if applicable
+* [TypeScript coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines)
+* [Module best practices](https://github.com/mattdesl/module-best-practices)
+* Align names with [Java API](https://docs.oracle.com/javase/7/docs/api/overview-summary.html) counterparts if applicable
+* *Naming:*
+  1. Primitive constant identifiers: `const PRIMITIVE_CONSTANT = 1`
+  2. Types, interfaces, classes: `type TypeName`
+  3. Variables, properties, methods, functions: `let variableName`
+  4. POSIX identifiers are converted accordingly: `pid_t` becomes `Pid`, `struct FILE` becomes `File`
 
 MIT © 2016 Filip Dalüge ([see for full text](./LICENSE))

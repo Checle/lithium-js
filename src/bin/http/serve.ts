@@ -1,7 +1,6 @@
 #!/usr/bin/node
 
 import 'boot'
-import record from 'record'
 import * as http from 'http'
 import * as path from 'path'
 import * as url from 'url'
@@ -11,32 +10,35 @@ import {stat} from 'unistd'
 import {Stat, S} from 'sys/stat'
 import {IncomingMessage, ServerResponse} from 'http'
 
-let port = Number(process.argv[2]) || 80
-let root = path.resolve(__dirname, '..')
+const ROOT = path.resolve(__dirname, '..')
 
-http.createServer(request).listen(port)
-
-async function request(req: IncomingMessage, res: ServerResponse) {
-  let uri = url.parse(req.url).pathname
-  let filename = path.join(root, uri)
+async function request (req: IncomingMessage, res: ServerResponse) {
+  const uri = url.parse(req.url).pathname
+  const filename = path.join(ROOT, uri)
 
   res.setHeader('Content-Type', 'text/plain')
 
   const status: Stat = await stat(filename)
 
   if (status.mode & S.IFDIR) {
-    let dir: Dir = await opendir(filename)
+    const dir: Dir = await opendir(filename)
     for (let dirent of dir) {
       res.write(dirent.name + '\0')
     }
     closedir(dir)
   } else {
-    const file: File = await fopen(filename)
-    file.pipe(res)
-    fclose(file)
+    const file = await fopen(filename) as File
+    await file.pipeTo(res)
+    file.close()
   }
 
   switch (req.method) {
     case 'GET':
   }
+}
+
+export default function main (port) {
+  port = Number(port) || 80
+
+  http.createServer(request).listen(port)
 }

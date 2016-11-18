@@ -1,28 +1,28 @@
-import {close, read} from 'unistd'
-import {Size} from 'stdio'
+import Stream from 'streams'
+import {close, read, write, Size, Ssize} from 'unistd'
 
-export default class File {
-  constructor (public fd?: number) { }
+export default class File extends Stream implements File {
+  constructor (public fd?: number) {
+    super()
+  }
 
   close (): Promise<void> {
     return close(this.fd)
   }
 
-  async read (ptr?: TypedArray, size?: Size, nitems?: Size): Promise<Size> {
-    size = size == null || nitems == null ? null : size * nitems
+  async read (buf?: Buffer): Promise<IteratorResult<Buffer>> {
+    if (!buf) {
+      buf = await read(this.fd)
+    } else {
+      let count = await read(this.fd, buf)
+      if (count < buf.length) buf = buf.slice(0, count)
+    }
+    return (buf && buf.length ? { value: buf, done: false } : { done: true }) as IteratorResult<Buffer>
+  }
 
-    let buffer = ptr ? Buffer.from(ptr.buffer.slice(ptr.byteOffset)) : new Buffer(size)
-    return await read(this.fd, size, buffer)
+  async write (buf: Buffer): Promise<void> {
+    await write(this.fd, buf)
   }
 
   release (): void { }
-
-  pipe (destination: Writable): Writable {
-    const read = async () => {
-      let chunk
-      while ((chunk = await this.read())) destination.write(chunk)
-    }
-    read()
-    return destination
-  }
 }
