@@ -3,7 +3,7 @@ import {uselib} from 'unistd'
 import {mount} from 'sys/mount'
 import Process from '../sys/kernel/process'
 
-require('source-map-support').install()
+//require('source-map-support').install()
 
 import '../sys/global'
 

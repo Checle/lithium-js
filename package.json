@@ -10,7 +10,7 @@
     "prepublish": "npm run clean && typings install && npm run dist",
     "test": "ts-node node_modules/tape/bin/tape src/**/test/*.ts src/**/test.ts",
     "lint": "tslint src/**/*.ts",
-    "build": "tsc",
+    "build": "cp -R src/* dist/ && cp -R src/lib/* dist/node_modules/ && tsc",
     "dist": "npm run build && webpack --optimize-minimize dist/index.js dist/browser.js",
     "clean": "rm -rf dist",
     "record": "ts-node src/bin/record.ts"

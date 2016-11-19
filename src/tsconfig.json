@@ -6,8 +6,9 @@
         "declaration": true,
         "noImplicitAny": false,
         "sourceMap": true,
-        "rootDirs": ["dist"]
-    },
-    "include": ["dist/**/*.ts"],
-    "exclude": ["dist/**/*.d.ts", "src/**/*"]
+        "baseUrl": ".",
+        "paths": {
+            "*": ["lib/*"]
+        }
+    }
 }
