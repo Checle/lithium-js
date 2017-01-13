@@ -1,6 +1,7 @@
 *.log
 
 build
-dist
+lib
+bin
 node_modules
 typings

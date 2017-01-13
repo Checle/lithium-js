@@ -3,11 +3,17 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es6",
-        "declaration": true,
         "noImplicitAny": false,
-        "sourceMap": true,
-        "rootDirs": ["dist"]
+        "outDir": "build",
+        "baseUrl": "src",
+        "paths": {
+            "*": ["sys/module/*", "lib/*"]
+        }
     },
-    "include": ["dist/**/*.ts"],
-    "exclude": ["dist/**/*.d.ts", "src/**/*"]
+    "exclude": [
+        "node_modules",
+        "build",
+        "bin",
+        "lib"
+    ]
 }
