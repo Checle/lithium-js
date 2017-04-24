@@ -1,5 +1,5 @@
 import test from 'ava'
 
-test('checle-ts-boilerplate', t => {
+test('lithium', t => {
   t.pass()
 })

@@ -8,7 +8,9 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "baseUrl": "src/modules",
+    "lib": ["es2017", "dom"]
   },
   "include": [
     "src/**/*"

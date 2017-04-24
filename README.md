@@ -1,26 +1,26 @@
-# checle-ts-boilerplate
+# lithium
 
-[![NPM](https://img.shields.io/npm/v/checle-ts-boilerplate.svg?maxAge=2592000&style=flat-square)](https://www.npmjs.com/package/checle-ts-boilerplate)
-[![License](https://img.shields.io/npm/l/checle-ts-boilerplate.svg?style=flat-square)](https://github.com/checle/checle-ts-boilerplate/blob/master/LICENSE)
+[![NPM](https://img.shields.io/npm/v/lithium.svg?maxAge=2592000&style=flat-square)](https://www.npmjs.com/package/lithium)
+[![License](https://img.shields.io/npm/l/lithium.svg?style=flat-square)](https://github.com/checle/lithium/blob/master/LICENSE)
 [![Coding style](https://img.shields.io/badge/code%20style-standard-blue.svg?style=flat-square)](http://standardjs.com/)
-[![Dependencies](https://img.shields.io/david/checle/checle-ts-boilerplate.svg?maxAge=2592000&style=flat-square)](https://david-dm.org/checle/checle-ts-boilerplate)
-[![Build status](https://img.shields.io/travis/checle/checle-ts-boilerplate/master.svg?style=flat-square)](https://travis-ci.org/checle/checle-ts-boilerplate)
-[![GitHub issues](https://img.shields.io/github/issues/checle/checle-ts-boilerplate.svg?style=flat-square)](https://github.com/checle/checle-ts-boilerplate/issues)
+[![Dependencies](https://img.shields.io/david/checle/lithium.svg?maxAge=2592000&style=flat-square)](https://david-dm.org/checle/lithium)
+[![Build status](https://img.shields.io/travis/checle/lithium/master.svg?style=flat-square)](https://travis-ci.org/checle/lithium)
+[![GitHub issues](https://img.shields.io/github/issues/checle/lithium.svg?style=flat-square)](https://github.com/checle/lithium/issues)
 
 ## Configuration
 
-Replace the string `checle-ts-boilerplate` in all files of the
+Replace the string `lithium` in all files of the
 repository with the name of your project. Delete this passage.
 
 ## Installation
 
 Install this package using NPM:
 
-    npm install checle-ts-boilerplate
+    npm install lithium
 
-This project comes with a `checle-ts-boilerplate` command-line interface. To make it available on your machine, install `checle-ts-boilerplate` globally:
+This project comes with a `lithium` command-line interface. To make it available on your machine, install `lithium` globally:
 
-    sudo npm install checle-ts-boilerplate -g
+    sudo npm install lithium -g
 
 ## Conventions
 

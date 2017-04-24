@@ -1,0 +1,18 @@
+export * from '../modules/dirent'
+export * from '../modules/dlfcn'
+export * from '../modules/fcntl'
+export * from '../modules/pwd'
+export * from '../modules/record'
+export * from '../modules/signal'
+export * from '../modules/stdarg'
+export * from '../modules/stddef'
+export * from '../modules/stdio'
+export * from '../modules/stdlib'
+export * from '../modules/sys/record'
+export * from '../modules/sys/sendfile'
+export * from '../modules/sys/stat'
+export * from '../modules/sys/types'
+export * from '../modules/sys/wait'
+export * from '../modules/unistd'
+
+Object.assign(global, exports)

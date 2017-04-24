@@ -1,5 +1,5 @@
 {
-  "name": "checle-ts-boilerplate",
+  "name": "lithium",
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
@@ -8,39 +8,49 @@
     "postpublish": "npm run deploy",
     "test": "tsc && ava dist/**/test/*.js dist/**/test.js",
     "lint": "tslint src/**/*.ts",
-    "build": "rollup -c",
+    "build": "tsc && rollup -c",
     "dist": "npm run build",
     "clean": "rm -rf dist",
-    "deploy": "npm run dist && gh-pages -d dist -m \"Deploy $(npm view checle-ts-boilerplate version)\" || true",
+    "deploy": "npm run dist && gh-pages -d dist -m \"Deploy $(npm view lithium version)\" || true",
     "debug": "devtool test/index.js"
   },
   "bin": {
-    "checle-ts-boilerplate": "bin/index.js"
+    "record": "dist/bin/record.js",
+    "js": "dist/bin/js.js"
   },
   "typings": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/checle/checle-ts-boilerplate.git"
+    "url": "git+https://github.com/checle/lithium.git"
   },
   "author": "Filip Dalüge <daluege@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/checle/checle-ts-boilerplate/issues"
+    "url": "https://github.com/checle/lithium/issues"
   },
-  "homepage": "https://github.com/checle/checle-ts-boilerplate",
+  "homepage": "https://github.com/checle/lithium",
   "devDependencies": {
     "@types/node": "^7.0.13",
+    "@types/systemjs": "^0.20.2",
+    "@types/whatwg-streams": "0.0.3",
     "ava": "^0.19.1",
     "devtool": "^2.0.3",
+    "es-module-loader": "^2.1.5",
     "gh-pages": "^0.11.0",
+    "isomorphic-fetch": "^2.2.1",
+    "operate": "^0.5.0",
     "rollup": "^0.41.6",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-typescript": "^0.8.1",
     "rollup-watch": "^3.2.2",
+    "systemjs": "^0.20.12",
     "tslint": "^3.15.1",
     "tslint-config-standard": "^1.5.0",
-    "typescript": "^2.2.2"
+    "typescript": "^2.2.2",
+    "url-polyfill": "^1.0.4",
+    "web-streams-polyfill": "^1.3.2",
+    "whatwg-fetch": "^2.0.3"
   }
 }
