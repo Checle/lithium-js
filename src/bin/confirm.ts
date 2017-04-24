@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import 'boot'
 import * as crypto from 'crypto'
 import * as path from 'path'
@@ -10,6 +12,7 @@ export default async function (parent: string = 'latest', target: string) {
 
   const bin = __dirname
   const root = path.resolve(bin, '..')
+
   chdir(path.resolve(root, 'record/states'))
 
   try { parent = await realpath(path.basename(parent)) }
@@ -28,6 +31,7 @@ export default async function (parent: string = 'latest', target: string) {
   }
 
   const hash = crypto.createHash('sha256')
+
   hash.write(parent + '\0')
   stdin.pipe(hash)
 
@@ -58,5 +62,3 @@ export default async function (parent: string = 'latest', target: string) {
   }
   */
 }
-
-confirm.apply(program, program.args)

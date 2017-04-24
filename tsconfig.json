@@ -10,7 +10,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "src/modules",
-    "lib": ["es2017", "dom"]
+    "lib": ["es2017", "webworker"]
   },
   "include": [
     "src/**/*"

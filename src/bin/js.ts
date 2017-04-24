@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import 'boot'
 import * as program from 'commander'
 
@@ -17,6 +19,7 @@ export default async function main (file: string, ...args: string[]) {
 
     // Create an executable file
     let output = await creat(this.output, 0o775)
+
     await sendfile(output, input)
   } else {
     // Execute

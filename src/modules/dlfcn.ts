@@ -1,7 +1,7 @@
 let handles = {}
 
 export async function dlopen (file: string, mode: number = 0): Promise<any> {
-  let handle = await SystemJS.import(file)
+  let handle = await System.import(file)
   let symbol = Symbol(file)
 
   handles[symbol] = handle

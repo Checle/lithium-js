@@ -15,12 +15,13 @@ export default async function main () {
   async function load (hash: string) {
     const uri = url.resolve('/sys/hash', hash)
     const filename = path.resolve(__dirname, '../sys/hash', hash)
-
     const res: Response = await fetch(url.resolve(RemoteURL, uri))
+
     if (res.status !== 200) throw new Error(`${res.statusText} (${res.status})`)
 
     const data: string = await res.text()
     const fd = await creat(filename, 0o200) // Create a writable file
+
     await write(fd, data)
     await close(fd)
     await chmod(filename, 0o500)

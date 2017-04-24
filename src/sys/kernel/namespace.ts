@@ -1,4 +1,12 @@
 export default class Namespace {
-  libraries: any = Object.prototype
-  context: any = Object.prototype
+  constructor (public context: any = Object.prototype) { }
+
+  async install (library: string) {
+    let exports = System.import(library)
+    let context = Object.create(this.context)
+
+    Object.assign(context, exports)
+
+    this.context = context
+  }
 }

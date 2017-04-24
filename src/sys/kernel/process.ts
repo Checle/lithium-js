@@ -1,12 +1,11 @@
 import * as path from 'path'
-import File from './file'
 import Namespace from './namespace'
-import Vm from './vm/worker'
+import Syscalls from './syscalls'
 import {IDMap} from '../utils/pool'
 
 export const processes = new IDMap<Process>()
 
-export default class Process extends Promise<void> {
+export default class Process {
   static current: Process = Object.create({
     id: null,
     owner: 0,
@@ -24,40 +23,59 @@ export default class Process extends Promise<void> {
   path: string
   context: any
   actions: {[signo: number]: any}
+  arguments: string[] = null
 
   id = processes.add(this)
-  arguments: string[] = null
-  namespace = Object.create(this.parent.namespace) as Namespace
+  namespace = new Namespace(this.parent.namespace)
   files = new IDMap<File>(this.parent.files)
-  vm = new Vm()
   loader = new System.constructor()
+  worker: Worker = null
+  syscalls = new Syscalls(this)
 
   constructor (public parent: Process) {
-    super((resolve, reject) => {
-      if (parent) {
-        for (let name in parent) {
-          if (!this.hasOwnProperty(name)) {
-            this[name] = parent[name]
-          }
+    if (parent) {
+      for (let name in parent) {
+        if (!this.hasOwnProperty(name)) {
+          this[name] = parent[name]
         }
       }
- 
-      let cancel = () => processes.delete(this.id)
+    }
+  }
 
-      this.vm.then(resolve, reject)
-      this.then(cancel, cancel)
+  attach (worker: Worker) {
+    this.detach()
+    this.worker = worker
+
+    worker.addEventListener('message', event => {
+      let {id, type, data} = event.data
+
+      if (type === 'syscall') this.syscall.apply(this, data)
+      else return
+
+      event.stopImmediatePropagation()
     })
   }
 
-  exec (code: string) {
-    const previous = Process.current
+  detach () {
+    if (this.worker) this.worker.terminate()
 
-    Process.current = this
+    this.worker = null
+  }
 
-    try {
-      return this.vm.exec.apply(this, arguments)
-    } finally {
-      Process.current = previous
+  terminate (status?: any) {
+    this.detach()
+
+    processes.delete(this.id)
+  }
+
+  async syscall (id: any, ...args): Promise<any> {
+    let context = this.namespace.context
+    let target = context[id]
+
+    if (typeof target !== 'function') {
+      throw new Error('ENOTSUP')
     }
+
+    return target(...args)
   }
 }

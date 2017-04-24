@@ -2,38 +2,43 @@ import * as fcntl from '../fcntl'
 import * as unistd from '../unistd'
 import * as stdio from '../stdio'
 
-let listeners = {nextId: 0}
+let requests = {length: 0}
 
 addEventListener('message', (event: MessageEvent) => {
-  let data = event.data
-  let listener = listeners[data.id]
+  let {id, type, data} = event.data
+  let request = requests[id]
 
-  if (!listeners.hasOwnProperty(data.id)) return
-  if (data.id < 0) return
+  if (type === 'result') request.resolve(data)
+  else if (type === 'error') request.reject(data)
+  else return
 
-  if (data.hasOwnProperty('error')) {
-    listener.reject(data.error)
-  } else {
-    listener.resolve(data.result)
-  }
-
-  event.stopPropagation()
+  event.stopImmediatePropagation()
 })
 
-export async function syscall (number: any, ...args): Promise<any> {
-  let id = listeners.nextId++
-
+function request(type: string, data: any): Promise<any> {
   return new Promise((resolve, reject) => {
-    listeners[id] = {resolve, reject}
+    let callback = resolve
+    let request = {id: (requests.length++ % Number.MAX_VALUE), type, data}
 
-    postMessage({id, number, args})
+    requests[request.id] = {resolve, reject}
+
+    postMessage(request)
   })
 }
 
-export function install (library: string, alias?: string): Promise<void> {
-  return syscall(install.name, ...arguments)
+async function respond(id: any, type: string, data: any): Promise<void> {
+  try {
+    data = await data
+    postMessage({id, type: 'result', data})
+  } catch (error) {
+    postMessage({id, type: 'error', error})
+  }
+}
+
+export async function syscall (id: any, ...args): Promise<any> {
+  return request('syscall', arguments)
 }
 
 export function branch (path1: string, path2: string): Promise<void> {
-  
+  return
 }

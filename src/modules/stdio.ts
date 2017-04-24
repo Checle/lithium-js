@@ -8,6 +8,7 @@ export {Off, Size, Ssize} from './sys/types'
 export {VaList} from './stdarg'
 
 export type Fpos = number
+export type File = FileHandle
 
 export const BUFSIZ = 1024
 export const EOF = Symbol('eof')
@@ -15,6 +16,15 @@ export const SEEK_CUR = 2
 export const SEEK_END = 3
 export const SEEK_SET = 1
 export const TMP_MAX = Number.MAX_VALUE
+
+export default function* () {
+  let message = yield Message
+
+  yield Message('29')
+
+  return 2
+}
+
 
 let tmpcount = 0
 
@@ -25,10 +35,6 @@ let modes = {
   'r+': fcntl.O_RDWR,
   'w+': fcntl.O_TRUNC | fcntl.O_CREAT | fcntl.O_RDWR,
   'a+': fcntl.O_CREAT | fcntl.O_RDWR | fcntl.O_APPEND,
-}
-
-export class File {
-  constructor (public fd: number) { }
 }
 
 export function eof (stream: File): Promise<boolean> {

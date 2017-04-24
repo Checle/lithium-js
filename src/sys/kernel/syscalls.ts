@@ -1,133 +1,140 @@
 import Process from './process'
 import {processes} from './process'
+import {instantiate, Instance} from './assembly'
 
-export async function install (library: any): Promise<void> {
-  let process = Process.current
-  let namespace = process.namespace
-  let module = library
+export default class Syscalls {
+  constructor (public process: Process) { }
 
-  if (typeof library === 'string') {
-    module = await System.import(library)
-  }
+  async install (library: any): Promise<void> {
+    let process = this.process
+    let namespace = process.namespace
+    let module = library
 
-  // Extend namespace
-  namespace.context = Object.assign(namespace.context, module)
-
-  // Copy into the current global object
-  Object.assign(process.context, module)
-}
-
-export function getpid (): number {
-  return Process.current.id
-}
-
-export function getuid (): number {
-  return Process.current.owner
-}
-
-export function getgid (): number {
-  return Process.current.group
-}
-
-export function setuid (uid: number): void {
-  const process = Process.current
-
-  if (process.owner !== 0) throw new Error('EPERM')
-
-  process.owner = uid
-}
-
-export function setgid (gid: number): void {
-  if (Process.current.owner !== 0) throw new Error('EPERM')
-
-  Process.current.group = gid
-}
-
-export function getcwd (): string {
-  return Process.current.cwd
-}
-
-export async function chdir (path: string): Promise<void> {
-  path = await realpath(path)
-  Process.current.cwd = path
-}
-
-export function access (path: string, amode: number): number {
-
-
-  return 0
-}
-
-export function clone (fn: Function, childStack: any, flags: number, arg?: any): PromiseLike<Pid> {
-  let child = new Process(Process.current)
-  let promise1 = Promise.resolve(child.id)
-  let promise2 = Promise.resolve(0)
-
-  // Execute subsequent steps in both child and parent zone
-  return {
-    then: (resolve, reject) => {
-      promise1.then(resolve, reject)
-      child.run(() => promise2.then(resolve, reject))
-      return this
-    },
-    valueOf: () => {
-      promise2.valueOf()
-      return promise1.valueOf()
+    if (typeof library === 'string') {
+      module = await System.import(library)
     }
-  }
-}
 
-export function exit (status: number): Promise<void> {
-  Process.current.cancel(status || null)
+    // Extend namespace
+    namespace.context = Object.assign(namespace.context, module)
 
-  // Promise that does not resolve
-  return new Promise<void>(() => null)
-}
-
-export async function execv (pathname: string, argv: string[] = []): Promise<void> {
-  const process = Process.current
-
-  // POSIX requires any pathname containing a slash to be referenced to a local context
-  pathname = pathname.indexOf('/') === -1 ? pathname : './' + pathname
-
-  // Resolve pathname against `PATH` and enable native module resolution such as filename extension
-  const test = async pathname => pathname = await process.loader.resolve(pathname) && await access(pathname, X_OK)
-
-  let filename = await resolve.call(environ && environ['PATH'], pathname, test)
-
-  process.path = filename
-  process.arguments = process.context.arguments = argv.slice()
-
-  let object = process.require(filename)
-
-  if (typeof object.default === 'function') {
-    // Run main function asynchronously, pass `argv[0]` as `this` and subsequent values as `arguments`
-    let status = await object.default(...argv)
-
-    // Report exit code
-    exit(Number(status))
+    // Copy into the current global object
+    Object.assign(process.context, module)
   }
 
-  // Promise that never resolves (see POSIX)
-  return new Promise<void>(() => null)
-}
+  getpid (): number {
+    return this.process.id
+  }
 
-export function realpath (file_name: string): Promise<string> {
-  throw 'Not implemented'
-}
+  getuid (): number {
+    return this.process.owner
+  }
 
-export function dup (filedes: number): void {
-  Process.current.files.add(Process.current.files.get(filedes))
-}
+  getgid (): number {
+    return this.process.group
+  }
 
-export function dup2 (filedes: number, filedes2: number): void {
-  Process.current.files.set(filedes, Process.current.files.get(filedes))
-}
+  setuid (uid: number): void {
+    const process = this.process
 
-export function waitpid (pid: number, options?: number): Promise<number> {
-  return new Promise<number>((resolve, reject) => {
-    let process = processes.get(pid)
-    if (!process) reject(new Error('ECHILD'))
-    process.then(result => resolve(pid), error => reject(error))
-  })
+    if (process.owner !== 0) throw new Error('EPERM')
+
+    process.owner = uid
+  }
+
+  setgid (gid: number): void {
+    if (this.process.owner !== 0) throw new Error('EPERM')
+
+    this.process.group = gid
+  }
+
+  getcwd (): string {
+    return this.process.cwd
+  }
+
+  async chdir (path: string): Promise<void> {
+    path = await realpath(path)
+    this.process.cwd = path
+  }
+
+  access (path: string, amode: number): number {
+    return 0
+  }
+
+  exit (status: number): Promise<void> {
+    this.process.terminate(status || null)
+
+    // Promise that does not resolve
+    return new Promise<void>(() => null)
+  }
+
+  execv (pathname: string, argv: string[] = []): Promise<void> {
+    let process = this.process
+
+    // POSIX requires any pathname containing a slash to be referenced to a local context
+    pathname = pathname.indexOf('/') === -1 ? pathname : './' + pathname
+
+    // Resolve pathname against `PATH` and enable native module resolution such as filename extension
+    const test = async pathname => pathname = await process.loader.resolve(pathname) && await access(pathname, X_OK)
+
+    let filename = await resolve.call(environ && environ['PATH'], pathname, test)
+
+    process.path = filename
+    process.arguments = process.context.arguments = argv.slice()
+
+    let buffer = new ArrayBuffer(BUFSIZ)
+    let buffers = []
+
+    while (await read(fd, buffer) > 0) {
+      buffers.push(buffer)
+    }
+
+    let content = buffers.join('')
+
+    exec (code: string) {
+      let blob = new Blob([code])
+      let url = URL.createObjectURL(blob)
+      let worker = new Worker(url)
+
+      this.worker = worker
+
+      worker.addEventListener('message', event => {
+        let args = event.data as any[]
+
+        this.syscall....args)
+      })
+    }
+
+    let exports = await process.run(() => System.import(filename))
+
+    if (typeof exports.default === 'function') {
+      // Run main function asynchronously, pass `argv[0]` as `this` and subsequent values as `arguments`
+      let status = await exports.default(...argv)
+
+      // Report exit code
+      exit(Number(status))
+    }
+
+    // Promise that never resolves (see POSIX)
+    return new Promise<void>(() => null)
+  }
+
+  async realpath (fileName: string): Promise<string> {
+    throw 'Not implemented'
+  }
+
+  dup (filedes: number): void {
+    this.process.files.add(this.process.files.get(filedes))
+  }
+
+  dup2 (filedes: number, filedes2: number): void {
+    this.process.files.set(filedes, this.process.files.get(filedes))
+  }
+
+  waitpid (pid: number, options?: number): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      let process = processes.get(pid)
+      if (!process) reject(new Error('ECHILD'))
+      process.then(result => resolve(pid), error => reject(error))
+    })
+  }
 }

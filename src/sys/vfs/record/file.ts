@@ -1,11 +1,4 @@
-import Stream from 'streams'
-import {close, read, write, Size, Ssize} from 'unistd'
-
-export default class File extends Stream implements File {
-  constructor (public fd?: number) {
-    super()
-  }
-
+export default class RecordFile implements File {
   close (): Promise<void> {
     return close(this.fd)
   }

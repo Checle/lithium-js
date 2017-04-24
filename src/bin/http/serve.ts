@@ -18,13 +18,17 @@ async function request (req: IncomingMessage, res: ServerResponse) {
 
   if (status.mode & S_IFDIR) {
     const dir: Dir = await opendir(filename)
+
     for (let dirent of dir) {
       res.write(dirent.name + '\0')
     }
+
     closedir(dir)
   } else {
-    const file = await fopen(filename) as File
+    const file = await fopen(filename)
+
     await file.pipeTo(res)
+
     file.close()
   }
 
