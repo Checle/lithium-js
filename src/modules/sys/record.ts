@@ -42,3 +42,9 @@ export async function syscall (id: any, ...args): Promise<any> {
 export function branch (path1: string, path2: string): Promise<void> {
   return
 }
+
+export async function install (library: string): Promise<void> {
+  library = await System.resolve(library)
+
+  return syscall(install.name, library)
+}

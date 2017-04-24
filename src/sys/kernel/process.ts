@@ -1,5 +1,4 @@
 import * as path from 'path'
-import Namespace from './namespace'
 import Syscalls from './syscalls'
 import {IDMap} from '../utils/pool'
 
@@ -13,7 +12,6 @@ export default class Process {
     cwd: process.cwd(),
     arguments: process.argv.slice(1),
     path: process.execPath,
-    namespace: new Namespace(),
     actions: [],
   }) as any
 
@@ -26,7 +24,6 @@ export default class Process {
   arguments: string[] = null
 
   id = processes.add(this)
-  namespace = new Namespace(this.parent.namespace)
   files = new IDMap<File>(this.parent.files)
   loader = new System.constructor()
   worker: Worker = null
@@ -69,8 +66,7 @@ export default class Process {
   }
 
   async syscall (id: any, ...args): Promise<any> {
-    let context = this.namespace.context
-    let target = context[id]
+    let target = this.syscalls[id]
 
     if (typeof target !== 'function') {
       throw new Error('ENOTSUP')

@@ -6,19 +6,12 @@ export default class Syscalls {
   constructor (public process: Process) { }
 
   async install (library: any): Promise<void> {
+    if (this.getuid() !== 0) throw new Error('EPERM')
+
     let process = this.process
-    let namespace = process.namespace
-    let module = library
+    let module = await System.import(library)
 
-    if (typeof library === 'string') {
-      module = await System.import(library)
-    }
-
-    // Extend namespace
-    namespace.context = Object.assign(namespace.context, module)
-
-    // Copy into the current global object
-    Object.assign(process.context, module)
+    Object.assign(Syscalls.prototype, module)
   }
 
   getpid (): number {
@@ -69,6 +62,7 @@ export default class Syscalls {
 
   execv (pathname: string, argv: string[] = []): Promise<void> {
     let process = this.process
+    let context = process.context
 
     // POSIX requires any pathname containing a slash to be referenced to a local context
     pathname = pathname.indexOf('/') === -1 ? pathname : './' + pathname
@@ -81,10 +75,11 @@ export default class Syscalls {
     process.path = filename
     process.arguments = process.context.arguments = argv.slice()
 
-    let buffer = new ArrayBuffer(BUFSIZ)
+    let fd = await context.open(filename)
+    let buffer = new ArrayBuffer(context.BUFSIZ)
     let buffers = []
 
-    while (await read(fd, buffer) > 0) {
+    while (await context.read(fd, buffer) > 0) {
       buffers.push(buffer)
     }
 
